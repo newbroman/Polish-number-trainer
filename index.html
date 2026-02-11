@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polish Master Game</title>
+    <title>Polish Master Trainer</title>
     <meta name="theme-color" content="#1a73e8">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
@@ -11,180 +11,196 @@
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #fff; --text: #202124; --border: #ddd; }
         .dark-mode { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
 
-        /* Top Bar */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 50px; flex-shrink: 0; }
-        .stats { font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 15px; }
+        /* Header & Nav */
+        .header { text-align: center; margin-bottom: 10px; width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; }
+        .title { font-weight: 800; font-size: 1.1rem; color: var(--primary); text-transform: uppercase; }
+        .settings-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 5px; }
+
+        .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 5px; background: var(--card); border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; max-width: 500px; width: 100%; scrollbar-width: none; }
+        .nav-btn { background: none; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: #5f6368; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+        .nav-btn.active { background: var(--primary); color: #fff; }
+
+        /* Main Card */
+        .card { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; border: 1px solid var(--border); }
+
+        /* Sliders & Controls */
+        .control-group { background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+        .slider-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; }
+        input[type=range] { width: 100%; cursor: pointer; }
         
-        /* Navigation Tabs */
-        .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; }
-        .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; }
-        .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .toggle-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .toggle-label { font-size: 0.9rem; display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
-        /* Main Game Area */
-        .game-area { flex-grow: 1; padding: 10px; overflow-y: auto; padding-bottom: 90px; /* Space for footer */ }
-        
-        /* Drawer for Settings */
-        .config-drawer { display: none; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .config-drawer.open { display: block; animation: slideDown 0.2s; }
-        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        input[type=range] { width: 100%; }
+        /* Display Area */
+        .display-area { text-align: center; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 5px 0; }
+        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; line-height: 1.3; min-height: 1.3em; visibility: hidden; }
+        .en-text { font-size: 1.1rem; color: #888; font-weight: 500; min-height: 1.3em; visibility: hidden; }
+        .visible { visibility: visible !important; animation: fadeIn 0.3s; }
 
-        /* Big Text Display */
-        .display-box { text-align: center; margin: 5px 0 15px 0; min-height: 70px; display: flex; flex-direction: column; justify-content: center; }
-        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
-        .en-text { font-size: 1.1rem; color: #888; visibility: hidden; }
-        .visible { visibility: visible !important; animation: popIn 0.3s; }
+        /* Buttons */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.95rem; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-audio { background: var(--secondary); grid-column: span 2; }
+        .btn-reveal { background: var(--primary); }
+        .btn-next { background: #455a64; grid-column: span 2; font-size: 1.1rem; padding: 14px; margin-top: 5px; }
+        .btn-small { background: #fb8c00; font-size: 0.8rem; padding: 8px; }
 
-        /* Multiple Choice Grid - UPDATED FOR 12 ITEMS */
-        .mc-container { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
-            gap: 8px; 
-            /* Auto height to fit 12 items */
-        }
-        .mc-btn { 
-            background: var(--card); border: 2px solid var(--border); border-radius: 10px; 
-            font-size: 1.1rem; font-weight: 700; color: var(--text); cursor: pointer; 
-            transition: transform 0.1s; display: flex; align-items: center; justify-content: center; 
-            padding: 12px 5px; min-height: 50px;
-        }
-        .mc-btn:active { transform: scale(0.96); }
-        .correct { background: var(--secondary) !important; color: #fff !important; border-color: var(--secondary) !important; }
-        .wrong { opacity: 0.4; background: #ff5252 !important; color: #fff !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Fixed Footer for Buttons */
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; z-index: 9999; height: 85px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
-            grid-template-columns: 1fr 1fr 1fr 2fr; 
-        }
-        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-listen { background: var(--primary); font-size: 1.2rem; }
-        .btn-slow { background: #fb8c00; font-size: 1.2rem; }
-        .btn-vslow { background: #e65100; font-size: 1.2rem; }
-        .btn-next { background: #5f6368; transition: background 0.3s; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-next.ready { background: var(--secondary); }
-
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Drawer */
+        .drawer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .drawer-content { background: var(--card); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; }
     </style>
 </head>
-<body ontouchstart="wakeAudio()">
+<body onload="init()">
 
 <div class="header">
-    <div class="stats">
-        <div>⭐ <span id="xp-display">0</span></div>
-        <div>🔥 <span id="streak-display">0</span></div>
-    </div>
-    <div style="font-size:1.5rem; cursor:pointer; padding:5px;" onclick="toggleDrawer()">⚙️</div>
+    <div class="title">Polish Trainer</div>
+    <button class="settings-btn" onclick="toggleDrawer()">⚙️</button>
 </div>
 
 <div class="nav-scroller">
-    <button class="nav-btn active" onclick="setMode('numbers')" id="btn-mode-numbers">123</button>
-    <button class="nav-btn" onclick="setMode('prices')" id="btn-mode-prices">$$$</button>
-    <button class="nav-btn" onclick="setMode('dates')" id="btn-mode-dates">📅</button>
-    <button class="nav-btn" onclick="setMode('time')" id="btn-mode-time">🕒</button>
-    <button class="nav-btn" onclick="setMode('weights')" id="btn-mode-weights">⚖️</button>
+    <button class="nav-btn active" onclick="setMode('numbers')" id="nav-numbers">Numbers</button>
+    <button class="nav-btn" onclick="setMode('prices')" id="nav-prices">Prices</button>
+    <button class="nav-btn" onclick="setMode('dates')" id="nav-dates">Dates</button>
+    <button class="nav-btn" onclick="setMode('time')" id="nav-time">Time</button>
+    <button class="nav-btn" onclick="setMode('weights')" id="nav-weights">Weights</button>
 </div>
 
-<div class="game-area">
-    <div id="drawer" class="config-drawer">
-        <div class="config-row">
-            <span>Dark Mode</span>
-            <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')">
+<div class="card">
+    
+    <div id="controls-numbers" class="control-group">
+        <div class="slider-row">
+            <span>Min: <span id="lbl-min">1</span></span>
+            <input type="range" id="minP" min="0" max="6" value="0" oninput="updateUI()">
         </div>
-        <div class="config-row" id="range-row">
-            <span style="font-size:0.9rem; font-weight:bold;">Range: <span id="range-val" style="color:var(--primary)">1 - 10</span></span>
-            <div style="flex:1; margin-left:15px; display:flex; gap:10px;">
-                <input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()">
-                <input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()">
-            </div>
+        <div class="slider-row">
+            <span>Max: <span id="lbl-max">10</span></span>
+            <input type="range" id="maxP" min="1" max="7" value="1" oninput="updateUI()">
         </div>
-        <div class="config-row" style="justify-content:center; border-top:1px solid var(--border); padding-top:10px;">
-             <label style="font-weight:bold; font-size:0.9rem;"><input type="checkbox" id="neg-toggle" onchange="generate()"> Negative Numbers</label>
+        <div class="toggle-row" style="margin-top:10px;">
+            <label class="toggle-label"><input type="checkbox" id="neg-toggle" onchange="generate()"> Negatives</label>
         </div>
     </div>
 
-    <div class="display-box">
+    <div id="controls-prices" class="control-group" style="display:none">
+        <div class="toggle-row">
+            <label class="toggle-label"><input type="checkbox" id="grosze-toggle" checked onchange="generate()"> Include Grosze</label>
+        </div>
+    </div>
+
+    <div id="controls-time" class="control-group" style="display:none">
+        <div class="toggle-row">
+            <label class="toggle-label"><input type="radio" name="t-style" value="formal" onchange="generate()"> Formal</label>
+            <label class="toggle-label"><input type="radio" name="t-style" value="casual" checked onchange="generate()"> Casual</label>
+        </div>
+    </div>
+
+    <div id="controls-dates" class="control-group" style="display:none">
+        <div class="toggle-row">
+            <label class="toggle-label"><input type="checkbox" id="year-toggle" checked onchange="generate()"> Include Year</label>
+        </div>
+    </div>
+
+    <div class="display-area">
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
 
-    <div id="mc-area" class="mc-container"></div>
+    <div class="btn-grid">
+        <button class="btn btn-audio" onclick="speak(1.0)">🔊 Repeat Audio</button>
+        <button class="btn btn-small" onclick="speak(0.5)">🐢 Slow</button>
+        <button class="btn btn-small" onclick="speak(0.2)">🐌 Snail</button>
+        
+        <button class="btn btn-reveal" onclick="reveal('pl-text')">👁️ Polish</button>
+        <button class="btn btn-reveal" style="background:#673ab7" onclick="reveal('en-text')">👁️ Meaning</button>
+        
+        <button class="btn btn-next" onclick="generate()">NEXT ➡️</button>
+    </div>
 </div>
 
-<div class="footer">
-    <button class="btn-action btn-listen" onclick="speak(1.0)">🔊</button>
-    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
-    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
-    <button class="btn-action btn-next" id="main-btn" onclick="handleMainButton()">Skip ➡️</button>
+<div id="drawer" class="drawer">
+    <div class="drawer-content">
+        <h3>Settings</h3>
+        <label class="toggle-label" style="margin-bottom:15px">
+            <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')"> Dark Mode
+        </label>
+        <button class="btn btn-next" onclick="toggleDrawer()">Close</button>
+    </div>
 </div>
 
 <script>
-    // --- Data & Logic ---
+    // --- LINGUISTIC DATA ---
     const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
     const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
     const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
     const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
     const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Time specific arrays
+    const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
+    const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
 
-    let state = { mode: 'numbers', currentPL: '', currentEN: '', solved: false, xp: 0, streak: 0 };
-    let autoNextTimer = null;
-    let audioCtx = null; 
+    let state = { mode: 'numbers', currentPL: '', currentEN: '' };
 
-    // --- Audio Engine Logic ---
-    function initAudio() {
-        if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    function init() {
+        updateUI();
+        setMode('numbers');
     }
-    function wakeAudio() {
-        initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0.001; 
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-    function playSound(type) {
-        initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
 
-        if (type === 'correct') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    // --- LOGIC: Number to Words ---
+    function getPlural(n, s, pa, pb) {
+        n = Math.abs(n);
+        if (n === 1) return s;
+        let r10 = n % 10, r100 = n % 100;
+        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa;
+        return pb;
+    }
+
+    function numToPl(n) {
+        if (n === 0) return "zero";
+        if (n < 0) return "minus " + numToPl(Math.abs(n));
+        let s = "";
+        if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; }
+        if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; }
+        if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; }
+        if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; }
+        if (n >= 10) { s += TEENS[n-10] + " "; n = 0; }
+        if (n > 0) s += UNITS[n];
+        return s.trim();
+    }
+
+    // --- LOGIC: Time to Words (The Fix) ---
+    function timeToPl(h, m, formal) {
+        if (formal) {
+            // Formal: "Hour" + "Minute" (e.g. "trzynasta piętnaście")
+            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
+            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
+            return `${hStr} ${mStr}`.trim();
         } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            // Casual: "wpół do", "po", "za"
+            let dispH = h % 12;
+            let hNow = HOURS_ORD_FEM[(dispH===0?12:dispH)];
+            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
+            // Handle index overflow for 12 -> 1
+            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
+
+            if (m === 0) return hNow;
+            if (m === 30) return `wpół do ${hNext}`;
+            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
+            return `za ${numToPl(60-m)} ${hNext}`;
         }
     }
 
-    // --- Core Functions ---
-    function init() {
-        state.xp = parseInt(localStorage.getItem('xp') || 0);
-        updateUI(); updateRange(); setMode('numbers');
-        let warmUp = new SpeechSynthesisUtterance(''); warmUp.volume = 0; window.speechSynthesis.speak(warmUp);
-    }
-
+    // --- GENERATOR ---
     function generate() {
-        if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false;
-        document.getElementById('pl-text').classList.remove('visible');
-        document.getElementById('en-text').classList.remove('visible');
-        
-        const btn = document.getElementById('main-btn');
-        btn.innerText = "Skip ➡️"; btn.classList.remove('ready'); btn.style.background = "#5f6368";
+        document.getElementById('pl-text').style.visibility = 'hidden';
+        document.getElementById('en-text').style.visibility = 'hidden';
 
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
@@ -192,151 +208,79 @@
         if (state.mode === 'numbers') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-            state.currentEN = n.toLocaleString(); state.currentPL = numberToPolish(n);
+            state.currentEN = n.toLocaleString();
+            state.currentPL = numToPl(n);
         } else if (state.mode === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            state.currentEN = n + " zł"; state.currentPL = numberToPolish(n) + " złotych";
-        } else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1; let m = Math.floor(Math.random() * 12);
-            state.currentEN = `${d} ${MONTHS_EN[m]}`; state.currentPL = `${d} ${MONTHS_PL[m]}`;
+            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
         } else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24); let m = Math.floor(Math.random() * 12) * 5;
-            state.currentEN = `${h}:${m.toString().padStart(2,'0')}`; state.currentPL = `${h} ${m}`;
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
+            
+            state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+            state.currentPL = timeToPl(h, m, !isCasual);
+        } else if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let mIdx = Math.floor(Math.random() * 12);
+            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*125)+1900 : 0;
+            
+            state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
+            // Note: Simple ordinal logic used here for days
+            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+            state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
         } else if (state.mode === 'weights') {
-             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-             state.currentEN = n + " kg"; state.currentPL = numberToPolish(n) + " kilogramów";
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            state.currentEN = n + " kg";
+            state.currentPL = numToPl(n) + " " + getPlural(n, "kilogram", "kilogramy", "kilogramów");
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
-        
-        generateMCButtons();
-        setTimeout(() => speak(1.0), 200);
+        setTimeout(() => speak(1.0), 100);
     }
 
-    function generateMCButtons() {
-        const container = document.getElementById('mc-area');
-        container.innerHTML = '';
-        
-        let opts = [state.currentEN];
-        let safety = 0;
-        
-        // Target: 12 options
-        while(opts.length < 12 && safety < 100) {
-            let decoy = makeDecoy(state.currentEN);
-            if(!opts.includes(decoy)) opts.push(decoy);
-            safety++;
-        }
-        
-        // Fallback to randoms from user range if smart decoys fail
-        const min = Math.pow(10, document.getElementById('minP').value);
-        const max = Math.pow(10, document.getElementById('maxP').value);
-        
-        while(opts.length < 12) {
-             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-             // Simple fallback formatting
-             let val = n.toLocaleString();
-             if(state.mode==='prices') val += " zł";
-             if(state.mode==='weights') val += " kg";
-             if(!opts.includes(val)) opts.push(val);
-             else opts.push(Math.floor(Math.random() * 9999) + "?"); // Ultimate fallback
-        }
-
-        opts.sort(() => Math.random() - 0.5);
-
-        opts.forEach(val => {
-            let b = document.createElement('button');
-            b.className = 'mc-btn'; b.innerText = val;
-            b.onclick = () => check(val, b);
-            container.appendChild(b);
-        });
+    function reveal(id) {
+        document.getElementById(id).style.visibility = 'visible';
+        document.getElementById(id).classList.add('visible');
     }
 
-    function check(val, btn) {
-        if (state.solved) return;
-        if (val === state.currentEN) {
-            playSound('correct');
-            state.solved = true; state.xp += 10; state.streak++;
-            btn.classList.add('correct');
-            document.getElementById('pl-text').classList.add('visible');
-            document.getElementById('en-text').classList.add('visible');
-            
-            const mainBtn = document.getElementById('main-btn');
-            mainBtn.innerText = "Next >>"; mainBtn.classList.add('ready');
-            autoNextTimer = setTimeout(generate, 1500);
-        } else {
-            playSound('wrong');
-            state.streak = 0; btn.classList.add('wrong');
-        }
-        updateUI();
-    }
-
-    function handleMainButton() { generate(); }
-
-    // --- Helpers ---
-    function makeDecoy(target) {
-        if (state.mode === 'dates') return `${Math.floor(Math.random()*30)+1} ${MONTHS_EN[Math.floor(Math.random()*12)]}`;
-        if (state.mode === 'time') return `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
-        
-        let numStr = target.replace(/[^\d-]/g, '');
-        let num = parseInt(numStr);
-        if (isNaN(num)) num = 10;
-
-        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.4)); // Widen decoy range for 12 options
-        let res = num + (Math.random() > 0.5 ? diff : -diff);
-        if (Math.random() > 0.7) res = num + Math.floor(Math.random() * 10) - 5; // Close decoys
-        
-        if (state.mode === 'prices') return res + " zł";
-        if (state.mode === 'weights') return res + " kg";
-        return res.toLocaleString();
-    }
-
-    function numberToPolish(n) {
-        if (n === 0) return "zero";
-        if (n < 0) return "minus " + numberToPolish(Math.abs(n));
-        if (n < 10) return UNITS[n];
-        if (n < 20) return TEENS[n-10];
-        if (n < 100) return TENS[Math.floor(n/10)] + (n%10 ? " " + UNITS[n%10] : "");
-        if (n < 1000) return HUNDREDS[Math.floor(n/100)] + (n%100 ? " " + numberToPolish(n%100) : "");
-        if (n < 1000000) {
-            let k = Math.floor(n/1000);
-            return (k===1 ? "tysiąc" : numberToPolish(k) + " tys.") + " " + numberToPolish(n%1000);
-        }
-        return n.toString(); 
-    }
-
-    function updateRange() {
+    function updateUI() {
         let min = document.getElementById('minP').value;
         let max = document.getElementById('maxP').value;
         if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
-        document.getElementById('range-val').innerText = `${Math.pow(10,min)} - ${Math.pow(10,max)}`;
+        document.getElementById('lbl-min').innerText = Math.pow(10, min).toLocaleString();
+        document.getElementById('lbl-max').innerText = Math.pow(10, max).toLocaleString();
     }
 
     function setMode(m) {
         state.mode = m;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-mode-'+m).classList.add('active');
-        document.getElementById('range-row').style.display = (m === 'dates' || m === 'time') ? 'none' : 'flex';
-        document.getElementById('neg-toggle').parentElement.parentElement.style.display = (m === 'numbers') ? 'flex' : 'none';
+        document.getElementById('nav-'+m).classList.add('active');
+        
+        ['numbers','prices','time','dates'].forEach(id => {
+            let el = document.getElementById('controls-'+id);
+            if(el) el.style.display = (id === m) ? 'block' : 'none';
+        });
+        // Default weights uses numbers sliders
+        if(m === 'weights') document.getElementById('controls-numbers').style.display = 'block';
+
         generate();
     }
 
-    function updateUI() {
-        localStorage.setItem('xp', state.xp);
-        document.getElementById('xp-display').innerText = state.xp;
-        document.getElementById('streak-display').innerText = state.streak;
-    }
-
-    function speak(rate = 1.0) {
+    function speak(rate) {
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
         u.lang = 'pl-PL'; u.rate = rate;
         window.speechSynthesis.speak(u);
     }
-    
-    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
 
-    window.onload = init;
+    function toggleDrawer() {
+        let d = document.getElementById('drawer');
+        d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    }
 </script>
 </body>
 </html>
