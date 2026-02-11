@@ -16,17 +16,17 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* Game Stats Styles */
+        /* Game Stats */
         .stats-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 420px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         .stat-item { display: flex; flex-direction: column; align-items: center; font-weight: bold; font-size: 0.75rem; }
         .stat-value { font-size: 1.1rem; color: var(--primary); }
         .xp-progress-bg { flex-grow: 1; height: 12px; background: #eee; border-radius: 6px; margin: 0 15px; overflow: hidden; position: relative; border: 1px solid var(--border); }
         .xp-progress-fill { height: 100%; background: var(--xp-bar); width: 0%; transition: width 0.4s ease-out; }
 
-        .header-section { text-align: center; margin-bottom: 10px; width: 100%; max-width: 420px; }
-        .main-title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; margin: 0; }
-        .header-controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
-        .ui-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 5px 12px; border-radius: 8px; font-weight: bold; font-size: 0.7rem; cursor: pointer; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header-section { text-align: center; margin-bottom: 5px; width: 100%; max-width: 420px; }
+        .main-title { font-size: 1.0rem; font-weight: bold; text-transform: uppercase; margin: 0; }
+        .header-controls { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
+        .ui-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 0.7rem; cursor: pointer; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         .top-bar { display: flex; justify-content: center; width: 100%; max-width: 420px; margin-bottom: 10px; }
         nav { display: flex; gap: 2px; background: var(--card-bg); padding: 4px; border-radius: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; scrollbar-width: none; }
@@ -35,34 +35,35 @@
 
         .card { background: var(--card-bg); padding: 1rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 420px; display: flex; flex-direction: column; position: relative;}
         
-        /* Game Mode Toggle */
+        /* Mode Toggle */
         .mode-toggle { display: flex; background: rgba(0,0,0,0.05); padding: 3px; border-radius: 8px; margin-bottom: 10px; }
         .mode-toggle button { flex: 1; border: none; background: none; font-size: 0.65rem; font-weight: bold; padding: 6px; cursor: pointer; border-radius: 6px; color: var(--text); }
         .mode-toggle button.active { background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .controls-row { display: flex; gap: 8px; margin-bottom: 8px; width: 100%; }
-        .control-box { flex: 1; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 10px; border: 1px solid var(--border); text-align: left; }
+        .controls-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; width: 100%; }
+        .control-box { flex: 1; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 10px; border: 1px solid var(--border); text-align: left; min-width: 120px;}
         .label-text { font-weight: bold; font-size: 0.7rem; display: block; margin-bottom: 2px; opacity: 0.8; }
         input[type=range] { width: 100%; height: 20px; cursor: pointer; }
         
-        .display-area { min-height: 80px; margin: 8px 0; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .polish-text { font-size: 0.9rem; color: var(--primary); font-weight: bold; visibility: hidden; line-height: 1.2; }
-        .english-text { font-size: 0.75rem; color: #888; visibility: hidden; margin-top: 4px; }
-        
-        /* Input Areas */
-        .game-input-area { margin: 10px 0; }
+        /* Multiple Choice Grid */
+        .game-input-area { margin: 10px 0; min-height: 80px; }
         .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .mc-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: var(--text); }
-        .mc-btn:active { transform: scale(0.95); }
+        .mc-btn { background: var(--card-bg); border: 2px solid var(--border); padding: 15px 5px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; min-height: 50px; }
+        .mc-btn:active { transform: scale(0.98); }
         .mc-btn.correct { background: var(--secondary); color: white; border-color: var(--secondary); }
-        .mc-btn.wrong { background: var(--error); color: white; border-color: var(--error); }
+        .mc-btn.wrong { background: var(--error); color: white; border-color: var(--error); opacity: 0.6; }
         
-        .text-input-field { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem; text-align: center; outline: none; }
+        /* Key Input */
+        .text-input-field { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1.1rem; text-align: center; outline: none; }
         .text-input-field:focus { border-color: var(--primary); }
         .text-input-field.correct { border-color: var(--secondary); background: rgba(52, 168, 83, 0.1); }
         .text-input-field.wrong { border-color: var(--error); background: rgba(217, 48, 37, 0.1); }
 
-        .button-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .display-area { margin: 5px 0; display: flex; flex-direction: column; justify-content: center; }
+        .polish-text { font-size: 0.9rem; color: var(--primary); font-weight: bold; visibility: hidden; line-height: 1.2; min-height: 1.2em;}
+        .english-text { font-size: 0.75rem; color: #888; visibility: hidden; margin-top: 4px; min-height: 1.2em;}
+        
+        .button-grid { display: flex; flex-direction: column; gap: 6px; margin-top: 5px; }
         button.action { padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 600; color: white; }
         .audio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; border: 2px solid #fb8c00; padding: 6px; border-radius: 12px; }
         .btn-next { background-color: #455a64; margin-top: 5px; }
@@ -72,14 +73,14 @@
         .reveal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .btn-reveal-pl { background-color: var(--primary); }
         .btn-reveal-en { background-color: var(--accent); }
-        
+
+        /* Toggles */
         .toggle-row { display: flex; flex-direction: column; background: rgba(0,0,0,0.03); border-radius: 10px; padding: 8px; border: 1px solid var(--border); margin-bottom: 8px; gap: 8px; }
-        .unit-group { display: flex; justify-content: space-around; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         .toggle-item { display: flex; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: bold; }
+        .unit-group { display: flex; justify-content: space-around; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
         #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:1000; padding:20px; }
         .modal-content { background:var(--card-bg); color:var(--text); padding:25px; border-radius:15px; max-width:400px; width:100%; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
-        .modal-footer { margin-top:15px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:10px; }
     </style>
 </head>
 <body>
@@ -132,6 +133,12 @@
             <span class="label-text"><span id="lbl-max">Max</span>: <span id="maxValLabel">10</span></span>
             <input type="range" id="maxPower" min="1" max="7" value="1" oninput="updateSliders()">
         </div>
+        <div class="control-box" style="display: flex; align-items: center; justify-content: center;">
+            <label class="toggle-item" style="font-size: 0.75rem;">
+                <input type="checkbox" id="allowNegatives" onchange="generateNext()"> 
+                <span id="lbl-neg">Negative #</span>
+            </label>
+        </div>
     </div>
 
     <div id="priceControls" style="display:none;">
@@ -139,21 +146,18 @@
             <label class="toggle-item"><input type="checkbox" id="includeGroszy" checked onchange="generateNext()"> <span id="lbl-incGrosz">Grosze</span></label>
         </div>
     </div>
-
     <div id="dateControls" style="display:none;">
         <div class="toggle-row" style="flex-direction: row; justify-content: space-around;">
             <label class="toggle-item"><input type="checkbox" id="includeDayOfWeek" checked onchange="generateNext()"> <span id="lbl-incDay">Day</span></label>
             <label class="toggle-item"><input type="checkbox" id="includeYear" checked onchange="generateNext()"> <span id="lbl-incYear">Year</span></label>
         </div>
     </div>
-
     <div id="timeControls" style="display:none;">
         <div class="toggle-row" style="flex-direction: row; justify-content: space-around;">
             <label class="toggle-item"><input type="radio" name="timeStyle" id="styleFormal" onchange="generateNext()"> <span id="lbl-incFormal">Formal</span></label>
             <label class="toggle-item"><input type="radio" name="timeStyle" id="styleCasual" checked onchange="generateNext()"> <span id="lbl-incCasual">Casual</span></label>
         </div>
     </div>
-
     <div id="weightControls" style="display:none;">
         <div class="toggle-row">
             <div class="unit-group">
@@ -176,8 +180,7 @@
     </div>
 
     <div class="game-input-area">
-        <div id="mc-container" class="mc-grid">
-            </div>
+        <div id="mc-container" class="mc-grid"></div>
         <div id="key-container" style="display:none;">
             <input type="text" id="answer-input" class="text-input-field" placeholder="Type what you hear..." autocomplete="off" onkeydown="handleKeyEntry(event)">
         </div>
@@ -204,47 +207,50 @@
 
 <div id="modalOverlay">
     <div class="modal-content">
-        <h3 id="help-h" style="margin-top:0; color:var(--primary);">Game Mode Active</h3>
-        <ul id="help-l" style="padding-left:20px; font-size:0.85rem; line-height:1.6;">
-            <li>Select <b>Multiple Choice</b> or <b>Key Input</b> above.</li>
-            <li>Get the answer right to build your <b>Streak</b> and earn XP!</li>
-            <li>Peeking at the English text resets your streak.</li>
-            <li>Level up by consistently answering correctly.</li>
+        <h3 style="margin-top:0; color:var(--primary);">How to Play</h3>
+        <ul style="padding-left:20px; font-size:0.85rem; line-height:1.6;">
+            <li>Select <b>Multiple Choice</b> or <b>Key Input</b>.</li>
+            <li>Listen to the Polish phrase.</li>
+            <li>Select or type the meaning (in English/Digits).</li>
+            <li>Use the <b>Negative #</b> toggle for extra challenge!</li>
         </ul>
-        <div class="modal-footer">
+        <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:10px;">
             <label style="font-size:0.75rem;"><input type="checkbox" id="dontShow"> Don't show again</label>
-            <button class="ui-btn" style="background:var(--primary); color:white; border:none;" onclick="closeHelp()">Let's Go!</button>
+            <button class="ui-btn" style="background:var(--primary); color:white; border:none;" onclick="closeHelp()">Play!</button>
         </div>
     </div>
 </div>
 
 <script>
     let currentMode = 'numbers', uiLang = 'en', currentPolish = "", currentEnglish = "";
-    let inputMode = 'mc'; // 'mc' or 'key'
-    
-    // Game State Logic
+    let inputMode = 'mc'; 
     let gameState = {
-        xp: parseInt(localStorage.getItem('pl_xp_v2')) || 0,
-        level: parseInt(localStorage.getItem('pl_lvl_v2')) || 1,
+        xp: parseInt(localStorage.getItem('pl_xp_v3')) || 0,
+        level: parseInt(localStorage.getItem('pl_lvl_v3')) || 1,
         streak: 0,
         answered: false,
         peaked: false
     };
 
+    // Translations
     const translations = {
-        en: { title: "Polish Master Trainer", numbers: "Numbers", prices: "Prices", dates: "Dates", time: "Time", weights: "Weights", min: "Min", max: "Max", incYear: "Year", incDay: "Day", incGrosz: "Grosze", incFrac: "Frac.", incFormal: "Formal", incCasual: "Casual", listen: "🔊 Repeat", slow: "🐢 Slowly (0.4)", vslow: "🐌 Snail (0.2)", revPl: "Reveal Polish", revEn: "Reveal English", next: "Skip / Next ➡️", helpH: "How to Play", dark: "Dark Mode", help: "Help", lvl: "LEVEL", streak: "STREAK" },
-        pl: { title: "Mistrz Polskich Liczb", numbers: "Liczby", prices: "Ceny", dates: "Daty", time: "Czas", weights: "Waga", min: "Min", max: "Max", incYear: "Rok", incDay: "Dzień", incGrosz: "Grosze", incFrac: "Uł.", incFormal: "Oficjalny", incCasual: "Potoczny", listen: "🔊 Powtórz", slow: "Wolno (0.4)", vslow: "B.Wolno (0.2)", revPl: "Pokaż PL", revEn: "Pokaż EN", next: "Pomiń ➡️", helpH: "Jak grać", dark: "Tryb nocny", help: "Pomoc", lvl: "POZIOM", streak: "SERIA" }
+        en: { title: "Polish Master Trainer", numbers: "Numbers", prices: "Prices", dates: "Dates", time: "Time", weights: "Weights", min: "Min", max: "Max", incYear: "Year", incDay: "Day", incGrosz: "Grosze", incFrac: "Frac.", incFormal: "Formal", incCasual: "Casual", listen: "🔊 Repeat", slow: "🐢 Slowly (0.4)", vslow: "🐌 Snail (0.2)", revPl: "Reveal Polish", revEn: "Reveal English", next: "Skip / Next ➡️", helpH: "How to Play", dark: "Dark Mode", help: "Help", lvl: "LEVEL", streak: "STREAK", neg: "Negatives" },
+        pl: { title: "Mistrz Polskich Liczb", numbers: "Liczby", prices: "Ceny", dates: "Daty", time: "Czas", weights: "Waga", min: "Min", max: "Max", incYear: "Rok", incDay: "Dzień", incGrosz: "Grosze", incFrac: "Uł.", incFormal: "Oficjalny", incCasual: "Potoczny", listen: "🔊 Powtórz", slow: "Wolno (0.4)", vslow: "B.Wolno (0.2)", revPl: "Pokaż PL", revEn: "Pokaż EN", next: "Pomiń ➡️", helpH: "Jak grać", dark: "Tryb nocny", help: "Pomoc", lvl: "POZIOM", streak: "SERIA", neg: "Ujemne" }
     };
 
+    // Data Arrays
     const units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
     const teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
     const tens = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
     const hundreds = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const ordinals = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
     const monthsGenitive = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+    const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const weekDaysPl = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
+    const weekDaysEn = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     function getPluralForm(n, singular, pluralA, pluralB) {
+        n = Math.abs(n);
         if (n === 1) return singular;
         const lastDigit = n % 10, lastTwo = n % 100;
         if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 10 || lastTwo > 20)) return pluralA;
@@ -253,6 +259,8 @@
 
     function numberToPolish(n) {
         if (n === 0) return "zero";
+        if (n < 0) return "minus " + numberToPolish(Math.abs(n));
+        
         let res = "";
         let mil = Math.floor(n / 1000000);
         if (mil > 0) res += (mil === 1 ? "" : numberToPolish(mil) + " ") + getPluralForm(mil, "milion", "miliony", "milionów") + " ";
@@ -291,20 +299,16 @@
         document.getElementById('mode-key').classList.toggle('active', mode === 'key');
         document.getElementById('mc-container').style.display = (mode === 'mc') ? 'grid' : 'none';
         document.getElementById('key-container').style.display = (mode === 'key') ? 'block' : 'none';
-        generateNext();
+        if(currentPolish === "") generateNext();
     }
 
     function updateGameUI() {
         const xpToLevel = gameState.level * 100;
-        if (gameState.xp >= xpToLevel) {
-            gameState.xp -= xpToLevel;
-            gameState.level++;
-        }
-        localStorage.setItem('pl_xp_v2', gameState.xp);
-        localStorage.setItem('pl_lvl_v2', gameState.level);
+        if (gameState.xp >= xpToLevel) { gameState.xp -= xpToLevel; gameState.level++; }
+        localStorage.setItem('pl_xp_v3', gameState.xp);
+        localStorage.setItem('pl_lvl_v3', gameState.level);
         
-        const progress = (gameState.xp / xpToLevel) * 100;
-        document.getElementById('game-xp-bar').style.width = progress + '%';
+        document.getElementById('game-xp-bar').style.width = ((gameState.xp / xpToLevel) * 100) + '%';
         document.getElementById('game-level').innerText = gameState.level;
         document.getElementById('game-streak').innerText = gameState.streak;
     }
@@ -312,26 +316,61 @@
     function generateNext() {
         gameState.answered = false;
         gameState.peaked = false;
-        const inputField = document.getElementById('answer-input');
-        inputField.value = "";
-        inputField.className = "text-input-field";
+        document.getElementById('answer-input').value = "";
+        document.getElementById('answer-input').className = "text-input-field";
         
         const min = Math.pow(10, document.getElementById('minPower').value);
         const max = Math.pow(10, document.getElementById('maxPower').value);
-        
-        // Logical Generation (Based on existing code)
-        if (currentMode === 'time') {
+        const allowNeg = document.getElementById('allowNegatives').checked;
+
+        // Fully Restored Logic for All Modes
+        if (currentMode === 'dates') {
+            const dayIdx = Math.floor(Math.random() * 7), dayNum = Math.floor(Math.random() * 31) + 1, monthIdx = Math.floor(Math.random() * 12);
+            let enStr = `${dayNum} ${monthsEn[monthIdx]}`, plStr = `${ordinals[dayNum]} ${monthsGenitive[monthIdx]}`;
+            if (document.getElementById('includeDayOfWeek').checked) { enStr = weekDaysEn[dayIdx] + ", " + enStr; plStr = weekDaysPl[dayIdx] + ", " + plStr; }
+            if (document.getElementById('includeYear').checked) { const year = Math.floor(Math.random() * 125) + 1900; enStr += " " + year; plStr += " " + numberToPolish(year) + " roku"; }
+            currentEnglish = enStr; currentPolish = plStr;
+        } 
+        else if (currentMode === 'time') {
             const hh = Math.floor(Math.random() * 24), mm = [0, 5, 10, 20, 25, 30, 35, 40, 50, 55][Math.floor(Math.random() * 10)];
-            currentPolish = timeToPolish(hh, mm, document.getElementById('styleFormal').checked);
             currentEnglish = `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
-        } else if (currentMode === 'dates') {
-            const d = Math.floor(Math.random() * 31) + 1, m = Math.floor(Math.random() * 12);
-            currentPolish = `${ordinals[d]} ${monthsGenitive[m]}`;
-            currentEnglish = `${d} Month Index ${m+1}`;
-        } else {
+            currentPolish = timeToPolish(hh, mm, document.getElementById('styleFormal').checked);
+        } 
+        else if (currentMode === 'weights') {
+            let unit = document.querySelector('input[name="weightUnit"]:checked').value;
+            let unitNames = { t: ["tona","tony","ton","tony"], kg: ["kilogram","kilogramy","kilogramów","kilograma"], dkg: ["dekagram","dekagramy","dekagramów","dekagrama"], g: ["gram","gramy","gramów","grama"], ml: ["mililitr","mililitry","mililitrów","mililitra"], l: ["litr","litry","litrów","litra"], szk: ["szklanka","szklanki","szklanek","szklanki"] };
+            if (document.getElementById('includeFractions').checked && Math.random() < 0.5) {
+                let fracType = Math.floor(Math.random() * 4);
+                if (fracType === 0) { currentEnglish = `1/2 ${unit}`; currentPolish = `pół ${unitNames[unit][3]}`; }
+                else if (fracType === 1) { currentEnglish = `1 1/2 ${unit}`; currentPolish = `półtora ${unitNames[unit][3]}`; }
+                else if (fracType === 2) { let n = Math.floor(Math.random() * 8) + 2; currentEnglish = `${n} 1/2 ${unit}`; currentPolish = `${numberToPolish(n)} i pół ${unitNames[unit][3]}`; }
+                else { let n = Math.floor(Math.random() * 8) + 2; currentEnglish = `${n} 1/4 ${unit}`; currentPolish = `${numberToPolish(n)} i ćwierć ${unitNames[unit][3]}`; }
+            } else {
+                let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                currentEnglish = `${num.toLocaleString()} ${unit}`; currentPolish = `${numberToPolish(num)} ${getPluralForm(num, unitNames[unit][0], unitNames[unit][1], unitNames[unit][2])}`;
+            }
+        } 
+        else {
+            // Numbers & Prices
             let num = Math.floor(Math.random() * (max - min + 1)) + min;
-            currentPolish = numberToPolish(num);
-            currentEnglish = num.toLocaleString();
+            // Negative logic only for Numbers mode
+            if (currentMode === 'numbers' && allowNeg && Math.random() > 0.5) num = num * -1;
+
+            if (currentMode === 'numbers') { 
+                currentEnglish = num.toLocaleString(); 
+                currentPolish = numberToPolish(num); 
+            }
+            else { // Prices
+                let zlWord = getPluralForm(num, "złoty", "złote", "złotych");
+                if (document.getElementById('includeGroszy').checked) {
+                    let gr = Math.floor(Math.random() * 99) + 1;
+                    currentEnglish = `${num.toLocaleString()},${gr.toString().padStart(2, '0')} zł`;
+                    currentPolish = `${numberToPolish(num)} ${zlWord} i ${numberToPolish(gr)} ${getPluralForm(gr, "grosz", "grosze", "groszy")}`;
+                } else { 
+                    currentEnglish = num.toLocaleString() + " zł"; 
+                    currentPolish = numberToPolish(num) + " " + zlWord; 
+                }
+            }
         }
 
         document.getElementById('polishText').style.visibility = 'hidden';
@@ -346,55 +385,93 @@
     function setupMC() {
         const container = document.getElementById('mc-container');
         container.innerHTML = "";
-        let options = [currentPolish];
-        // Generate 3 random decoys (simplified for demo - in reality you'd want closer numbers)
+        
+        let options = [{val: currentEnglish, correct: true}];
+        
+        // Generate valid decoys based on currentEnglish format
         while(options.length < 4) {
-            let fakeNum = Math.floor(Math.random() * 1000);
-            let fakeStr = numberToPolish(fakeNum);
-            if (!options.includes(fakeStr)) options.push(fakeStr);
+            let decoy = generateDecoy(currentEnglish);
+            if (!options.some(o => o.val === decoy)) options.push({val: decoy, correct: false});
         }
         options.sort(() => Math.random() - 0.5);
         
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = "mc-btn";
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(opt, btn);
+            btn.innerText = opt.val;
+            btn.onclick = () => checkAnswer(opt.correct, btn);
             container.appendChild(btn);
         });
     }
 
-    function handleKeyEntry(e) {
-        if (e.key === 'Enter') checkAnswer(document.getElementById('answer-input').value.trim());
+    // Helper to generate context-aware decoys
+    function generateDecoy(original) {
+        if (currentMode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 60);
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+        }
+        if (currentMode === 'dates') {
+            // Simple decoy: just random day/month
+            let mIdx = Math.floor(Math.random() * 12);
+            let d = Math.floor(Math.random() * 28) + 1;
+            return `${d} ${monthsEn[mIdx]}` + (original.match(/\d{4}/) ? " " + (1900 + Math.floor(Math.random()*125)) : "");
+        }
+        // Numbers/Prices/Weights: Mutate the number slightly
+        let numMatch = original.match(/-?[\d,.]+/);
+        if(numMatch) {
+            let val = parseFloat(numMatch[0].replace(',','.'));
+            let diff = Math.floor(Math.random() * (val * 0.5)) + 1;
+            let newVal = (Math.random() > 0.5) ? val + diff : val - diff;
+            return original.replace(numMatch[0], Math.floor(newVal).toLocaleString());
+        }
+        return "???";
     }
 
-    function checkAnswer(val, btn = null) {
-        if (gameState.answered) return;
+    function handleKeyEntry(e) {
+        if (e.key === 'Enter') checkKeyAnswer();
+    }
 
-        const isCorrect = val.toLowerCase() === currentPolish.toLowerCase();
+    function checkKeyAnswer() {
+        let val = document.getElementById('answer-input').value.trim();
+        // Check against Meaning (English) OR Polish text
+        let isCorrect = (val === currentEnglish || val.toLowerCase() === currentPolish.toLowerCase());
         
-        if (isCorrect) {
-            gameState.answered = true;
-            if (btn) btn.classList.add('correct');
-            if (inputMode === 'key') document.getElementById('answer-input').classList.add('correct');
-            
-            // Score XP only if they didn't peak
-            if (!gameState.peaked) {
-                gameState.streak++;
-                gameState.xp += (inputMode === 'key' ? 30 : 15); // Keys worth more!
-            }
-            reveal('polishText');
-        } else {
-            if (btn) btn.classList.add('wrong');
-            if (inputMode === 'key') document.getElementById('answer-input').classList.add('wrong');
+        if (isCorrect) handleSuccess(null);
+        else {
+            document.getElementById('answer-input').classList.add('wrong');
             gameState.streak = 0;
+            updateGameUI();
         }
+    }
+
+    function checkAnswer(isCorrect, btn) {
+        if (gameState.answered) return;
+        if (isCorrect) handleSuccess(btn);
+        else {
+            btn.classList.add('wrong');
+            gameState.streak = 0;
+            updateGameUI();
+        }
+    }
+
+    function handleSuccess(btn) {
+        gameState.answered = true;
+        if(btn) btn.classList.add('correct');
+        else document.getElementById('answer-input').classList.add('correct');
+
+        if (!gameState.peaked) {
+            gameState.streak++;
+            gameState.xp += (inputMode === 'key' ? 30 : 15);
+        }
+        reveal('polishText');
+        reveal('englishText');
         updateGameUI();
     }
 
     function reveal(id) {
         document.getElementById(id).style.visibility = 'visible';
-        if (id === 'englishText') {
+        if (id === 'englishText' && !gameState.answered) {
             gameState.peaked = true;
             gameState.streak = 0;
             updateGameUI();
@@ -402,7 +479,6 @@
     }
 
     // --- UI/System Boilerplate ---
-
     function handleMinChange() {
         const minP = parseInt(document.getElementById('minPower').value);
         const maxS = document.getElementById('maxPower');
@@ -420,6 +496,8 @@
         document.getElementById('sliderContainer').style.display = (mode === 'dates' || mode === 'time') ? 'none' : 'flex';
         document.getElementById('dateControls').style.display = (mode === 'dates') ? 'block' : 'none';
         document.getElementById('timeControls').style.display = (mode === 'time') ? 'block' : 'none';
+        document.getElementById('priceControls').style.display = (mode === 'prices') ? 'block' : 'none';
+        document.getElementById('weightControls').style.display = (mode === 'weights') ? 'block' : 'none';
         generateNext();
     }
     function toggleUILanguage() { uiLang = (uiLang === 'en' ? 'pl' : 'en'); updateUI(); }
@@ -435,6 +513,7 @@
         document.getElementById('btn-next').innerText = t.next;
         document.getElementById('lbl-lvl').innerText = t.lvl;
         document.getElementById('lbl-streak').innerText = t.streak;
+        document.getElementById('lbl-neg').innerText = t.neg;
     }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
     function showHelp() { document.getElementById('modalOverlay').style.display = 'flex'; }
