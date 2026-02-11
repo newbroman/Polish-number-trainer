@@ -17,7 +17,7 @@
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 55px; flex-shrink: 0; }
         .stats { font-weight: 800; font-size: 0.95rem; display: flex; gap: 15px; }
-        .gear-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 5px; }
+        .icon-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 5px; color: var(--text); }
 
         /* Nav */
         .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; }
@@ -25,17 +25,20 @@
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Game Area */
-        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 100px; }
+        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 110px; }
         
         /* Display Box */
-        .display-box { text-align: center; margin-bottom: 15px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .display-box { text-align: center; margin-bottom: 15px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 12px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
         .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
 
         /* Inputs */
-        .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: 700; color: var(--text); padding: 15px 5px; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; min-height: 55px; }
+        .mc-grid { display: grid; gap: 8px; }
+        .cols-2 { grid-template-columns: 1fr 1fr; }
+        .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: 700; color: var(--text); padding: 5px; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; min-height: 55px; }
         .mc-btn:active { transform: scale(0.96); }
         .correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
         .wrong { opacity: 0.5; background: #d93025 !important; color: white !important; }
@@ -45,25 +48,28 @@
         .type-input:focus { border-color: var(--primary); }
         .btn-check { width: 100%; background: var(--primary); color: white; padding: 12px; border-radius: 10px; font-weight: bold; border: none; font-size: 1rem; cursor: pointer; }
 
-        /* Footer */
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border); display: grid; gap: 10px; z-index: 100; height: 80px; grid-template-columns: 1fr 1fr 1fr 2fr; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-audio { background: var(--primary); font-size: 1.2rem; }
-        .btn-slow { background: #fb8c00; font-size: 1.2rem; }
-        .btn-vslow { background: #e65100; font-size: 1.2rem; }
-        .btn-next { background: #5f6368; transition: background 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-next.ready { background: var(--secondary); }
+        /* Footer (Original UI Style) */
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; z-index: 100; height: 90px; grid-template-columns: 1fr 1fr 1fr 2fr; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .btn-action { border: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-listen { background: var(--secondary); font-size: 1.5rem; }
+        .btn-slow { background: #fb8c00; font-size: 0.8rem; }
+        .btn-vslow { background: #e65100; font-size: 0.8rem; }
+        .btn-next { background: #455a64; transition: background 0.3s; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-next.ready { background: var(--primary); }
 
-        /* Settings Drawer */
-        .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: flex-end; }
-        .drawer-content { width: 85%; max-width: 350px; height: 100%; background: var(--card); padding: 20px; overflow-y: auto; animation: slideLeft 0.2s; display: flex; flex-direction: column; gap: 15px; }
+        /* Drawers/Modals */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { width: 90%; max-width: 400px; max-height: 90%; background: var(--card); padding: 20px; border-radius: 15px; overflow-y: auto; animation: popIn 0.2s; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        
         .setting-group { background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
         .setting-title { font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
         input[type=range] { width: 100%; }
+        select { padding: 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text); }
+
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body onload="init()">
@@ -73,7 +79,10 @@
         <div>⭐ <span id="xp-display">0</span> XP</div>
         <div>🔥 <span id="streak-display">0</span></div>
     </div>
-    <button class="gear-btn" onclick="toggleDrawer()">⚙️</button>
+    <div>
+        <button class="icon-btn" onclick="toggleHelp()">❓</button>
+        <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+    </div>
 </div>
 
 <div class="nav-scroller">
@@ -90,35 +99,45 @@
         <div id="en-text" class="en-text">---</div>
     </div>
 
-    <div id="mc-area" class="mc-grid"></div>
+    <div id="mc-area" class="mc-grid cols-2"></div>
 
     <div id="type-area" class="type-input-container">
-        <input type="text" id="type-input" class="type-input" placeholder="Enter number..." autocomplete="off">
+        <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
         <button class="btn-check" onclick="checkTyped()">CHECK ANSWER</button>
     </div>
 </div>
 
 <div class="footer">
-    <button class="btn-action btn-audio" onclick="speak(1.0)">🔊</button>
-    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
-    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
+    <button class="btn-action btn-listen" onclick="speak(1.0)">🔊</button>
+    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢<span style="font-size:0.6rem">Slow</span></button>
+    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌<span style="font-size:0.6rem">Snail</span></button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
 
-<div id="drawer" class="drawer-overlay" onclick="toggleDrawer(event)">
-    <div class="drawer-content" onclick="event.stopPropagation()">
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="close-btn" onclick="toggleSettings()">×</button>
         <h2 style="margin-top:0;">Settings</h2>
         
         <div class="setting-group">
-            <div class="setting-title">Game Options</div>
+            <div class="setting-title">Gameplay</div>
             <div class="setting-row">
-                <span>Input Mode</span>
-                <select id="input-mode-select" onchange="toggleInputMode()" style="padding:5px; border-radius:5px;">
-                    <option value="mc">8 Buttons</option>
+                <span>Input Style</span>
+                <select id="input-style" onchange="applySettings()">
+                    <option value="4">4 Buttons</option>
+                    <option value="8">8 Buttons</option>
+                    <option value="12">12 Buttons</option>
                     <option value="type">Typing</option>
                 </select>
             </div>
             <div class="setting-row">
+                <span>Keyboard</span>
+                <select id="kb-type" onchange="applySettings()">
+                    <option value="text">Standard</option>
+                    <option value="numeric">Numeric (0-9)</option>
+                </select>
+            </div>
+             <div class="setting-row">
                 <span>Dark Mode</span>
                 <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')">
             </div>
@@ -128,43 +147,56 @@
             <div class="setting-title">Number Range</div>
             <div class="setting-row">
                 <span>Min: <span id="lbl-min">1</span></span>
-                <div style="width:60%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
+                <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
             </div>
             <div class="setting-row">
                 <span>Max: <span id="lbl-max">10</span></span>
-                <div style="width:60%"><input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()"></div>
+                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()"></div>
             </div>
             <div class="setting-row">
-                <span>Negative Numbers</span>
+                <span>Negatives</span>
                 <input type="checkbox" id="neg-toggle">
-            </div>
-        </div>
-
-        <div class="setting-group" id="settings-prices" style="display:none">
-            <div class="setting-title">Prices Options</div>
-            <div class="setting-row">
-                <span>Include Grosze</span>
-                <input type="checkbox" id="grosze-toggle" checked>
-            </div>
-        </div>
-
-        <div class="setting-group" id="settings-time" style="display:none">
-            <div class="setting-title">Time Format</div>
-            <div class="setting-row">
-                <label><input type="radio" name="t-style" value="casual" checked> Casual</label>
-                <label><input type="radio" name="t-style" value="formal"> Formal</label>
             </div>
         </div>
 
         <div class="setting-group" id="settings-dates" style="display:none">
             <div class="setting-title">Date Options</div>
             <div class="setting-row">
+                <span>Format</span>
+                <select id="date-fmt" onchange="generate()">
+                    <option value="dmy">DD/MM/YY</option>
+                    <option value="mdy">MM/DD/YY</option>
+                    <option value="full">15 January</option>
+                </select>
+            </div>
+            <div class="setting-row">
                 <span>Include Year</span>
                 <input type="checkbox" id="year-toggle" checked>
             </div>
         </div>
 
-        <button class="btn-check" onclick="toggleDrawer(); generate();">SAVE & CLOSE</button>
+        <div class="setting-group" id="settings-prices" style="display:none">
+            <div class="setting-title">Price Options</div>
+            <div class="setting-row">
+                <span>Grosze</span>
+                <input type="checkbox" id="grosze-toggle" checked>
+            </div>
+        </div>
+        
+        <button class="btn-check" onclick="toggleSettings(); generate()">Save & Play</button>
+    </div>
+</div>
+
+<div id="help-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="close-btn" onclick="toggleHelp()">×</button>
+        <h2 style="margin-top:0; color:var(--primary)">How to Play</h2>
+        <p><b>1. Listen:</b> Tap 🔊 to hear the Polish number/phrase.</p>
+        <p><b>2. Answer:</b> Select the matching English meaning or type it in.</p>
+        <p><b>3. Score:</b> Get it right to earn XP and build your streak!</p>
+        <hr style="border:0; border-top:1px solid var(--border)">
+        <p style="font-size:0.9rem"><b>Tip:</b> Use the ⚙️ Settings menu to change button count (4/8/12), enable typing mode, or adjust difficulty ranges.</p>
+        <button class="btn-check" onclick="toggleHelp()">Got it!</button>
     </div>
 </div>
 
@@ -175,13 +207,13 @@
     const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
     const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     
     // Time specific
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
 
-    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false };
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null };
     let audioCtx = null;
     let autoNextTimer = null;
 
@@ -248,57 +280,95 @@
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
 
+        // Generation Logic
         if (state.mode === 'numbers') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
             state.currentEN = n.toLocaleString();
             state.currentPL = numToPl(n);
+            state.rawData = n; 
         } else if (state.mode === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
             state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
             state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
+            state.rawData = n + (gr/100);
         } else if (state.mode === 'time') {
             let h = Math.floor(Math.random() * 24);
             let m = Math.floor(Math.random() * 12) * 5;
-            let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
             state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-            state.currentPL = timeToPl(h, m, !isCasual);
+            state.currentPL = timeToPl(h, m, false); // Always casual for training focus
+            state.rawData = {h, m};
         } else if (state.mode === 'dates') {
             let d = Math.floor(Math.random() * 30) + 1;
             let mIdx = Math.floor(Math.random() * 12);
-            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*125)+1900 : 0;
-            state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
+            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
+            
+            // Format Date based on setting
+            let fmt = document.getElementById('date-fmt').value;
+            if (fmt === 'dmy') state.currentEN = `${d}/${mIdx+1}${y? '/'+y : ''}`;
+            else if (fmt === 'mdy') state.currentEN = `${mIdx+1}/${d}${y? '/'+y : ''}`;
+            else state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
+            
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
             state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
+            state.rawData = {d, m:mIdx, y};
         } else if (state.mode === 'weights') {
              let n = Math.floor(Math.random() * (max - min + 1)) + min;
              state.currentEN = n + " kg";
              state.currentPL = numToPl(n) + " kilogramów";
+             state.rawData = n;
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
         
-        generateGrid();
+        applySettings(); // Redraw grid or input
         setTimeout(() => speak(1.0), 200);
+    }
+
+    function applySettings() {
+        let style = document.getElementById('input-style').value;
+        let kb = document.getElementById('kb-type').value;
+        
+        if (style === 'type') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+            let inp = document.getElementById('type-input');
+            
+            // Numeric keyboard logic
+            if (kb === 'numeric') {
+                inp.setAttribute('inputmode', 'decimal'); // Best for numbers + basic separators
+            } else {
+                inp.setAttribute('inputmode', 'text');
+            }
+        } else {
+            state.btnCount = parseInt(style);
+            document.getElementById('mc-area').style.display = 'grid';
+            document.getElementById('type-area').style.display = 'none';
+            
+            let grid = document.getElementById('mc-area');
+            grid.className = 'mc-grid'; // Reset
+            if (state.btnCount === 12) grid.classList.add('cols-3');
+            else grid.classList.add('cols-2');
+            
+            generateGrid();
+        }
     }
 
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
         
-        // Generate 7 decoys + 1 correct
         let opts = [state.currentEN];
         let safety = 0;
         
-        while(opts.length < 8 && safety < 100) {
+        while(opts.length < state.btnCount && safety < 100) {
             let decoy = makeDecoy(state.currentEN);
             if(!opts.includes(decoy)) opts.push(decoy);
             safety++;
         }
-        // Fallback
-        while(opts.length < 8) { opts.push(Math.floor(Math.random()*100).toString()+"?"); }
+        while(opts.length < state.btnCount) { opts.push(Math.floor(Math.random()*100).toString()+"?"); }
         
         opts.sort(() => Math.random() - 0.5);
 
@@ -311,7 +381,15 @@
     }
 
     function makeDecoy(target) {
-        if (state.mode === 'dates') return `${Math.floor(Math.random()*30)+1} ${MONTHS_EN[Math.floor(Math.random()*12)]}`;
+        if (state.mode === 'dates') {
+            let d = Math.floor(Math.random()*30)+1;
+            let m = Math.floor(Math.random()*12);
+            let fmt = document.getElementById('date-fmt').value;
+            // Simple date generation for decoys (ignores exact logic to save space)
+            if (fmt === 'dmy') return `${d}/${m+1}`;
+            if (fmt === 'mdy') return `${m+1}/${d}`;
+            return `${d} ${MONTHS_EN[m]}`;
+        }
         if (state.mode === 'time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
         
         let numStr = target.replace(/[^\d-]/g, '');
@@ -328,25 +406,25 @@
 
     function check(val, btn) {
         if (state.solved) return;
-        if (val === state.currentEN) {
-            win(btn);
-        } else {
-            lose(btn);
-        }
+        if (val === state.currentEN) win(btn);
+        else lose(btn);
     }
 
     function checkTyped() {
         if (state.solved) return;
-        let val = document.getElementById('type-input').value.trim();
-        // Loose comparison for things like "1200" vs "1,200"
-        let cleanVal = val.replace(/,/g, '');
-        let cleanAns = state.currentEN.replace(/,/g, '');
+        let val = document.getElementById('type-input').value.trim().toLowerCase();
+        let correct = state.currentEN.toLowerCase();
         
-        if (val === state.currentEN || cleanVal === cleanAns) {
-            win(null);
-        } else {
-            lose(null);
+        // Lenient date check
+        if (state.mode === 'dates') {
+            // Just check if numbers match roughly
+            let vNums = val.match(/\d+/g)?.join('/');
+            let cNums = correct.match(/\d+/g)?.join('/');
+            if (vNums && vNums === cNums) { win(null); return; }
         }
+
+        if (val === correct || val === correct.replace(/,/g, '')) win(null);
+        else lose(null);
     }
 
     function win(btn) {
@@ -384,42 +462,32 @@
         document.getElementById('lbl-max').innerText = Math.pow(10, max).toLocaleString();
     }
 
-    function updateRange() {
-        updateUI();
-    }
+    function updateRange() { updateUI(); }
 
     function setMode(m) {
         state.mode = m;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
         
-        // Hide all setting groups first
-        document.getElementById('settings-prices').style.display='none';
-        document.getElementById('settings-time').style.display='none';
-        document.getElementById('settings-dates').style.display='none';
-        document.getElementById('settings-range').style.display = (m==='time'||m==='dates') ? 'none' : 'block';
+        // Manage Settings Visibility
+        ['range','prices','time','dates'].forEach(id => document.getElementById('settings-'+id).style.display='none');
         
-        if(m==='prices') document.getElementById('settings-prices').style.display='block';
-        if(m==='time') document.getElementById('settings-time').style.display='block';
-        if(m==='dates') document.getElementById('settings-dates').style.display='block';
+        if (m==='numbers' || m==='weights' || m==='prices') document.getElementById('settings-range').style.display='block';
+        if (m==='prices') document.getElementById('settings-prices').style.display='block';
+        if (m==='time') document.getElementById('settings-time').style.display='block';
+        if (m==='dates') document.getElementById('settings-dates').style.display='block';
         
         generate();
     }
 
-    function toggleInputMode() {
-        let mode = document.getElementById('input-mode-select').value;
-        if(mode === 'mc') {
-            document.getElementById('mc-area').style.display = 'grid';
-            document.getElementById('type-area').style.display = 'none';
-        } else {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-        }
+    function toggleSettings() { 
+        let d = document.getElementById('settings-modal');
+        d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
     }
-
-    function toggleDrawer(e) { 
-        let d = document.getElementById('drawer');
-        if(!e || e.target === d) d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    
+    function toggleHelp() { 
+        let d = document.getElementById('help-modal');
+        d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
     }
 
     function speak(rate) {
@@ -429,27 +497,18 @@
         window.speechSynthesis.speak(u);
     }
 
-    // Audio SFX
-    function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function playSound(type) {
         initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
         if (type === 'correct') {
-            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
             osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         }
     }
