@@ -174,7 +174,12 @@
             </div>
             <div class="set-row">
                 <span>Include Decimals</span>
-                <input type="checkbox" id="decimal-toggle">
+                <input type="checkbox" id="decimal-toggle" onchange="document.getElementById('decimal-opts').style.display=this.checked?'flex':'none'">
+            </div>
+            <div class="set-row" id="decimal-opts" style="display:none">
+                <span>Decimal Places</span>
+                <input type="range" id="decimal-places" min="1" max="4" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value">
+                <span id="lbl-dp" style="font-weight:bold; margin-left:10px">2</span>
             </div>
         </div>
 
@@ -274,6 +279,10 @@
     }
 
     function getFractionPl(n, d) {
+        // Special Common Names
+        if (n===1 && d===2) return "jedna druga (pół)";
+        if (n===1 && d===4) return "jedna czwarta (ćwierć)";
+        
         let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
         let denStr = "";
         if (n === 1) denStr = DENOM_S[d];
@@ -326,17 +335,20 @@
             // Logic per Mode
             if (state.mode === 'numbers') {
                 if (document.getElementById('decimal-toggle').checked) {
-                    let n = (Math.random() * (max - min) + min).toFixed(2);
-                    // Remove trailing zeros if clean
-                    if (n.endsWith('.00')) n = parseInt(n);
-                    else n = parseFloat(n);
+                    let places = parseInt(document.getElementById('decimal-places').value);
+                    let n = (Math.random() * (max - min) + min).toFixed(places);
                     
                     state.currentEN = n.toString().replace('.', ',');
-                    let intPart = Math.floor(n);
-                    let decPart = Math.round((n % 1) * 100);
-                    // Standard math reading: "dwa przecinek pięćdziesiąt"
-                    state.currentPL = `${numToPl(intPart)} przecinek ${numToPl(decPart)}`;
-                    state.rawData = n;
+                    
+                    let parts = n.split('.');
+                    let intPart = parseInt(parts[0]);
+                    let decPart = parts[1];
+                    let decNum = parseInt(decPart);
+                    
+                    // Reading individual digits for decimals > 2 places usually, but standard reading for short ones
+                    // Simple Logic: "One point Five"
+                    state.currentPL = `${numToPl(intPart)} przecinek ${readDecimalPart(decPart)}`;
+                    state.rawData = parseFloat(n);
                 } else {
                     let n = Math.floor(Math.random() * (max - min + 1)) + min;
                     if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
@@ -391,6 +403,14 @@
         state.currentPL = numToPl(n);
         state.rawData = n;
     }
+    
+    function readDecimalPart(str) {
+        // Read as individual digits if long, or number if short
+        if (str.length > 2) {
+            return str.split('').map(d => numToPl(parseInt(d))).join(' ');
+        }
+        return numToPl(parseInt(str));
+    }
 
     function applySettings() {
         let style = document.getElementById('input-style').value;
@@ -427,10 +447,15 @@
         container.innerHTML = '';
         let opts = [state.currentEN];
         
-        // Smart Decoys (Swaps / Close Numbers)
+        // Smart Decoys
         if (state.mode === 'numbers' && typeof state.rawData === 'number') {
-             opts.push(formatDecoy(state.rawData + 1));
-             opts.push(formatDecoy(state.rawData - 1));
+             // If decimals, generate nearby decimals
+             if (document.getElementById('decimal-toggle').checked) {
+                 // Nothing specific needed as makeDecoy handles it
+             } else {
+                 opts.push(formatDecoy(state.rawData + 1));
+                 opts.push(formatDecoy(state.rawData - 1));
+             }
         }
 
         const min = Math.pow(10, document.getElementById('minP').value);
@@ -462,24 +487,23 @@
                  if(decPart === 0) decPart = Math.floor(Math.random()*99)+1; // Ensure fake grosze exists
                  return `${intPart},${decPart.toString().padStart(2,'0')} zł`;
              }
-             return intPart + ",00 zł"; // Consistency: if grosze ON, show full format, else flat. 
+             return intPart + ",00 zł"; 
         }
         if (state.mode === 'weights') return Math.floor(n) + " kg";
         // Decimals mode
-        if (document.getElementById('decimal-toggle').checked) {
-            return n.toFixed(2).replace('.', ',');
+        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+            let places = parseInt(document.getElementById('decimal-places').value);
+            return n.toFixed(places).replace('.', ',');
         }
         return Math.floor(n).toLocaleString();
     }
 
     function makeDecoy(target, min, max) {
-        // 1. Fractions
         if (state.mode === 'fractions') {
             let d = Math.floor(Math.random() * 15) + 2;
             let n = Math.floor(Math.random() * (d - 1)) + 1;
             return `${n}/${d}`;
         }
-        // 2. Dates (Strict Format)
         if (state.mode === 'dates') {
             let d = Math.floor(Math.random() * 30) + 1;
             let m = Math.floor(Math.random() * 12);
@@ -490,13 +514,11 @@
             if (fmt === 'mdy') return `${m+1}/${d}${yearStr}`;
             return `${d} ${MONTHS_EN[m]}${yearStr}`;
         }
-        // 3. Time (Strict 5-min intervals)
         if (state.mode === 'time') {
             let h = Math.floor(Math.random() * 24);
             let m = Math.floor(Math.random() * 12) * 5; 
             return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
         }
-        // 4. Prices
         if (state.mode === 'prices') {
              let n = Math.floor(Math.random() * (max - min + 1)) + min;
              let hasGrosze = document.getElementById('grosze-toggle').checked;
@@ -504,15 +526,15 @@
                  let gr = Math.floor(Math.random()*99)+1;
                  return `${n},${gr.toString().padStart(2,'0')} zł`;
              }
-             return n + ",00 zł"; // Force uniform format
+             return n + ",00 zł"; 
         }
-        // 5. Decimals
         if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
              let n = (Math.random() * (max - min) + min);
-             return n.toFixed(2).replace('.', ',');
+             let places = parseInt(document.getElementById('decimal-places').value);
+             return n.toFixed(places).replace('.', ',');
         }
-        // 6. Standard Numbers
         if (state.mode === 'weights') return (Math.floor(Math.random() * (max - min + 1)) + min) + " kg";
+        
         let n = Math.floor(Math.random() * (max - min + 1)) + min;
         return n.toLocaleString();
     }
@@ -527,7 +549,6 @@
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = state.currentEN.toLowerCase();
-        // Allow lax check for dates/time
         if (state.mode === 'dates' || state.mode === 'time') {
              if (val.replace(/\D/g,'') === correct.replace(/\D/g,'')) { win(null); return; }
         }
@@ -550,7 +571,7 @@
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
         }
 
-        autoNextTimer = setTimeout(generate, 1500);
+        autoNextTimer = setTimeout(generate, 5000); // 5 Seconds Delay
         updateUI();
     }
 
@@ -593,7 +614,6 @@
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
-        // Fractions & Weights use no specific settings (Fixed ranges)
         
         generate();
     }
