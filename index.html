@@ -3,439 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polish Master Trainer</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Polish Master Game</title>
+    <meta name="theme-color" content="#1a73e8">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
     <style>
-        :root { --primary: #1a73e8; --secondary: #34a853; --accent: #673ab7; --bg: #f0f2f5; --card-bg: #ffffff; --text: #202124; --border: #e0e0e0; --xp-bar: #34a853; --error: #d93025; }
-        .dark-mode { --bg: #000000; --card-bg: #1e1e1e; --text: #e8eaed; --border: #333; --xp-bar: #42f57e; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #fff; --text: #202124; --border: #ddd; }
+        .dark-mode { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg); color: var(--text);
-            margin: 0; padding: 0; height: 100vh; width: 100vw;
-            display: flex; flex-direction: column; overflow: hidden;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* Stats Bar */
-        .stats-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); border-bottom: 1px solid var(--border);
-            padding: 8px 12px; height: 50px; font-size: 0.9rem; font-weight: bold;
-            flex-shrink: 0;
-        }
-        .xp-track { flex-grow: 1; height: 8px; background: #ddd; margin: 0 15px; border-radius: 4px; overflow: hidden; }
-        .xp-fill { height: 100%; background: var(--xp-bar); width: 0%; transition: width 0.3s; }
-
-        /* Navigation */
-        .nav-bar {
-            display: flex; gap: 8px; overflow-x: auto; padding: 10px;
-            background: var(--bg); flex-shrink: 0; scrollbar-width: none;
-        }
-        .nav-btn {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 8px 16px; border-radius: 20px; font-size: 0.8rem;
-            white-space: nowrap; font-weight: 600; color: var(--text);
-        }
-        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* Game Container */
-        .game-container {
-            flex-grow: 1; display: flex; flex-direction: column;
-            padding: 15px; position: relative; overflow-y: auto;
-        }
-
-        /* Config Drawer */
-        #config-drawer {
-            display: none; background: var(--card-bg); padding: 15px;
-            border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);
-        }
-        #config-drawer.open { display: flex; flex-direction: column; gap: 12px; animation: slideDown 0.2s ease-out; }
+        /* Top Bar */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 50px; flex-shrink: 0; }
+        .stats { font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 15px; }
         
-        .control-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .control-box { background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 8px; flex: 1; }
+        /* Navigation Tabs */
+        .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; }
+        .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; }
+        .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* Main Game Area */
+        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; padding-bottom: 90px; /* Space for footer */ }
+        
+        /* Drawer for Settings */
+        .config-drawer { display: none; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .config-drawer.open { display: block; animation: slideDown 0.2s; }
+        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         input[type=range] { width: 100%; }
-        
-        /* Display Area */
-        .display-area {
-            text-align: center; margin: auto 0; padding: 10px 0;
-        }
-        .polish-text { font-size: 1.4rem; color: var(--primary); font-weight: bold; visibility: hidden; min-height: 1.5em; margin-bottom: 5px; line-height: 1.2; }
-        .english-text { font-size: 1rem; color: #888; visibility: hidden; min-height: 1.2em; }
 
-        /* Input Area */
-        .input-area { width: 100%; margin-bottom: 10px; }
-        .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 160px; }
-        .mc-btn {
-            background: var(--card-bg); border: 2px solid var(--border); border-radius: 12px;
-            font-size: 1.2rem; font-weight: bold; color: var(--text);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s;
-        }
+        /* Big Text Display */
+        .display-box { text-align: center; margin: 20px 0; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .pl-text { font-size: 1.8rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
+        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; }
+        .visible { visibility: visible !important; animation: popIn 0.3s; }
+
+        /* Multiple Choice Grid */
+        .mc-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 180px; }
+        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; font-size: 1.2rem; font-weight: 700; color: var(--text); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
         .mc-btn:active { transform: scale(0.96); }
-        .mc-btn.correct { background: var(--secondary); color: white; border-color: var(--secondary); }
-        .mc-btn.wrong { background: var(--error); color: white; opacity: 0.5; }
+        .correct { background: var(--secondary) !important; color: #fff !important; border-color: var(--secondary) !important; }
+        .wrong { opacity: 0.4; background: #ff5252 !important; color: #fff !important; }
 
-        .key-input {
-            width: 100%; padding: 15px; font-size: 1.3rem; text-align: center;
-            border-radius: 12px; border: 2px solid var(--border); background: var(--card-bg); color: var(--text);
-        }
+        /* Fixed Footer for Buttons */
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; z-index: 9999; height: 75px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 100%; }
+        .btn-repeat { background: var(--primary); width: 30%; font-size: 1.5rem; }
+        .btn-next { background: #5f6368; width: 70%; transition: background 0.3s; }
+        .btn-next.ready { background: var(--secondary); }
 
-        /* Footer */
-        .footer-controls {
-            flex-shrink: 0; background: var(--card-bg); padding: 12px;
-            border-top: 1px solid var(--border); display: grid; gap: 10px;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-        }
-        .action-btn {
-            padding: 12px 0; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 0.9rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-next { grid-column: span 4; background: #455a64; font-size: 1.1rem; }
-        .btn-listen { grid-column: span 2; background: var(--secondary); }
-        .btn-slow { background: #fb8c00; }
-        .btn-reveal { background: var(--primary); }
-
-        @keyframes slideDown { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
-        
-        #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:1000; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="stats-bar">
-    <span>LVL <span id="game-level" style="color:var(--primary)">1</span></span>
-    <div class="xp-track"><div id="game-xp-bar" class="xp-fill"></div></div>
-    <span>🔥 <span id="game-streak">0</span></span>
-    <button onclick="toggleConfig()" style="background:none; border:none; font-size:1.4rem; margin-left:10px; cursor:pointer;">⚙️</button>
+<div class="header">
+    <div class="stats">
+        <div>⭐ <span id="xp-display">0</span></div>
+        <div>🔥 <span id="streak-display">0</span></div>
+    </div>
+    <div style="font-size:1.5rem; cursor:pointer; padding:5px;" onclick="toggleDrawer()">⚙️</div>
 </div>
 
-<div class="nav-bar">
-    <button id="nav-numbers" class="nav-btn active" onclick="setMode('numbers')">123</button>
-    <button id="nav-prices" class="nav-btn" onclick="setMode('prices')">$$$</button>
-    <button id="nav-dates" class="nav-btn" onclick="setMode('dates')">📅</button>
-    <button id="nav-time" class="nav-btn" onclick="setMode('time')">🕒</button>
-    <button id="nav-weights" class="nav-btn" onclick="setMode('weights')">⚖️</button>
+<div class="nav-scroller">
+    <button class="nav-btn active" onclick="setMode('numbers')" id="btn-mode-numbers">123</button>
+    <button class="nav-btn" onclick="setMode('prices')" id="btn-mode-prices">$$$</button>
+    <button class="nav-btn" onclick="setMode('dates')" id="btn-mode-dates">📅</button>
+    <button class="nav-btn" onclick="setMode('time')" id="btn-mode-time">🕒</button>
+    <button class="nav-btn" onclick="setMode('weights')" id="btn-mode-weights">⚖️</button>
 </div>
 
-<div class="game-container">
-    
-    <div id="config-drawer">
-        <div class="control-row">
-            <button class="nav-btn" id="mode-mc" onclick="setInputMode('mc')">Choices</button>
-            <button class="nav-btn" id="mode-key" onclick="setInputMode('key')">Typing</button>
-            <button class="nav-btn" onclick="toggleDarkMode()">🌗 Dark</button>
+<div class="game-area">
+    <div id="drawer" class="config-drawer">
+        <div class="config-row">
+            <span>Dark Mode</span>
+            <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')">
         </div>
-        
-        <div id="sliderContainer" style="display:block;">
-            <div class="control-row" style="margin-top:10px;">
-                <div class="control-box">
-                    <span style="font-size:0.75rem; font-weight:bold;">Min: <span id="minValLabel">1</span></span>
-                    <input type="range" id="minPower" min="0" max="6" value="0" oninput="handleMinChange()">
-                </div>
-                <div class="control-box">
-                    <span style="font-size:0.75rem; font-weight:bold;">Max: <span id="maxValLabel">10</span></span>
-                    <input type="range" id="maxPower" min="1" max="7" value="1" oninput="updateSliders()">
-                </div>
-            </div>
-             <div class="control-row" style="margin-top:10px; justify-content:center;">
-                <label style="font-size:0.9rem;"><input type="checkbox" id="allowNegatives" onchange="generateNext()"> Negative Numbers (-5)</label>
+        <div class="config-row" id="range-row">
+            <span style="font-size:0.9rem; font-weight:bold;">Range: <span id="range-val" style="color:var(--primary)">1 - 10</span></span>
+            <div style="flex:1; margin-left:15px; display:flex; gap:10px;">
+                <input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()">
+                <input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()">
             </div>
         </div>
-
-        <div id="priceControls" style="display:none; text-align:center;">
-            <label style="font-size:0.9rem;"><input type="checkbox" id="includeGroszy" checked onchange="generateNext()"> Grosze</label>
-        </div>
-        <div id="timeControls" style="display:none; text-align:center;">
-            <label style="font-size:0.9rem; margin-right:15px;"><input type="radio" name="timeStyle" id="styleFormal" onchange="generateNext()"> Formal</label>
-            <label style="font-size:0.9rem;"><input type="radio" name="timeStyle" id="styleCasual" checked onchange="generateNext()"> Casual</label>
-        </div>
-        <div id="dateControls" style="display:none; text-align:center;">
-            <label style="font-size:0.9rem;"><input type="checkbox" id="includeYear" checked onchange="generateNext()"> Year</label>
+        <div class="config-row" style="justify-content:center; border-top:1px solid var(--border); padding-top:10px;">
+             <label style="font-weight:bold; font-size:0.9rem;"><input type="checkbox" id="neg-toggle" onchange="generate()"> Negative Numbers</label>
         </div>
     </div>
 
-    <div class="display-area">
-        <div id="polishText" class="polish-text">---</div>
-        <div id="englishText" class="english-text">---</div>
+    <div class="display-box">
+        <div id="pl-text" class="pl-text">---</div>
+        <div id="en-text" class="en-text">---</div>
     </div>
 
-    <div class="input-area">
-        <div id="mc-container" class="mc-grid"></div>
-        <div id="key-container" style="display:none;">
-            <input type="text" id="answer-input" class="key-input" placeholder="Type answer..." onkeydown="handleKeyEntry(event)">
-        </div>
-    </div>
+    <div id="mc-area" class="mc-container"></div>
 </div>
 
-<div class="footer-controls">
-    <button class="action-btn btn-listen" onclick="speak(1.0)">🔊 Repeat</button>
-    <button class="action-btn btn-slow" onclick="speak(0.4)">🐢 Slow</button>
-    <button class="action-btn btn-reveal" onclick="forceReveal()">👁️ Show</button>
-    <button class="action-btn btn-next" onclick="generateNext()">NEXT ➡️</button>
-</div>
-
-<div id="modalOverlay">
-    <div class="modal-content">
-        <h3>How to Play</h3>
-        <p>1. Tap <b>⚙️</b> to set range or switch between Buttons/Typing.</p>
-        <p>2. Listen to the Polish audio.</p>
-        <p>3. Guess the number!</p>
-        <button class="action-btn btn-listen" onclick="closeHelp()" style="width:100%">Got it</button>
-    </div>
+<div class="footer">
+    <button class="btn-action btn-repeat" onclick="speak()">🔊</button>
+    <button class="btn-action btn-next" id="main-btn" onclick="handleMainButton()">Skip ➡️</button>
 </div>
 
 <script>
-    let currentMode = 'numbers', uiLang = 'en', currentPolish = "", currentEnglish = "";
-    let inputMode = 'mc'; 
-    let gameState = {
-        xp: parseInt(localStorage.getItem('pl_xp_v5')) || 0,
-        level: parseInt(localStorage.getItem('pl_lvl_v5')) || 1,
-        streak: 0,
-        answered: false
-    };
+    // --- Data & Logic ---
+    const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+    const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+    const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
+    const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    // --- DATA ---
-    const units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
-    const teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
-    const tens = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
-    const hundreds = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
-    const ordinals = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-    const monthsGenitive = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-    const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', solved: false, xp: 0, streak: 0 };
+    let autoNextTimer = null;
 
-    function getPluralForm(n, singular, pluralA, pluralB) {
-        n = Math.abs(n);
-        if (n === 1) return singular;
-        const lastDigit = n % 10, lastTwo = n % 100;
-        if (lastDigit >= 2 && lastDigit <= 4 && (lastTwo < 10 || lastTwo > 20)) return pluralA;
-        return pluralB;
+    // --- Core Functions ---
+    function init() {
+        state.xp = parseInt(localStorage.getItem('xp') || 0);
+        updateUI();
+        updateRange();
+        setMode('numbers');
+    }
+
+    function generate() {
+        // Clear previous timers if any
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+
+        state.solved = false;
+        document.getElementById('pl-text').classList.remove('visible');
+        document.getElementById('en-text').classList.remove('visible');
+        
+        const btn = document.getElementById('main-btn');
+        btn.innerText = "Skip ➡️";
+        btn.classList.remove('ready');
+        btn.style.background = "#5f6368";
+
+        const min = Math.pow(10, document.getElementById('minP').value);
+        const max = Math.pow(10, document.getElementById('maxP').value);
+
+        // Logic Selection
+        if (state.mode === 'numbers') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
+            state.currentEN = n.toLocaleString();
+            state.currentPL = numberToPolish(n);
+        } else if (state.mode === 'prices') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            state.currentEN = n + " zł";
+            state.currentPL = numberToPolish(n) + " złotych";
+        } else if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let m = Math.floor(Math.random() * 12);
+            state.currentEN = `${d} ${MONTHS_EN[m]}`;
+            state.currentPL = `${d} ${MONTHS_PL[m]}`;
+        } else if (state.mode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            state.currentEN = `${h}:${m.toString().padStart(2,'0')}`;
+            state.currentPL = `${h} ${m}`;
+        } else if (state.mode === 'weights') {
+             let n = Math.floor(Math.random() * (max - min + 1)) + min;
+             state.currentEN = n + " kg";
+             state.currentPL = numberToPolish(n) + " kilogramów";
+        }
+
+        document.getElementById('pl-text').innerText = state.currentPL;
+        document.getElementById('en-text').innerText = state.currentEN;
+        
+        generateMCButtons();
+        setTimeout(() => speak(), 250);
+    }
+
+    function generateMCButtons() {
+        const container = document.getElementById('mc-area');
+        container.innerHTML = '';
+        
+        let opts = [state.currentEN];
+        let safety = 0;
+        
+        // Safety loop to prevent crash on small ranges
+        while(opts.length < 4 && safety < 50) {
+            let decoy = makeDecoy(state.currentEN);
+            if(!opts.includes(decoy)) opts.push(decoy);
+            safety++;
+        }
+        
+        // Fallback if safety triggered (fill with randoms)
+        while(opts.length < 4) {
+            opts.push(Math.floor(Math.random() * 100).toString() + "?");
+        }
+
+        opts.sort(() => Math.random() - 0.5);
+
+        opts.forEach(val => {
+            let b = document.createElement('button');
+            b.className = 'mc-btn';
+            b.innerText = val;
+            b.onclick = () => check(val, b);
+            container.appendChild(b);
+        });
+    }
+
+    function check(val, btn) {
+        if (state.solved) return;
+        
+        if (val === state.currentEN) {
+            // WIN
+            state.solved = true;
+            state.xp += 10;
+            state.streak++;
+            btn.classList.add('correct');
+            document.getElementById('pl-text').classList.add('visible');
+            document.getElementById('en-text').classList.add('visible');
+            
+            // Auto-Next Logic
+            const mainBtn = document.getElementById('main-btn');
+            mainBtn.innerText = "Next >>";
+            mainBtn.classList.add('ready');
+            
+            autoNextTimer = setTimeout(generate, 1500); // Wait 1.5s then load new
+        } else {
+            // LOSE
+            state.streak = 0;
+            btn.classList.add('wrong');
+        }
+        updateUI();
+    }
+
+    function handleMainButton() {
+        generate(); // User clicked "Skip" or "Next" manually
+    }
+
+    // --- Helpers ---
+    function makeDecoy(target) {
+        if (state.mode === 'dates') return `${Math.floor(Math.random()*30)+1} ${MONTHS_EN[Math.floor(Math.random()*12)]}`;
+        if (state.mode === 'time') return `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
+        
+        // Extract number from string (e.g. "-5 kg" -> -5)
+        let numStr = target.replace(/[^\d-]/g, '');
+        let num = parseInt(numStr);
+        if (isNaN(num)) num = 10;
+
+        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.3));
+        let res = num + (Math.random() > 0.5 ? diff : -diff);
+        
+        if (state.mode === 'prices') return res + " zł";
+        if (state.mode === 'weights') return res + " kg";
+        return res.toLocaleString();
     }
 
     function numberToPolish(n) {
         if (n === 0) return "zero";
         if (n < 0) return "minus " + numberToPolish(Math.abs(n));
-        let res = "";
-        let mil = Math.floor(n / 1000000);
-        if (mil > 0) res += (mil === 1 ? "" : numberToPolish(mil) + " ") + getPluralForm(mil, "milion", "miliony", "milionów") + " ";
-        let thou = Math.floor((n % 1000000) / 1000);
-        if (thou > 0) res += (thou === 1 ? "tysiąc" : numberToPolish(thou) + " " + getPluralForm(thou, "tysiąc", "tysiące", "tysięcy")) + " ";
-        let rem = n % 1000, h = Math.floor(rem / 100), t = Math.floor((rem % 100) / 10), u = rem % 10;
-        if (h > 0) res += hundreds[h] + " ";
-        if (t === 1) res += teens[u];
-        else { if (t > 1) res += tens[t] + " "; if (u > 0) res += units[u]; }
-        return res.trim();
-    }
-
-    function timeToPolish(hh, mm, formal) {
-        const hoursOrdFem = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
-        const hoursOrdGen = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
-        if (formal) {
-            let hStr = (hh === 0) ? "zero zero" : hoursOrdFem[hh];
-            let mStr = (mm === 0) ? "" : (mm < 10 ? "zero " + units[mm] : numberToPolish(mm));
-            return `${hStr} ${mStr}`.trim();
-        } else {
-            let displayH = hh % 12;
-            const hNow = hoursOrdFem[displayH === 0 ? 12 : displayH];
-            const hNext = hoursOrdGen[(displayH === 0 ? 0 : displayH) + 1];
-            if (mm === 0) return hNow;
-            if (mm === 30) return `wpół do ${hNext}`;
-            if (mm < 30) return `${numberToPolish(mm)} po ${hoursOrdGen[displayH === 0 ? 12 : displayH]}`;
-            return `za ${numberToPolish(60 - mm)} ${hNext}`;
+        if (n < 10) return UNITS[n];
+        if (n < 20) return TEENS[n-10];
+        if (n < 100) return TENS[Math.floor(n/10)] + (n%10 ? " " + UNITS[n%10] : "");
+        if (n < 1000) return HUNDREDS[Math.floor(n/100)] + (n%100 ? " " + numberToPolish(n%100) : "");
+        if (n < 1000000) {
+            let k = Math.floor(n/1000);
+            return (k===1 ? "tysiąc" : numberToPolish(k) + " tys.") + " " + numberToPolish(n%1000);
         }
+        return n.toString(); 
     }
 
-    // --- GAME ENGINE ---
-    function toggleConfig() {
-        document.getElementById('config-drawer').classList.toggle('open');
-        document.getElementById('config-drawer').style.display = 
-            document.getElementById('config-drawer').style.display === 'flex' ? 'none' : 'flex';
+    function updateRange() {
+        let min = document.getElementById('minP').value;
+        let max = document.getElementById('maxP').value;
+        if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
+        document.getElementById('range-val').innerText = `${Math.pow(10,min)} - ${Math.pow(10,max)}`;
     }
 
-    function setInputMode(mode) {
-        inputMode = mode;
-        document.getElementById('mode-mc').style.background = mode==='mc' ? 'var(--primary)' : 'var(--card-bg)';
-        document.getElementById('mode-mc').style.color = mode==='mc' ? '#fff' : 'var(--text)';
-        document.getElementById('mode-key').style.background = mode==='key' ? 'var(--primary)' : 'var(--card-bg)';
-        document.getElementById('mode-key').style.color = mode==='key' ? '#fff' : 'var(--text)';
-        
-        document.getElementById('mc-container').style.display = mode === 'mc' ? 'grid' : 'none';
-        document.getElementById('key-container').style.display = mode === 'key' ? 'block' : 'none';
-        if(!gameState.answered) setupMC();
+    function setMode(m) {
+        state.mode = m;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-mode-'+m).classList.add('active');
+        document.getElementById('range-row').style.display = (m === 'dates' || m === 'time') ? 'none' : 'flex';
+        // Only show negative toggle in number mode
+        document.getElementById('neg-toggle').parentElement.parentElement.style.display = (m === 'numbers') ? 'flex' : 'none';
+        generate();
     }
 
-    function updateGameUI() {
-        const xpToLevel = gameState.level * 100;
-        if (gameState.xp >= xpToLevel) { gameState.xp -= xpToLevel; gameState.level++; }
-        localStorage.setItem('pl_xp_v5', gameState.xp);
-        localStorage.setItem('pl_lvl_v5', gameState.level);
-        
-        document.getElementById('game-xp-bar').style.width = ((gameState.xp / xpToLevel) * 100) + '%';
-        document.getElementById('game-level').innerText = gameState.level;
-        document.getElementById('game-streak').innerText = gameState.streak;
+    function updateUI() {
+        localStorage.setItem('xp', state.xp);
+        document.getElementById('xp-display').innerText = state.xp;
+        document.getElementById('streak-display').innerText = state.streak;
     }
 
-    function generateNext() {
-        gameState.answered = false;
-        document.getElementById('answer-input').value = "";
-        document.getElementById('answer-input').style.borderColor = "var(--border)";
-        document.getElementById('config-drawer').style.display = 'none'; // Close drawer to focus
-
-        const min = Math.pow(10, document.getElementById('minPower').value);
-        const max = Math.pow(10, document.getElementById('maxPower').value);
-        
-        if (currentMode === 'dates') {
-            const d = Math.floor(Math.random() * 31) + 1, m = Math.floor(Math.random() * 12);
-            let enStr = `${d} ${monthsEn[m]}`, plStr = `${ordinals[d]} ${monthsGenitive[m]}`;
-            if (document.getElementById('includeYear').checked) { 
-                const y = Math.floor(Math.random() * 125) + 1900; 
-                enStr += " " + y; plStr += " " + numberToPolish(y) + " roku"; 
-            }
-            currentEnglish = enStr; currentPolish = plStr;
-        } else if (currentMode === 'time') {
-            const hh = Math.floor(Math.random() * 24), mm = [0, 5, 10, 20, 25, 30, 35, 40, 50, 55][Math.floor(Math.random() * 10)];
-            currentEnglish = `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
-            currentPolish = timeToPolish(hh, mm, document.getElementById('styleFormal').checked);
-        } else if (currentMode === 'weights') {
-            let num = Math.floor(Math.random() * (max - min + 1)) + min;
-            currentEnglish = `${num} kg`; currentPolish = `${numberToPolish(num)} kilogramów`;
-        } else {
-            let num = Math.floor(Math.random() * (max - min + 1)) + min;
-            if (currentMode === 'numbers' && document.getElementById('allowNegatives').checked && Math.random() > 0.5) num *= -1;
-            
-            if (currentMode === 'prices') {
-                currentEnglish = num.toLocaleString() + " zł"; 
-                currentPolish = numberToPolish(num) + " " + getPluralForm(num, "złoty", "złote", "złotych");
-            } else {
-                currentEnglish = num.toLocaleString(); 
-                currentPolish = numberToPolish(num); 
-            }
-        }
-
-        document.getElementById('polishText').style.visibility = 'hidden';
-        document.getElementById('englishText').style.visibility = 'hidden';
-        document.getElementById('polishText').innerText = currentPolish;
-        document.getElementById('englishText').innerText = currentEnglish;
-
-        if (inputMode === 'mc') setupMC();
-        setTimeout(() => speak(1.0), 100);
-    }
-
-    function setupMC() {
-        const container = document.getElementById('mc-container');
-        container.innerHTML = "";
-        let options = [{val: currentEnglish, correct: true}];
-        let safety = 0;
-        
-        // Loop with SAFETY check to prevent Freezing on small ranges
-        while(options.length < 4 && safety < 50) {
-            let d = generateDecoy(currentEnglish);
-            // Ensure decoy isn't already in options
-            if (!options.some(o => o.val === d)) {
-                options.push({val: d, correct: false});
-            }
-            safety++;
-        }
-
-        // If safety triggered and we still lack options (e.g. Range 1-2), fill with random stuff
-        while(options.length < 4) {
-            options.push({val: Math.floor(Math.random() * 100).toString() + "?", correct: false});
-        }
-
-        options.sort(() => Math.random() - 0.5);
-        
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = "mc-btn";
-            btn.innerText = opt.val;
-            btn.onclick = () => checkAnswer(opt.correct, btn);
-            container.appendChild(btn);
-        });
-    }
-
-    function generateDecoy(orig) {
-        if(currentMode==='time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
-        
-        let match = orig.match(/-?[\d,.]+/);
-        if(!match) return (Math.floor(Math.random() * 100)).toString(); // Fallback
-        
-        let val = parseFloat(match[0].replace(',','.'));
-        // Logic to find a number close to the original
-        let diff = Math.floor(Math.random() * (Math.abs(val) * 0.5)) + 1;
-        let newVal = (Math.random() > 0.5) ? val + diff : val - diff;
-        
-        // Return original string with new number substituted
-        return orig.replace(match[0], Math.floor(newVal).toLocaleString());
-    }
-
-    function checkAnswer(isCorrect, btn) {
-        if (gameState.answered) return;
-        if (isCorrect) {
-            if(btn) btn.classList.add('correct');
-            else document.getElementById('answer-input').style.borderColor = "var(--secondary)";
-            
-            gameState.answered = true;
-            gameState.streak++;
-            gameState.xp += (inputMode === 'key' ? 30 : 15);
-            
-            // Show result
-            document.getElementById('polishText').style.visibility = 'visible';
-            document.getElementById('englishText').style.visibility = 'visible';
-        } else {
-            if(btn) btn.classList.add('wrong');
-            else document.getElementById('answer-input').style.borderColor = "var(--error)";
-            gameState.streak = 0;
-        }
-        updateGameUI();
+    function speak() {
+        window.speechSynthesis.cancel();
+        let u = new SpeechSynthesisUtterance(state.currentPL);
+        u.lang = 'pl-PL';
+        window.speechSynthesis.speak(u);
     }
     
-    function handleKeyEntry(e) { if(e.key === 'Enter') {
-        const val = document.getElementById('answer-input').value.trim();
-        if(val === currentEnglish || val.toLowerCase() === currentPolish.toLowerCase()) checkAnswer(true, null);
-        else checkAnswer(false, null);
-    }}
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
 
-    function forceReveal() {
-        document.getElementById('polishText').style.visibility = 'visible';
-        document.getElementById('englishText').style.visibility = 'visible';
-        gameState.streak = 0; 
-        updateGameUI();
-    }
-
-    function handleMinChange() {
-        const minP = parseInt(document.getElementById('minPower').value);
-        if (parseInt(document.getElementById('maxPower').value) <= minP) document.getElementById('maxPower').value = minP + 1;
-        updateSliders();
-    }
-    function updateSliders() {
-        document.getElementById('minValLabel').innerText = Math.pow(10, document.getElementById('minPower').value).toLocaleString();
-        document.getElementById('maxValLabel').innerText = Math.pow(10, document.getElementById('maxPower').value).toLocaleString();
-    }
-    function setMode(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+mode).classList.add('active');
-        
-        document.getElementById('sliderContainer').style.display = (mode=='dates'||mode=='time') ? 'none' : 'block';
-        ['price','date','time'].forEach(k => document.getElementById(k+'Controls').style.display='none');
-        if(mode=='prices') document.getElementById('priceControls').style.display='block';
-        if(mode=='dates') document.getElementById('dateControls').style.display='block';
-        if(mode=='time') document.getElementById('timeControls').style.display='block';
-        generateNext();
-    }
-    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
-    function speak(rate) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(currentPolish); u.lang='pl-PL'; u.rate=rate; window.speechSynthesis.speak(u); }
-    function closeHelp() { document.getElementById('modalOverlay').style.display='none'; localStorage.setItem('hideHelpv3','true'); }
-
-    window.onload = () => { 
-        updateSliders(); setMode('numbers'); setInputMode('mc'); updateGameUI();
-        if (!localStorage.getItem('hideHelpv3')) document.getElementById('modalOverlay').style.display='flex';
-    };
+    window.onload = init;
 </script>
 </body>
 </html>
