@@ -8,8 +8,16 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
     <style>
+        /* Default Light Theme */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
-        .dark-mode { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
+        
+        /* Auto Dark Mode (System Preference) */
+        @media (prefers-color-scheme: dark) {
+            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
+        }
+        /* Manual Override Class */
+        body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
+        body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -19,19 +27,21 @@
         .stats { font-weight: 800; font-size: 0.95rem; display: flex; gap: 15px; align-items: center; }
         .header-icons button { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 0 5px; color: var(--text); }
 
-        /* Navigation */
+        /* Nav */
         .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; border-bottom: 1px solid var(--border); }
         .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; cursor: pointer; transition: 0.2s; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Main Game Area - Centered & Clean */
+        /* Main Game Area */
         .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 120px; max-width: 600px; margin: 0 auto; width: 100%; }
         
         /* Display Box */
-        .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative;}
         .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
         .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
+        
+        .learning-badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: #e37400; color: white; padding: 2px 6px; border-radius: 4px; display: none; font-weight: bold; }
 
         /* Game Grids */
         .mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; }
@@ -83,7 +93,7 @@
         <div>🔥 <span id="streak-display">0</span></div>
     </div>
     <div class="header-icons">
-        <button onclick="toggleHelp()">❓</button>
+        <button onclick="toggleTranslator()">🗣️</button>
         <button onclick="toggleSettings()">⚙️</button>
     </div>
 </div>
@@ -98,6 +108,7 @@
 
 <div class="game-area">
     <div class="display-box">
+        <div id="learning-badge" class="learning-badge">Reviewing Mistake</div>
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
@@ -141,8 +152,12 @@
                 </select>
             </div>
              <div class="set-row">
-                <span>Dark Mode</span>
-                <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')">
+                <span>Theme</span>
+                <select id="theme-select" onchange="applyTheme()">
+                    <option value="auto">Auto (System)</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
             </div>
         </div>
 
@@ -198,21 +213,22 @@
     </div>
 </div>
 
-<div id="help-modal" class="modal">
+<div id="translator-modal" class="modal">
     <div class="modal-box">
-        <button class="close-x" onclick="toggleHelp()">×</button>
-        <h2 style="margin-top:0; color:var(--primary)">How to Play</h2>
-        <p><b>1. Listen:</b> Tap 🔊 to hear the Polish number/phrase.</p>
-        <p><b>2. Answer:</b> Select the button or type the meaning.</p>
-        <p><b>3. Customize:</b> Tap ⚙️ to change ranges, button count (4/8/12), or switch to Typing mode.</p>
-        <hr style="border:0; border-top:1px solid var(--border)">
-        <p style="font-size:0.9rem; color:#666">Tip: Use "Numeric" keyboard in settings for faster typing on mobile.</p>
-        <button class="btn-check" onclick="toggleHelp()">Close</button>
+        <button class="close-x" onclick="toggleTranslator()">×</button>
+        <h2 style="margin-top:0; color:var(--primary)">Type & Speak</h2>
+        <p style="font-size:0.9rem; color:#666">Type a number to see and hear it in Polish.</p>
+        
+        <input type="number" id="trans-input" class="type-input" placeholder="e.g. 1984" style="margin-bottom:15px">
+        
+        <div id="trans-output" style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:15px; font-size:1.2rem; min-height:1.2em">...</div>
+        
+        <button class="btn-check" onclick="runTranslator()">Translate & Speak 🔊</button>
     </div>
 </div>
 
 <script>
-    // --- DATA ---
+    // --- LINGUISTIC DATA ---
     const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
     const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
     const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
@@ -222,16 +238,14 @@
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
 
-    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8 };
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false };
+    let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let autoNextTimer = null;
     let audioCtx = null;
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
-        updateUI();
-        updateRange();
-        setMode('numbers');
-        // Pre-warm TTS
+        updateUI(); updateRange(); setMode('numbers');
         let u = new SpeechSynthesisUtterance(''); u.volume=0; window.speechSynthesis.speak(u);
     }
 
@@ -273,11 +287,13 @@
         }
     }
 
+    // --- GENERATION ENGINE ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false;
+        state.solved = false; state.isReview = false;
         document.getElementById('pl-text').classList.remove('visible');
         document.getElementById('en-text').classList.remove('visible');
+        document.getElementById('learning-badge').style.display = 'none';
         
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); mainBtn.style.background = "#455a64";
@@ -287,38 +303,51 @@
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
 
-        if (state.mode === 'numbers') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-            state.currentEN = n.toLocaleString();
-            state.currentPL = numToPl(n);
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
-            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
-            state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-            state.currentPL = timeToPl(h, m, !isCasual);
-        } else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let mIdx = Math.floor(Math.random() * 12);
-            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
+        // LEARNING ALGORITHM: 30% chance to pick a mistake if available
+        let useMistake = (state.mode === 'numbers' && mistakes.length > 0 && Math.random() < 0.3);
+        
+        if (useMistake) {
+            // Pick a mistake that fits current range if possible, else just pick any
+            let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
+            let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
             
-            let fmt = document.getElementById('date-fmt').value;
-            if (fmt === 'dmy') state.currentEN = `${d}/${mIdx+1}${y? '/'+y : ''}`;
-            else if (fmt === 'mdy') state.currentEN = `${mIdx+1}/${d}${y? '/'+y : ''}`;
-            else state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
-            
-            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
-        } else if (state.mode === 'weights') {
-             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-             state.currentEN = n + " kg";
-             state.currentPL = numToPl(n) + " kilogramów";
+            setupNumber(target);
+            state.isReview = true;
+            document.getElementById('learning-badge').style.display = 'block';
+        } else {
+            // Standard Logic
+            if (state.mode === 'numbers') {
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
+                setupNumber(n);
+            } else if (state.mode === 'prices') {
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+                state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+                state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
+                state.rawData = n;
+            } else if (state.mode === 'time') {
+                let h = Math.floor(Math.random() * 24);
+                let m = Math.floor(Math.random() * 12) * 5;
+                let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
+                state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+                state.currentPL = timeToPl(h, m, !isCasual);
+            } else if (state.mode === 'dates') {
+                let d = Math.floor(Math.random() * 30) + 1;
+                let mIdx = Math.floor(Math.random() * 12);
+                let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
+                let fmt = document.getElementById('date-fmt').value;
+                if (fmt === 'dmy') state.currentEN = `${d}/${mIdx+1}${y? '/'+y : ''}`;
+                else if (fmt === 'mdy') state.currentEN = `${mIdx+1}/${d}${y? '/'+y : ''}`;
+                else state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
+                let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+                state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
+            } else if (state.mode === 'weights') {
+                 let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                 state.currentEN = n + " kg";
+                 state.currentPL = numToPl(n) + " kilogramów";
+                 state.rawData = n;
+            }
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
@@ -326,6 +355,12 @@
         
         applySettings();
         setTimeout(() => speak(1.0), 200);
+    }
+
+    function setupNumber(n) {
+        state.currentEN = n.toLocaleString();
+        state.currentPL = numToPl(n);
+        state.rawData = n;
     }
 
     function applySettings() {
@@ -350,17 +385,43 @@
         }
     }
 
+    function applyTheme() {
+        const t = document.getElementById('theme-select').value;
+        document.body.className = '';
+        if(t === 'dark') document.body.classList.add('force-dark');
+        if(t === 'light') document.body.classList.add('force-light');
+    }
+
+    // --- SMART DECOY SYSTEM ---
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
         let opts = [state.currentEN];
+        
+        // 1. Close Numbers (+- 1, 2)
+        if (state.rawData !== null && !isNaN(state.rawData)) {
+            opts.push(formatDecoy(state.rawData + 1));
+            opts.push(formatDecoy(state.rawData - 1));
+        }
+
+        // 2. Swapped Digits (12 -> 21)
+        if (state.rawData > 10 && state.rawData < 100) {
+            let s = state.rawData.toString();
+            let swapped = parseInt(s[1] + s[0]);
+            if (swapped !== state.rawData) opts.push(formatDecoy(swapped));
+        }
+
+        // 3. Fill remaining with Randoms in range
+        const min = Math.pow(10, document.getElementById('minP').value);
+        const max = Math.pow(10, document.getElementById('maxP').value);
+        
         let safety = 0;
-        while(opts.length < state.btnCount && safety < 100) {
-            let decoy = makeDecoy(state.currentEN);
+        while(opts.length < state.btnCount && safety < 200) {
+            let decoy = makeDecoy(state.currentEN, min, max);
             if(!opts.includes(decoy)) opts.push(decoy);
             safety++;
         }
-        while(opts.length < state.btnCount) { opts.push(Math.floor(Math.random()*100).toString()+"?"); }
+        
         opts.sort(() => Math.random() - 0.5);
 
         opts.forEach(val => {
@@ -371,7 +432,13 @@
         });
     }
 
-    function makeDecoy(target) {
+    function formatDecoy(n) {
+        if (state.mode === 'prices') return n + " zł";
+        if (state.mode === 'weights') return n + " kg";
+        return n.toLocaleString();
+    }
+
+    function makeDecoy(target, min, max) {
         if (state.mode === 'dates') {
             let d = Math.floor(Math.random()*30)+1;
             let m = Math.floor(Math.random()*12);
@@ -382,15 +449,9 @@
         }
         if (state.mode === 'time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
         
-        let numStr = target.replace(/[^\d-]/g, '');
-        let num = parseInt(numStr);
-        if (isNaN(num)) num = 10;
-        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.3));
-        let res = num + (Math.random() > 0.5 ? diff : -diff);
-        
-        if (state.mode === 'prices') return res + " zł";
-        if (state.mode === 'weights') return res + " kg";
-        return res.toLocaleString();
+        // Number Logic
+        let n = Math.floor(Math.random() * (max - min + 1)) + min;
+        return formatDecoy(n);
     }
 
     function check(val, btn) {
@@ -403,7 +464,6 @@
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = state.currentEN.toLowerCase();
-        // Allow lax check for dates separators
         if (state.mode === 'dates' || state.mode === 'time') {
              if (val.replace(/\D/g,'') === correct.replace(/\D/g,'')) { win(null); return; }
         }
@@ -418,8 +478,16 @@
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         document.getElementById('pl-text').classList.add('visible');
         document.getElementById('en-text').classList.add('visible');
+        
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
+        
+        // Remove from mistakes if reviewed correctly
+        if (state.isReview) {
+            mistakes = mistakes.filter(m => m !== state.rawData);
+            localStorage.setItem('mistakes', JSON.stringify(mistakes));
+        }
+
         autoNextTimer = setTimeout(generate, 1500);
         updateUI();
     }
@@ -429,6 +497,16 @@
         state.streak = 0;
         if(btn) btn.classList.add('wrong');
         else document.getElementById('type-input').style.borderColor = "#d93025";
+        
+        // Add to mistakes (Only pure numbers for now)
+        if (state.mode === 'numbers' && state.rawData !== null) {
+            if (!mistakes.includes(state.rawData)) {
+                mistakes.push(state.rawData);
+                // Keep mistakes list size manageable
+                if (mistakes.length > 50) mistakes.shift();
+                localStorage.setItem('mistakes', JSON.stringify(mistakes));
+            }
+        }
         updateUI();
     }
 
@@ -459,14 +537,27 @@
         generate();
     }
 
-    function toggleSettings() { 
-        let d = document.getElementById('settings-modal');
+    // --- TRANSLATOR ---
+    function toggleTranslator() {
+        let d = document.getElementById('translator-modal');
         d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+        if(d.style.display === 'flex') document.getElementById('trans-input').focus();
     }
-    function toggleHelp() { 
-        let d = document.getElementById('help-modal');
-        d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    
+    function runTranslator() {
+        let n = parseInt(document.getElementById('trans-input').value);
+        if (isNaN(n)) return;
+        let txt = numToPl(n);
+        document.getElementById('trans-output').innerText = txt;
+        
+        window.speechSynthesis.cancel();
+        let u = new SpeechSynthesisUtterance(txt);
+        u.lang = 'pl-PL';
+        window.speechSynthesis.speak(u);
     }
+
+    function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
+    function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
 
     function speak(rate) {
         window.speechSynthesis.cancel();
@@ -474,7 +565,7 @@
         u.lang = 'pl-PL'; u.rate = rate;
         window.speechSynthesis.speak(u);
     }
-    
+
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function playSound(type) {
         initAudio();
