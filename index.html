@@ -24,7 +24,7 @@
         .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
         /* Main Game Area */
-        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; padding-bottom: 100px; /* Space for footer */ }
+        .game-area { flex-grow: 1; padding: 10px; overflow-y: auto; padding-bottom: 90px; /* Space for footer */ }
         
         /* Drawer for Settings */
         .config-drawer { display: none; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
@@ -33,21 +33,31 @@
         input[type=range] { width: 100%; }
 
         /* Big Text Display */
-        .display-box { text-align: center; margin: 10px 0 20px 0; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
-        .pl-text { font-size: 1.8rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
-        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; }
+        .display-box { text-align: center; margin: 5px 0 15px 0; min-height: 70px; display: flex; flex-direction: column; justify-content: center; }
+        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
+        .en-text { font-size: 1.1rem; color: #888; visibility: hidden; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
 
-        /* Multiple Choice Grid */
-        .mc-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: 180px; }
-        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; font-size: 1.2rem; font-weight: 700; color: var(--text); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+        /* Multiple Choice Grid - UPDATED FOR 12 ITEMS */
+        .mc-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+            gap: 8px; 
+            /* Auto height to fit 12 items */
+        }
+        .mc-btn { 
+            background: var(--card); border: 2px solid var(--border); border-radius: 10px; 
+            font-size: 1.1rem; font-weight: 700; color: var(--text); cursor: pointer; 
+            transition: transform 0.1s; display: flex; align-items: center; justify-content: center; 
+            padding: 12px 5px; min-height: 50px;
+        }
         .mc-btn:active { transform: scale(0.96); }
         .correct { background: var(--secondary) !important; color: #fff !important; border-color: var(--secondary) !important; }
         .wrong { opacity: 0.4; background: #ff5252 !important; color: #fff !important; }
 
         /* Fixed Footer for Buttons */
         .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; z-index: 9999; height: 85px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
-            grid-template-columns: 1fr 1fr 1fr 2fr; /* 3 small buttons, 1 big next button */
+            grid-template-columns: 1fr 1fr 1fr 2fr; 
         }
         .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-listen { background: var(--primary); font-size: 1.2rem; }
@@ -122,82 +132,59 @@
 
     let state = { mode: 'numbers', currentPL: '', currentEN: '', solved: false, xp: 0, streak: 0 };
     let autoNextTimer = null;
-    let audioCtx = null; // Web Audio API Context
+    let audioCtx = null; 
 
-    // --- Audio Engine Logic (Wake & SFX) ---
+    // --- Audio Engine Logic ---
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
     }
-
     function wakeAudio() {
-        // Keeps the audio engine warm on first touch
         initAudio();
-        // Play silent sound to unlock audio
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        gain.gain.value = 0.001; // Almost silent
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
+        gain.gain.value = 0.001; 
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
-
     function playSound(type) {
         initAudio();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(audioCtx.destination);
 
         if (type === 'correct') {
-            // High Ding
             osc.type = 'sine';
             osc.frequency.setValueAtTime(500, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         } else {
-            // Low Buzz
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(150, audioCtx.currentTime);
             osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.2);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         }
     }
 
     // --- Core Functions ---
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
-        updateUI();
-        updateRange();
-        setMode('numbers');
-        // Initial speech to warm up TTS engine (volume 0)
-        let warmUp = new SpeechSynthesisUtterance('');
-        warmUp.volume = 0;
-        window.speechSynthesis.speak(warmUp);
+        updateUI(); updateRange(); setMode('numbers');
+        let warmUp = new SpeechSynthesisUtterance(''); warmUp.volume = 0; window.speechSynthesis.speak(warmUp);
     }
 
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-
         state.solved = false;
         document.getElementById('pl-text').classList.remove('visible');
         document.getElementById('en-text').classList.remove('visible');
         
         const btn = document.getElementById('main-btn');
-        btn.innerText = "Skip ➡️";
-        btn.classList.remove('ready');
-        btn.style.background = "#5f6368";
+        btn.innerText = "Skip ➡️"; btn.classList.remove('ready'); btn.style.background = "#5f6368";
 
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
@@ -205,26 +192,19 @@
         if (state.mode === 'numbers') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-            state.currentEN = n.toLocaleString();
-            state.currentPL = numberToPolish(n);
+            state.currentEN = n.toLocaleString(); state.currentPL = numberToPolish(n);
         } else if (state.mode === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            state.currentEN = n + " zł";
-            state.currentPL = numberToPolish(n) + " złotych";
+            state.currentEN = n + " zł"; state.currentPL = numberToPolish(n) + " złotych";
         } else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let m = Math.floor(Math.random() * 12);
-            state.currentEN = `${d} ${MONTHS_EN[m]}`;
-            state.currentPL = `${d} ${MONTHS_PL[m]}`;
+            let d = Math.floor(Math.random() * 30) + 1; let m = Math.floor(Math.random() * 12);
+            state.currentEN = `${d} ${MONTHS_EN[m]}`; state.currentPL = `${d} ${MONTHS_PL[m]}`;
         } else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            state.currentEN = `${h}:${m.toString().padStart(2,'0')}`;
-            state.currentPL = `${h} ${m}`;
+            let h = Math.floor(Math.random() * 24); let m = Math.floor(Math.random() * 12) * 5;
+            state.currentEN = `${h}:${m.toString().padStart(2,'0')}`; state.currentPL = `${h} ${m}`;
         } else if (state.mode === 'weights') {
              let n = Math.floor(Math.random() * (max - min + 1)) + min;
-             state.currentEN = n + " kg";
-             state.currentPL = numberToPolish(n) + " kilogramów";
+             state.currentEN = n + " kg"; state.currentPL = numberToPolish(n) + " kilogramów";
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
@@ -241,22 +221,32 @@
         let opts = [state.currentEN];
         let safety = 0;
         
-        while(opts.length < 4 && safety < 50) {
+        // Target: 12 options
+        while(opts.length < 12 && safety < 100) {
             let decoy = makeDecoy(state.currentEN);
             if(!opts.includes(decoy)) opts.push(decoy);
             safety++;
         }
         
-        while(opts.length < 4) {
-            opts.push(Math.floor(Math.random() * 100).toString() + "?");
+        // Fallback to randoms from user range if smart decoys fail
+        const min = Math.pow(10, document.getElementById('minP').value);
+        const max = Math.pow(10, document.getElementById('maxP').value);
+        
+        while(opts.length < 12) {
+             let n = Math.floor(Math.random() * (max - min + 1)) + min;
+             // Simple fallback formatting
+             let val = n.toLocaleString();
+             if(state.mode==='prices') val += " zł";
+             if(state.mode==='weights') val += " kg";
+             if(!opts.includes(val)) opts.push(val);
+             else opts.push(Math.floor(Math.random() * 9999) + "?"); // Ultimate fallback
         }
 
         opts.sort(() => Math.random() - 0.5);
 
         opts.forEach(val => {
             let b = document.createElement('button');
-            b.className = 'mc-btn';
-            b.innerText = val;
+            b.className = 'mc-btn'; b.innerText = val;
             b.onclick = () => check(val, b);
             container.appendChild(b);
         });
@@ -264,34 +254,24 @@
 
     function check(val, btn) {
         if (state.solved) return;
-        
         if (val === state.currentEN) {
-            // WIN
             playSound('correct');
-            state.solved = true;
-            state.xp += 10;
-            state.streak++;
+            state.solved = true; state.xp += 10; state.streak++;
             btn.classList.add('correct');
             document.getElementById('pl-text').classList.add('visible');
             document.getElementById('en-text').classList.add('visible');
             
             const mainBtn = document.getElementById('main-btn');
-            mainBtn.innerText = "Next >>";
-            mainBtn.classList.add('ready');
-            
+            mainBtn.innerText = "Next >>"; mainBtn.classList.add('ready');
             autoNextTimer = setTimeout(generate, 1500);
         } else {
-            // LOSE
             playSound('wrong');
-            state.streak = 0;
-            btn.classList.add('wrong');
+            state.streak = 0; btn.classList.add('wrong');
         }
         updateUI();
     }
 
-    function handleMainButton() {
-        generate();
-    }
+    function handleMainButton() { generate(); }
 
     // --- Helpers ---
     function makeDecoy(target) {
@@ -302,8 +282,9 @@
         let num = parseInt(numStr);
         if (isNaN(num)) num = 10;
 
-        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.3));
+        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.4)); // Widen decoy range for 12 options
         let res = num + (Math.random() > 0.5 ? diff : -diff);
+        if (Math.random() > 0.7) res = num + Math.floor(Math.random() * 10) - 5; // Close decoys
         
         if (state.mode === 'prices') return res + " zł";
         if (state.mode === 'weights') return res + " kg";
@@ -349,8 +330,7 @@
     function speak(rate = 1.0) {
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
-        u.lang = 'pl-PL';
-        u.rate = rate;
+        u.lang = 'pl-PL'; u.rate = rate;
         window.speechSynthesis.speak(u);
     }
     
