@@ -64,9 +64,9 @@
         .btn-next { background: #455a64; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .btn-next.ready { background: var(--primary); }
 
-        /* Settings Modal */
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-        .modal-box { background: var(--card); width: 90%; max-width: 380px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-box { background: var(--card); width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; background: none; border: none; cursor: pointer; color: var(--text); line-height: 1; }
         
         .set-group { background: rgba(0,0,0,0.04); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
@@ -77,6 +77,18 @@
         select, input[type=checkbox] { cursor: pointer; }
         select { padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.9rem; }
         input[type=range] { width: 100%; }
+
+        /* Progress Bars in Help */
+        .progress-item { margin-bottom: 10px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 3px; font-weight: 600; }
+        .progress-bar-bg { background: rgba(0,0,0,0.1); height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.5s; }
+
+        .tab-header { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: none; border: none; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
@@ -90,6 +102,7 @@
     </div>
     <div class="header-icons">
         <button onclick="toggleTranslator()">🗣️</button>
+        <button onclick="toggleHelp()">❓</button>
         <button onclick="toggleSettings()">⚙️</button>
     </div>
 </div>
@@ -219,6 +232,38 @@
     </div>
 </div>
 
+<div id="help-modal" class="modal">
+    <div class="modal-box">
+        <button class="close-x" onclick="toggleHelp()">×</button>
+        
+        <div class="tab-header">
+            <button class="tab-btn active" onclick="setHelpTab('guide')">How to Play</button>
+            <button class="tab-btn" onclick="setHelpTab('progress')">My Progress</button>
+        </div>
+
+        <div id="tab-guide" class="tab-content active">
+            <p><b>Goal:</b> Listen to the Polish phrase and select the correct matching value.</p>
+            <div class="set-group">
+                <div class="set-title">Scoring System</div>
+                <p>• <b>+10 XP</b> for every correct answer.</p>
+                <p>• <b>Streak Bonus:</b> Answer correctly in a row to build fire 🔥.</p>
+                <p>• <b>Smart Review:</b> If you get an answer wrong, the app remembers it and will test you again later.</p>
+            </div>
+            <div class="set-group">
+                <div class="set-title">Saving</div>
+                <p><b>Progress is saved automatically.</b> You can close the app and your XP, Streaks, and Settings will be here when you return.</p>
+            </div>
+        </div>
+
+        <div id="tab-progress" class="tab-content">
+            <h3 style="margin-top:0; text-align:center">Total XP: <span id="total-xp-modal">0</span></h3>
+            <div id="stats-container">
+                </div>
+            <button class="btn-check" style="background:#d93025; margin-top:20px" onclick="resetProgress()">Reset Progress</button>
+        </div>
+    </div>
+</div>
+
 <div id="translator-modal" class="modal">
     <div class="modal-box">
         <button class="close-x" onclick="toggleTranslator()">×</button>
@@ -240,19 +285,21 @@
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
 
-    // Fraction Data
     const DENOM_S = [null, null, "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta"];
     const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste", "trzynaste", "czternaste", "piętnaste", "szesnaste"];
     const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
+    // State & Storage
     let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
+    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
     let autoNextTimer = null;
     let audioCtx = null;
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         updateUI(); updateRange(); setMode('numbers');
+        updateStatsView();
         let u = new SpeechSynthesisUtterance(''); u.volume=0; window.speechSynthesis.speak(u);
     }
 
@@ -279,9 +326,9 @@
     }
 
     function getFractionPl(n, d) {
-        // Special Common Names
         if (n===1 && d===2) return "jedna druga (pół)";
         if (n===1 && d===4) return "jedna czwarta (ćwierć)";
+        if (n===3 && d===4) return "trzy czwarte";
         
         let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
         let denStr = "";
@@ -323,7 +370,7 @@
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
 
-        // Learning Review (Only for Numbers)
+        // Learning Review
         let useMistake = (state.mode === 'numbers' && mistakes.length > 0 && Math.random() < 0.3);
         if (useMistake) {
             let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
@@ -332,21 +379,14 @@
             state.isReview = true;
             document.getElementById('learning-badge').style.display = 'block';
         } else {
-            // Logic per Mode
             if (state.mode === 'numbers') {
                 if (document.getElementById('decimal-toggle').checked) {
                     let places = parseInt(document.getElementById('decimal-places').value);
                     let n = (Math.random() * (max - min) + min).toFixed(places);
-                    
                     state.currentEN = n.toString().replace('.', ',');
-                    
                     let parts = n.split('.');
                     let intPart = parseInt(parts[0]);
                     let decPart = parts[1];
-                    let decNum = parseInt(decPart);
-                    
-                    // Reading individual digits for decimals > 2 places usually, but standard reading for short ones
-                    // Simple Logic: "One point Five"
                     state.currentPL = `${numToPl(intPart)} przecinek ${readDecimalPart(decPart)}`;
                     state.rawData = parseFloat(n);
                 } else {
@@ -355,8 +395,8 @@
                     setupNumber(n);
                 }
             } else if (state.mode === 'fractions') {
-                let d = Math.floor(Math.random() * 15) + 2; // 2 to 16
-                let n = Math.floor(Math.random() * (d - 1)) + 1; // proper fraction
+                let d = Math.floor(Math.random() * 15) + 2; 
+                let n = Math.floor(Math.random() * (d - 1)) + 1; 
                 state.currentEN = `${n}/${d}`;
                 state.currentPL = getFractionPl(n, d);
                 state.rawData = {n, d};
@@ -393,7 +433,6 @@
 
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
-        
         applySettings();
         setTimeout(() => speak(1.0), 200);
     }
@@ -405,17 +444,13 @@
     }
     
     function readDecimalPart(str) {
-        // Read as individual digits if long, or number if short
-        if (str.length > 2) {
-            return str.split('').map(d => numToPl(parseInt(d))).join(' ');
-        }
+        if (str.length > 2) return str.split('').map(d => numToPl(parseInt(d))).join(' ');
         return numToPl(parseInt(str));
     }
 
     function applySettings() {
         let style = document.getElementById('input-style').value;
         let kb = document.getElementById('kb-type').value;
-        
         if (style === 'type') {
             document.getElementById('mc-area').style.display = 'none';
             document.getElementById('type-area').style.display = 'flex';
@@ -441,21 +476,14 @@
         if(t === 'light') document.body.classList.add('force-light');
     }
 
-    // --- DECOY LOGIC ---
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
         let opts = [state.currentEN];
         
-        // Smart Decoys
-        if (state.mode === 'numbers' && typeof state.rawData === 'number') {
-             // If decimals, generate nearby decimals
-             if (document.getElementById('decimal-toggle').checked) {
-                 // Nothing specific needed as makeDecoy handles it
-             } else {
-                 opts.push(formatDecoy(state.rawData + 1));
-                 opts.push(formatDecoy(state.rawData - 1));
-             }
+        if (state.mode === 'numbers' && typeof state.rawData === 'number' && !document.getElementById('decimal-toggle').checked) {
+             opts.push(formatDecoy(state.rawData + 1));
+             opts.push(formatDecoy(state.rawData - 1));
         }
 
         const min = Math.pow(10, document.getElementById('minP').value);
@@ -469,7 +497,6 @@
         }
         
         opts.sort(() => Math.random() - 0.5);
-
         opts.forEach(val => {
             let b = document.createElement('button');
             b.className = 'mc-btn'; b.innerText = val;
@@ -484,13 +511,12 @@
              let intPart = Math.floor(n);
              if (hasGrosze) {
                  let decPart = Math.round((n % 1) * 100); 
-                 if(decPart === 0) decPart = Math.floor(Math.random()*99)+1; // Ensure fake grosze exists
+                 if(decPart === 0) decPart = Math.floor(Math.random()*99)+1;
                  return `${intPart},${decPart.toString().padStart(2,'0')} zł`;
              }
              return intPart + ",00 zł"; 
         }
         if (state.mode === 'weights') return Math.floor(n) + " kg";
-        // Decimals mode
         if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
             let places = parseInt(document.getElementById('decimal-places').value);
             return n.toFixed(places).replace('.', ',');
@@ -534,7 +560,6 @@
              return n.toFixed(places).replace('.', ',');
         }
         if (state.mode === 'weights') return (Math.floor(Math.random() * (max - min + 1)) + min) + " kg";
-        
         let n = Math.floor(Math.random() * (max - min + 1)) + min;
         return n.toLocaleString();
     }
@@ -559,19 +584,25 @@
     function win(btn) {
         playSound('correct');
         state.solved = true; state.xp += 10; state.streak++;
+        
+        // Track stats
+        categoryStats[state.mode] += 10;
+        saveAllStats();
+
         if(btn) btn.classList.add('correct');
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         document.getElementById('pl-text').classList.add('visible');
         document.getElementById('en-text').classList.add('visible');
         const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
+        mainBtn.innerText = "NEXT >> (5s)"; mainBtn.classList.add('ready');
         
         if (state.isReview) {
             mistakes = mistakes.filter(m => m !== state.rawData);
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
         }
 
-        autoNextTimer = setTimeout(generate, 5000); // 5 Seconds Delay
+        // 5 Second Delay
+        autoNextTimer = setTimeout(generate, 5000);
         updateUI();
     }
 
@@ -592,9 +623,12 @@
     }
 
     function updateUI() {
-        localStorage.setItem('xp', state.xp);
+        saveAllStats();
         document.getElementById('xp-display').innerText = state.xp;
         document.getElementById('streak-display').innerText = state.streak;
+        document.getElementById('total-xp-modal').innerText = state.xp;
+        updateStatsView();
+
         let min = document.getElementById('minP').value;
         let max = document.getElementById('maxP').value;
         if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
@@ -603,6 +637,42 @@
     }
 
     function updateRange() { updateUI(); }
+
+    function saveAllStats() {
+        localStorage.setItem('xp', state.xp);
+        localStorage.setItem('catStats', JSON.stringify(categoryStats));
+    }
+
+    function updateStatsView() {
+        const c = document.getElementById('stats-container');
+        c.innerHTML = '';
+        for (const [key, val] of Object.entries(categoryStats)) {
+            let max = Math.max(200, val * 1.5); 
+            let pct = Math.min(100, (val / max) * 100);
+            c.innerHTML += `
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span style="text-transform:capitalize">${key}</span>
+                        <span>${val} XP</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    function resetProgress() {
+        if(confirm("Are you sure? This resets all XP and stats.")) {
+            state.xp = 0;
+            state.streak = 0;
+            categoryStats = {"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0};
+            mistakes = [];
+            localStorage.clear();
+            updateUI();
+        }
+    }
 
     function setMode(m) {
         state.mode = m;
@@ -616,6 +686,13 @@
         if (m==='dates') document.getElementById('set-dates').style.display='block';
         
         generate();
+    }
+
+    function setHelpTab(t) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display='none');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-'+t).style.display='block';
+        event.target.classList.add('active');
     }
 
     function toggleTranslator() {
@@ -636,6 +713,7 @@
     }
 
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
+    function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function speak(rate) {
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
