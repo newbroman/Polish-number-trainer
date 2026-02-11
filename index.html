@@ -3,133 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polish Master Trainer</title>
+    <title>Polish Master Game</title>
     <meta name="theme-color" content="#1a73e8">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
     <style>
-        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #fff; --text: #202124; --border: #ddd; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
         .dark-mode { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Header & Nav */
-        .header { text-align: center; margin-bottom: 10px; width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; }
-        .title { font-weight: 800; font-size: 1.1rem; color: var(--primary); text-transform: uppercase; }
-        .settings-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 5px; }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 55px; flex-shrink: 0; }
+        .stats { font-weight: 800; font-size: 0.95rem; display: flex; gap: 15px; }
+        .gear-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 5px; }
 
-        .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 5px; background: var(--card); border-radius: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; max-width: 500px; width: 100%; scrollbar-width: none; }
-        .nav-btn { background: none; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: #5f6368; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-        .nav-btn.active { background: var(--primary); color: #fff; }
+        /* Nav */
+        .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; }
+        .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; cursor: pointer; transition: 0.2s; }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Main Card */
-        .card { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; border: 1px solid var(--border); }
-
-        /* Sliders & Controls */
-        .control-group { background: rgba(0,0,0,0.03); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
-        .slider-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; }
-        input[type=range] { width: 100%; cursor: pointer; }
+        /* Game Area */
+        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 100px; }
         
-        .toggle-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .toggle-label { font-size: 0.9rem; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        /* Display Box */
+        .display-box { text-align: center; margin-bottom: 15px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
+        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
+        .visible { visibility: visible !important; animation: popIn 0.3s; }
 
-        /* Display Area */
-        .display-area { text-align: center; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 5px 0; }
-        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; line-height: 1.3; min-height: 1.3em; visibility: hidden; }
-        .en-text { font-size: 1.1rem; color: #888; font-weight: 500; min-height: 1.3em; visibility: hidden; }
-        .visible { visibility: visible !important; animation: fadeIn 0.3s; }
+        /* Inputs */
+        .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: 700; color: var(--text); padding: 15px 5px; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; min-height: 55px; }
+        .mc-btn:active { transform: scale(0.96); }
+        .correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
+        .wrong { opacity: 0.5; background: #d93025 !important; color: white !important; }
 
-        /* Buttons */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.95rem; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-audio { background: var(--secondary); grid-column: span 2; }
-        .btn-reveal { background: var(--primary); }
-        .btn-next { background: #455a64; grid-column: span 2; font-size: 1.1rem; padding: 14px; margin-top: 5px; }
-        .btn-small { background: #fb8c00; font-size: 0.8rem; padding: 8px; }
+        .type-input-container { display: none; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
+        .type-input { width: 100%; padding: 15px; font-size: 1.4rem; text-align: center; border: 2px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); outline: none; }
+        .type-input:focus { border-color: var(--primary); }
+        .btn-check { width: 100%; background: var(--primary); color: white; padding: 12px; border-radius: 10px; font-weight: bold; border: none; font-size: 1rem; cursor: pointer; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Footer */
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border); display: grid; gap: 10px; z-index: 100; height: 80px; grid-template-columns: 1fr 1fr 1fr 2fr; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-audio { background: var(--primary); font-size: 1.2rem; }
+        .btn-slow { background: #fb8c00; font-size: 1.2rem; }
+        .btn-vslow { background: #e65100; font-size: 1.2rem; }
+        .btn-next { background: #5f6368; transition: background 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-next.ready { background: var(--secondary); }
 
-        /* Drawer */
-        .drawer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .drawer-content { background: var(--card); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; }
+        /* Settings Drawer */
+        .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: flex-end; }
+        .drawer-content { width: 85%; max-width: 350px; height: 100%; background: var(--card); padding: 20px; overflow-y: auto; animation: slideLeft 0.2s; display: flex; flex-direction: column; gap: 15px; }
+        .setting-group { background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; }
+        .setting-title { font-weight: 800; color: var(--primary); margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        input[type=range] { width: 100%; }
+
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body onload="init()">
 
 <div class="header">
-    <div class="title">Polish Trainer</div>
-    <button class="settings-btn" onclick="toggleDrawer()">⚙️</button>
+    <div class="stats">
+        <div>⭐ <span id="xp-display">0</span> XP</div>
+        <div>🔥 <span id="streak-display">0</span></div>
+    </div>
+    <button class="gear-btn" onclick="toggleDrawer()">⚙️</button>
 </div>
 
 <div class="nav-scroller">
-    <button class="nav-btn active" onclick="setMode('numbers')" id="nav-numbers">Numbers</button>
-    <button class="nav-btn" onclick="setMode('prices')" id="nav-prices">Prices</button>
-    <button class="nav-btn" onclick="setMode('dates')" id="nav-dates">Dates</button>
-    <button class="nav-btn" onclick="setMode('time')" id="nav-time">Time</button>
-    <button class="nav-btn" onclick="setMode('weights')" id="nav-weights">Weights</button>
+    <button class="nav-btn active" onclick="setMode('numbers')" id="nav-numbers">123</button>
+    <button class="nav-btn" onclick="setMode('prices')" id="nav-prices">$$$</button>
+    <button class="nav-btn" onclick="setMode('dates')" id="nav-dates">📅</button>
+    <button class="nav-btn" onclick="setMode('time')" id="nav-time">🕒</button>
+    <button class="nav-btn" onclick="setMode('weights')" id="nav-weights">⚖️</button>
 </div>
 
-<div class="card">
-    
-    <div id="controls-numbers" class="control-group">
-        <div class="slider-row">
-            <span>Min: <span id="lbl-min">1</span></span>
-            <input type="range" id="minP" min="0" max="6" value="0" oninput="updateUI()">
-        </div>
-        <div class="slider-row">
-            <span>Max: <span id="lbl-max">10</span></span>
-            <input type="range" id="maxP" min="1" max="7" value="1" oninput="updateUI()">
-        </div>
-        <div class="toggle-row" style="margin-top:10px;">
-            <label class="toggle-label"><input type="checkbox" id="neg-toggle" onchange="generate()"> Negatives</label>
-        </div>
-    </div>
-
-    <div id="controls-prices" class="control-group" style="display:none">
-        <div class="toggle-row">
-            <label class="toggle-label"><input type="checkbox" id="grosze-toggle" checked onchange="generate()"> Include Grosze</label>
-        </div>
-    </div>
-
-    <div id="controls-time" class="control-group" style="display:none">
-        <div class="toggle-row">
-            <label class="toggle-label"><input type="radio" name="t-style" value="formal" onchange="generate()"> Formal</label>
-            <label class="toggle-label"><input type="radio" name="t-style" value="casual" checked onchange="generate()"> Casual</label>
-        </div>
-    </div>
-
-    <div id="controls-dates" class="control-group" style="display:none">
-        <div class="toggle-row">
-            <label class="toggle-label"><input type="checkbox" id="year-toggle" checked onchange="generate()"> Include Year</label>
-        </div>
-    </div>
-
-    <div class="display-area">
+<div class="game-area">
+    <div class="display-box">
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
 
-    <div class="btn-grid">
-        <button class="btn btn-audio" onclick="speak(1.0)">🔊 Repeat Audio</button>
-        <button class="btn btn-small" onclick="speak(0.5)">🐢 Slow</button>
-        <button class="btn btn-small" onclick="speak(0.2)">🐌 Snail</button>
-        
-        <button class="btn btn-reveal" onclick="reveal('pl-text')">👁️ Polish</button>
-        <button class="btn btn-reveal" style="background:#673ab7" onclick="reveal('en-text')">👁️ Meaning</button>
-        
-        <button class="btn btn-next" onclick="generate()">NEXT ➡️</button>
+    <div id="mc-area" class="mc-grid"></div>
+
+    <div id="type-area" class="type-input-container">
+        <input type="text" id="type-input" class="type-input" placeholder="Enter number..." autocomplete="off">
+        <button class="btn-check" onclick="checkTyped()">CHECK ANSWER</button>
     </div>
 </div>
 
-<div id="drawer" class="drawer">
-    <div class="drawer-content">
-        <h3>Settings</h3>
-        <label class="toggle-label" style="margin-bottom:15px">
-            <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')"> Dark Mode
-        </label>
-        <button class="btn btn-next" onclick="toggleDrawer()">Close</button>
+<div class="footer">
+    <button class="btn-action btn-audio" onclick="speak(1.0)">🔊</button>
+    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
+    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
+    <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
+</div>
+
+<div id="drawer" class="drawer-overlay" onclick="toggleDrawer(event)">
+    <div class="drawer-content" onclick="event.stopPropagation()">
+        <h2 style="margin-top:0;">Settings</h2>
+        
+        <div class="setting-group">
+            <div class="setting-title">Game Options</div>
+            <div class="setting-row">
+                <span>Input Mode</span>
+                <select id="input-mode-select" onchange="toggleInputMode()" style="padding:5px; border-radius:5px;">
+                    <option value="mc">8 Buttons</option>
+                    <option value="type">Typing</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <span>Dark Mode</span>
+                <input type="checkbox" onchange="document.body.classList.toggle('dark-mode')">
+            </div>
+        </div>
+
+        <div class="setting-group" id="settings-range">
+            <div class="setting-title">Number Range</div>
+            <div class="setting-row">
+                <span>Min: <span id="lbl-min">1</span></span>
+                <div style="width:60%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
+            </div>
+            <div class="setting-row">
+                <span>Max: <span id="lbl-max">10</span></span>
+                <div style="width:60%"><input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()"></div>
+            </div>
+            <div class="setting-row">
+                <span>Negative Numbers</span>
+                <input type="checkbox" id="neg-toggle">
+            </div>
+        </div>
+
+        <div class="setting-group" id="settings-prices" style="display:none">
+            <div class="setting-title">Prices Options</div>
+            <div class="setting-row">
+                <span>Include Grosze</span>
+                <input type="checkbox" id="grosze-toggle" checked>
+            </div>
+        </div>
+
+        <div class="setting-group" id="settings-time" style="display:none">
+            <div class="setting-title">Time Format</div>
+            <div class="setting-row">
+                <label><input type="radio" name="t-style" value="casual" checked> Casual</label>
+                <label><input type="radio" name="t-style" value="formal"> Formal</label>
+            </div>
+        </div>
+
+        <div class="setting-group" id="settings-dates" style="display:none">
+            <div class="setting-title">Date Options</div>
+            <div class="setting-row">
+                <span>Include Year</span>
+                <input type="checkbox" id="year-toggle" checked>
+            </div>
+        </div>
+
+        <button class="btn-check" onclick="toggleDrawer(); generate();">SAVE & CLOSE</button>
     </div>
 </div>
 
@@ -142,18 +177,24 @@
     const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
     const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
-    // Time specific arrays
+    // Time specific
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
 
-    let state = { mode: 'numbers', currentPL: '', currentEN: '' };
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false };
+    let audioCtx = null;
+    let autoNextTimer = null;
 
     function init() {
+        state.xp = parseInt(localStorage.getItem('xp') || 0);
         updateUI();
+        updateRange();
         setMode('numbers');
+        // Pre-warm TTS
+        let u = new SpeechSynthesisUtterance(''); u.volume=0; window.speechSynthesis.speak(u);
     }
 
-    // --- LOGIC: Number to Words ---
+    // --- LOGIC ---
     function getPlural(n, s, pa, pb) {
         n = Math.abs(n);
         if (n === 1) return s;
@@ -175,32 +216,34 @@
         return s.trim();
     }
 
-    // --- LOGIC: Time to Words (The Fix) ---
     function timeToPl(h, m, formal) {
         if (formal) {
-            // Formal: "Hour" + "Minute" (e.g. "trzynasta piętnaście")
             let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
             let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
             return `${hStr} ${mStr}`.trim();
         } else {
-            // Casual: "wpół do", "po", "za"
             let dispH = h % 12;
-            let hNow = HOURS_ORD_FEM[(dispH===0?12:dispH)];
             let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
-            // Handle index overflow for 12 -> 1
             if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
 
-            if (m === 0) return hNow;
+            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)];
             if (m === 30) return `wpół do ${hNext}`;
             if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
             return `za ${numToPl(60-m)} ${hNext}`;
         }
     }
 
-    // --- GENERATOR ---
     function generate() {
-        document.getElementById('pl-text').style.visibility = 'hidden';
-        document.getElementById('en-text').style.visibility = 'hidden';
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        state.solved = false;
+        document.getElementById('pl-text').classList.remove('visible');
+        document.getElementById('en-text').classList.remove('visible');
+        
+        const mainBtn = document.getElementById('main-btn');
+        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); mainBtn.style.background = "#5f6368";
+        
+        document.getElementById('type-input').value = "";
+        document.getElementById('type-input').style.borderColor = "var(--border)";
 
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
@@ -219,35 +262,121 @@
             let h = Math.floor(Math.random() * 24);
             let m = Math.floor(Math.random() * 12) * 5;
             let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
-            
             state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
             state.currentPL = timeToPl(h, m, !isCasual);
         } else if (state.mode === 'dates') {
             let d = Math.floor(Math.random() * 30) + 1;
             let mIdx = Math.floor(Math.random() * 12);
             let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*125)+1900 : 0;
-            
             state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
-            // Note: Simple ordinal logic used here for days
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
             state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
         } else if (state.mode === 'weights') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            state.currentEN = n + " kg";
-            state.currentPL = numToPl(n) + " " + getPlural(n, "kilogram", "kilogramy", "kilogramów");
+             let n = Math.floor(Math.random() * (max - min + 1)) + min;
+             state.currentEN = n + " kg";
+             state.currentPL = numToPl(n) + " kilogramów";
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
-        setTimeout(() => speak(1.0), 100);
+        
+        generateGrid();
+        setTimeout(() => speak(1.0), 200);
     }
 
-    function reveal(id) {
-        document.getElementById(id).style.visibility = 'visible';
-        document.getElementById(id).classList.add('visible');
+    function generateGrid() {
+        const container = document.getElementById('mc-area');
+        container.innerHTML = '';
+        
+        // Generate 7 decoys + 1 correct
+        let opts = [state.currentEN];
+        let safety = 0;
+        
+        while(opts.length < 8 && safety < 100) {
+            let decoy = makeDecoy(state.currentEN);
+            if(!opts.includes(decoy)) opts.push(decoy);
+            safety++;
+        }
+        // Fallback
+        while(opts.length < 8) { opts.push(Math.floor(Math.random()*100).toString()+"?"); }
+        
+        opts.sort(() => Math.random() - 0.5);
+
+        opts.forEach(val => {
+            let b = document.createElement('button');
+            b.className = 'mc-btn'; b.innerText = val;
+            b.onclick = () => check(val, b);
+            container.appendChild(b);
+        });
+    }
+
+    function makeDecoy(target) {
+        if (state.mode === 'dates') return `${Math.floor(Math.random()*30)+1} ${MONTHS_EN[Math.floor(Math.random()*12)]}`;
+        if (state.mode === 'time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
+        
+        let numStr = target.replace(/[^\d-]/g, '');
+        let num = parseInt(numStr);
+        if (isNaN(num)) num = 10;
+        
+        let diff = Math.max(1, Math.floor(Math.abs(num) * 0.3));
+        let res = num + (Math.random() > 0.5 ? diff : -diff);
+        
+        if (state.mode === 'prices') return res + " zł";
+        if (state.mode === 'weights') return res + " kg";
+        return res.toLocaleString();
+    }
+
+    function check(val, btn) {
+        if (state.solved) return;
+        if (val === state.currentEN) {
+            win(btn);
+        } else {
+            lose(btn);
+        }
+    }
+
+    function checkTyped() {
+        if (state.solved) return;
+        let val = document.getElementById('type-input').value.trim();
+        // Loose comparison for things like "1200" vs "1,200"
+        let cleanVal = val.replace(/,/g, '');
+        let cleanAns = state.currentEN.replace(/,/g, '');
+        
+        if (val === state.currentEN || cleanVal === cleanAns) {
+            win(null);
+        } else {
+            lose(null);
+        }
+    }
+
+    function win(btn) {
+        playSound('correct');
+        state.solved = true; state.xp += 10; state.streak++;
+        if(btn) btn.classList.add('correct');
+        else document.getElementById('type-input').style.borderColor = "var(--secondary)";
+        
+        document.getElementById('pl-text').classList.add('visible');
+        document.getElementById('en-text').classList.add('visible');
+        
+        const mainBtn = document.getElementById('main-btn');
+        mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
+        autoNextTimer = setTimeout(generate, 1500);
+        updateUI();
+    }
+
+    function lose(btn) {
+        playSound('wrong');
+        state.streak = 0;
+        if(btn) btn.classList.add('wrong');
+        else document.getElementById('type-input').style.borderColor = "#d93025";
+        updateUI();
     }
 
     function updateUI() {
+        localStorage.setItem('xp', state.xp);
+        document.getElementById('xp-display').innerText = state.xp;
+        document.getElementById('streak-display').innerText = state.streak;
+        
         let min = document.getElementById('minP').value;
         let max = document.getElementById('maxP').value;
         if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
@@ -255,19 +384,42 @@
         document.getElementById('lbl-max').innerText = Math.pow(10, max).toLocaleString();
     }
 
+    function updateRange() {
+        updateUI();
+    }
+
     function setMode(m) {
         state.mode = m;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
         
-        ['numbers','prices','time','dates'].forEach(id => {
-            let el = document.getElementById('controls-'+id);
-            if(el) el.style.display = (id === m) ? 'block' : 'none';
-        });
-        // Default weights uses numbers sliders
-        if(m === 'weights') document.getElementById('controls-numbers').style.display = 'block';
-
+        // Hide all setting groups first
+        document.getElementById('settings-prices').style.display='none';
+        document.getElementById('settings-time').style.display='none';
+        document.getElementById('settings-dates').style.display='none';
+        document.getElementById('settings-range').style.display = (m==='time'||m==='dates') ? 'none' : 'block';
+        
+        if(m==='prices') document.getElementById('settings-prices').style.display='block';
+        if(m==='time') document.getElementById('settings-time').style.display='block';
+        if(m==='dates') document.getElementById('settings-dates').style.display='block';
+        
         generate();
+    }
+
+    function toggleInputMode() {
+        let mode = document.getElementById('input-mode-select').value;
+        if(mode === 'mc') {
+            document.getElementById('mc-area').style.display = 'grid';
+            document.getElementById('type-area').style.display = 'none';
+        } else {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+        }
+    }
+
+    function toggleDrawer(e) { 
+        let d = document.getElementById('drawer');
+        if(!e || e.target === d) d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
     }
 
     function speak(rate) {
@@ -277,9 +429,29 @@
         window.speechSynthesis.speak(u);
     }
 
-    function toggleDrawer() {
-        let d = document.getElementById('drawer');
-        d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
+    // Audio SFX
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playSound(type) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'correct') {
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
     }
 </script>
 </body>
