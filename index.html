@@ -21,95 +21,89 @@
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Top Stats Bar - Ultra Compact */
+        /* Stats Bar */
         .stats-bar {
             display: flex; justify-content: space-between; align-items: center;
             background: var(--card-bg); border-bottom: 1px solid var(--border);
-            padding: 4px 12px; height: 40px; font-size: 0.8rem; font-weight: bold;
+            padding: 8px 12px; height: 50px; font-size: 0.9rem; font-weight: bold;
             flex-shrink: 0;
         }
-        .xp-track { flex-grow: 1; height: 6px; background: #ddd; margin: 0 10px; border-radius: 3px; overflow: hidden; }
+        .xp-track { flex-grow: 1; height: 8px; background: #ddd; margin: 0 15px; border-radius: 4px; overflow: hidden; }
         .xp-fill { height: 100%; background: var(--xp-bar); width: 0%; transition: width 0.3s; }
 
-        /* Navigation - Scrollable Horizontal */
+        /* Navigation */
         .nav-bar {
-            display: flex; gap: 5px; overflow-x: auto; padding: 8px;
+            display: flex; gap: 8px; overflow-x: auto; padding: 10px;
             background: var(--bg); flex-shrink: 0; scrollbar-width: none;
         }
         .nav-btn {
             background: var(--card-bg); border: 1px solid var(--border);
-            padding: 6px 12px; border-radius: 15px; font-size: 0.75rem;
+            padding: 8px 16px; border-radius: 20px; font-size: 0.8rem;
             white-space: nowrap; font-weight: 600; color: var(--text);
         }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Main Game Container */
+        /* Game Container */
         .game-container {
             flex-grow: 1; display: flex; flex-direction: column;
-            padding: 10px; position: relative; overflow-y: auto;
+            padding: 15px; position: relative; overflow-y: auto;
         }
 
-        /* Settings Drawer (Collapsible) */
+        /* Config Drawer */
         #config-drawer {
-            display: none; background: var(--card-bg); padding: 10px;
-            border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border);
+            display: none; background: var(--card-bg); padding: 15px;
+            border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);
         }
-        #config-drawer.open { display: flex; flex-direction: column; gap: 8px; animation: slideDown 0.2s ease-out; }
+        #config-drawer.open { display: flex; flex-direction: column; gap: 12px; animation: slideDown 0.2s ease-out; }
         
-        .config-toggle-btn {
-            width: 100%; text-align: center; background: none; border: none;
-            color: #888; font-size: 0.8rem; padding: 5px; cursor: pointer;
-        }
-
-        /* Controls inside Drawer */
-        .control-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .control-box { background: rgba(0,0,0,0.03); padding: 5px 10px; border-radius: 8px; flex: 1; }
+        .control-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .control-box { background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 8px; flex: 1; }
         input[type=range] { width: 100%; }
         
-        /* Game Areas */
+        /* Display Area */
         .display-area {
             text-align: center; margin: auto 0; padding: 10px 0;
         }
-        .polish-text { font-size: 1.2rem; color: var(--primary); font-weight: bold; visibility: hidden; min-height: 1.5em; margin-bottom: 5px;}
-        .english-text { font-size: 0.9rem; color: #888; visibility: hidden; min-height: 1.2em; }
+        .polish-text { font-size: 1.4rem; color: var(--primary); font-weight: bold; visibility: hidden; min-height: 1.5em; margin-bottom: 5px; line-height: 1.2; }
+        .english-text { font-size: 1rem; color: #888; visibility: hidden; min-height: 1.2em; }
 
+        /* Input Area */
         .input-area { width: 100%; margin-bottom: 10px; }
-        .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 140px; }
+        .mc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 160px; }
         .mc-btn {
-            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
-            font-size: 1.1rem; font-weight: bold; color: var(--text);
+            background: var(--card-bg); border: 2px solid var(--border); border-radius: 12px;
+            font-size: 1.2rem; font-weight: bold; color: var(--text);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s;
         }
-        .mc-btn:active { background: #eee; transform: scale(0.98); }
+        .mc-btn:active { transform: scale(0.96); }
         .mc-btn.correct { background: var(--secondary); color: white; border-color: var(--secondary); }
         .mc-btn.wrong { background: var(--error); color: white; opacity: 0.5; }
 
         .key-input {
-            width: 100%; padding: 15px; font-size: 1.2rem; text-align: center;
+            width: 100%; padding: 15px; font-size: 1.3rem; text-align: center;
             border-radius: 12px; border: 2px solid var(--border); background: var(--card-bg); color: var(--text);
         }
 
-        /* Footer Controls */
+        /* Footer */
         .footer-controls {
-            flex-shrink: 0; background: var(--card-bg); padding: 10px;
-            border-top: 1px solid var(--border); display: grid; gap: 8px;
+            flex-shrink: 0; background: var(--card-bg); padding: 12px;
+            border-top: 1px solid var(--border); display: grid; gap: 10px;
             grid-template-columns: 1fr 1fr 1fr 1fr;
         }
         .action-btn {
-            padding: 12px 0; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 0.9rem;
+            padding: 12px 0; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 0.9rem;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .btn-next { grid-column: span 4; background: #455a64; font-size: 1rem; }
+        .btn-next { grid-column: span 4; background: #455a64; font-size: 1.1rem; }
         .btn-listen { grid-column: span 2; background: var(--secondary); }
-        .btn-slow { background: #fb8c00; font-size: 0.8rem; }
-        .btn-reveal { background: var(--primary); font-size: 0.8rem; }
+        .btn-slow { background: #fb8c00; }
+        .btn-reveal { background: var(--primary); }
 
         @keyframes slideDown { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
         
-        /* Modal */
         #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:1000; }
-        .modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; }
     </style>
 </head>
 <body>
@@ -118,7 +112,7 @@
     <span>LVL <span id="game-level" style="color:var(--primary)">1</span></span>
     <div class="xp-track"><div id="game-xp-bar" class="xp-fill"></div></div>
     <span>🔥 <span id="game-streak">0</span></span>
-    <button onclick="toggleConfig()" style="background:none; border:none; font-size:1.2rem; margin-left:10px;">⚙️</button>
+    <button onclick="toggleConfig()" style="background:none; border:none; font-size:1.4rem; margin-left:10px; cursor:pointer;">⚙️</button>
 </div>
 
 <div class="nav-bar">
@@ -139,30 +133,30 @@
         </div>
         
         <div id="sliderContainer" style="display:block;">
-            <div class="control-row" style="margin-top:5px;">
+            <div class="control-row" style="margin-top:10px;">
                 <div class="control-box">
-                    <span style="font-size:0.7rem; font-weight:bold;">Min: <span id="minValLabel">1</span></span>
+                    <span style="font-size:0.75rem; font-weight:bold;">Min: <span id="minValLabel">1</span></span>
                     <input type="range" id="minPower" min="0" max="6" value="0" oninput="handleMinChange()">
                 </div>
                 <div class="control-box">
-                    <span style="font-size:0.7rem; font-weight:bold;">Max: <span id="maxValLabel">10</span></span>
+                    <span style="font-size:0.75rem; font-weight:bold;">Max: <span id="maxValLabel">10</span></span>
                     <input type="range" id="maxPower" min="1" max="7" value="1" oninput="updateSliders()">
                 </div>
             </div>
-            <div class="control-row" style="margin-top:5px; justify-content:center;">
-                <label style="font-size:0.8rem;"><input type="checkbox" id="allowNegatives" onchange="generateNext()"> Negative Numbers (-5)</label>
+             <div class="control-row" style="margin-top:10px; justify-content:center;">
+                <label style="font-size:0.9rem;"><input type="checkbox" id="allowNegatives" onchange="generateNext()"> Negative Numbers (-5)</label>
             </div>
         </div>
 
         <div id="priceControls" style="display:none; text-align:center;">
-            <label style="font-size:0.8rem;"><input type="checkbox" id="includeGroszy" checked onchange="generateNext()"> Grosze</label>
+            <label style="font-size:0.9rem;"><input type="checkbox" id="includeGroszy" checked onchange="generateNext()"> Grosze</label>
         </div>
         <div id="timeControls" style="display:none; text-align:center;">
-            <label style="font-size:0.8rem; margin-right:10px;"><input type="radio" name="timeStyle" id="styleFormal" onchange="generateNext()"> Formal</label>
-            <label style="font-size:0.8rem;"><input type="radio" name="timeStyle" id="styleCasual" checked onchange="generateNext()"> Casual</label>
+            <label style="font-size:0.9rem; margin-right:15px;"><input type="radio" name="timeStyle" id="styleFormal" onchange="generateNext()"> Formal</label>
+            <label style="font-size:0.9rem;"><input type="radio" name="timeStyle" id="styleCasual" checked onchange="generateNext()"> Casual</label>
         </div>
         <div id="dateControls" style="display:none; text-align:center;">
-            <label style="font-size:0.8rem;"><input type="checkbox" id="includeYear" checked onchange="generateNext()"> Year</label>
+            <label style="font-size:0.9rem;"><input type="checkbox" id="includeYear" checked onchange="generateNext()"> Year</label>
         </div>
     </div>
 
@@ -197,17 +191,16 @@
 </div>
 
 <script>
-    // --- Logic Section ---
     let currentMode = 'numbers', uiLang = 'en', currentPolish = "", currentEnglish = "";
     let inputMode = 'mc'; 
     let gameState = {
-        xp: parseInt(localStorage.getItem('pl_xp_v4')) || 0,
-        level: parseInt(localStorage.getItem('pl_lvl_v4')) || 1,
+        xp: parseInt(localStorage.getItem('pl_xp_v5')) || 0,
+        level: parseInt(localStorage.getItem('pl_lvl_v5')) || 1,
         streak: 0,
         answered: false
     };
 
-    // Data
+    // --- DATA ---
     const units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
     const teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
     const tens = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
@@ -215,8 +208,6 @@
     const ordinals = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
     const monthsGenitive = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
     const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const weekDaysPl = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"];
-    const weekDaysEn = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     function getPluralForm(n, singular, pluralA, pluralB) {
         n = Math.abs(n);
@@ -259,7 +250,7 @@
         }
     }
 
-    // --- Game Engine ---
+    // --- GAME ENGINE ---
     function toggleConfig() {
         document.getElementById('config-drawer').classList.toggle('open');
         document.getElementById('config-drawer').style.display = 
@@ -275,14 +266,14 @@
         
         document.getElementById('mc-container').style.display = mode === 'mc' ? 'grid' : 'none';
         document.getElementById('key-container').style.display = mode === 'key' ? 'block' : 'none';
-        if(!gameState.answered) setupMC(); // Refresh MC if mid-game
+        if(!gameState.answered) setupMC();
     }
 
     function updateGameUI() {
         const xpToLevel = gameState.level * 100;
         if (gameState.xp >= xpToLevel) { gameState.xp -= xpToLevel; gameState.level++; }
-        localStorage.setItem('pl_xp_v4', gameState.xp);
-        localStorage.setItem('pl_lvl_v4', gameState.level);
+        localStorage.setItem('pl_xp_v5', gameState.xp);
+        localStorage.setItem('pl_lvl_v5', gameState.level);
         
         document.getElementById('game-xp-bar').style.width = ((gameState.xp / xpToLevel) * 100) + '%';
         document.getElementById('game-level').innerText = gameState.level;
@@ -293,9 +284,7 @@
         gameState.answered = false;
         document.getElementById('answer-input').value = "";
         document.getElementById('answer-input').style.borderColor = "var(--border)";
-        
-        // Hide config on new game to focus
-        document.getElementById('config-drawer').style.display = 'none';
+        document.getElementById('config-drawer').style.display = 'none'; // Close drawer to focus
 
         const min = Math.pow(10, document.getElementById('minPower').value);
         const max = Math.pow(10, document.getElementById('maxPower').value);
@@ -313,7 +302,6 @@
             currentEnglish = `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
             currentPolish = timeToPolish(hh, mm, document.getElementById('styleFormal').checked);
         } else if (currentMode === 'weights') {
-            // Simplified weight logic for compact mode
             let num = Math.floor(Math.random() * (max - min + 1)) + min;
             currentEnglish = `${num} kg`; currentPolish = `${numberToPolish(num)} kilogramów`;
         } else {
@@ -342,11 +330,25 @@
         const container = document.getElementById('mc-container');
         container.innerHTML = "";
         let options = [{val: currentEnglish, correct: true}];
-        while(options.length < 4) {
+        let safety = 0;
+        
+        // Loop with SAFETY check to prevent Freezing on small ranges
+        while(options.length < 4 && safety < 50) {
             let d = generateDecoy(currentEnglish);
-            if (!options.some(o => o.val === d)) options.push({val: d, correct: false});
+            // Ensure decoy isn't already in options
+            if (!options.some(o => o.val === d)) {
+                options.push({val: d, correct: false});
+            }
+            safety++;
         }
+
+        // If safety triggered and we still lack options (e.g. Range 1-2), fill with random stuff
+        while(options.length < 4) {
+            options.push({val: Math.floor(Math.random() * 100).toString() + "?", correct: false});
+        }
+
         options.sort(() => Math.random() - 0.5);
+        
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = "mc-btn";
@@ -358,11 +360,16 @@
 
     function generateDecoy(orig) {
         if(currentMode==='time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
+        
         let match = orig.match(/-?[\d,.]+/);
-        if(!match) return "???";
+        if(!match) return (Math.floor(Math.random() * 100)).toString(); // Fallback
+        
         let val = parseFloat(match[0].replace(',','.'));
-        let diff = Math.floor(Math.random() * (val * 0.5)) + 1;
+        // Logic to find a number close to the original
+        let diff = Math.floor(Math.random() * (Math.abs(val) * 0.5)) + 1;
         let newVal = (Math.random() > 0.5) ? val + diff : val - diff;
+        
+        // Return original string with new number substituted
         return orig.replace(match[0], Math.floor(newVal).toLocaleString());
     }
 
@@ -371,10 +378,14 @@
         if (isCorrect) {
             if(btn) btn.classList.add('correct');
             else document.getElementById('answer-input').style.borderColor = "var(--secondary)";
+            
             gameState.answered = true;
             gameState.streak++;
             gameState.xp += (inputMode === 'key' ? 30 : 15);
-            revealAll();
+            
+            // Show result
+            document.getElementById('polishText').style.visibility = 'visible';
+            document.getElementById('englishText').style.visibility = 'visible';
         } else {
             if(btn) btn.classList.add('wrong');
             else document.getElementById('answer-input').style.borderColor = "var(--error)";
@@ -390,16 +401,12 @@
     }}
 
     function forceReveal() {
-        revealAll();
-        gameState.streak = 0; // Penalty for manual reveal
-        updateGameUI();
-    }
-    function revealAll() {
         document.getElementById('polishText').style.visibility = 'visible';
         document.getElementById('englishText').style.visibility = 'visible';
+        gameState.streak = 0; 
+        updateGameUI();
     }
 
-    // --- Init ---
     function handleMinChange() {
         const minP = parseInt(document.getElementById('minPower').value);
         if (parseInt(document.getElementById('maxPower').value) <= minP) document.getElementById('maxPower').value = minP + 1;
@@ -413,6 +420,7 @@
         currentMode = mode;
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+mode).classList.add('active');
+        
         document.getElementById('sliderContainer').style.display = (mode=='dates'||mode=='time') ? 'none' : 'block';
         ['price','date','time'].forEach(k => document.getElementById(k+'Controls').style.display='none');
         if(mode=='prices') document.getElementById('priceControls').style.display='block';
@@ -422,11 +430,11 @@
     }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
     function speak(rate) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(currentPolish); u.lang='pl-PL'; u.rate=rate; window.speechSynthesis.speak(u); }
-    function closeHelp() { document.getElementById('modalOverlay').style.display='none'; localStorage.setItem('hideHelpv2','true'); }
+    function closeHelp() { document.getElementById('modalOverlay').style.display='none'; localStorage.setItem('hideHelpv3','true'); }
 
     window.onload = () => { 
         updateSliders(); setMode('numbers'); setInputMode('mc'); updateGameUI();
-        if (!localStorage.getItem('hideHelpv2')) document.getElementById('modalOverlay').style.display='flex';
+        if (!localStorage.getItem('hideHelpv3')) document.getElementById('modalOverlay').style.display='flex';
     };
 </script>
 </body>
