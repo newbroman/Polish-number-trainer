@@ -8,14 +8,11 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
     <style>
-        /* Default Light Theme */
+        /* Theme Variables */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
-        
-        /* Auto Dark Mode (System Preference) */
         @media (prefers-color-scheme: dark) {
             :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
         }
-        /* Manual Override Class */
         body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
         body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
         
@@ -32,18 +29,18 @@
         .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; cursor: pointer; transition: 0.2s; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Main Game Area */
+        /* Game Area */
         .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 120px; max-width: 600px; margin: 0 auto; width: 100%; }
         
         /* Display Box */
         .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative;}
-        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
+        .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
         .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
         
         .learning-badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: #e37400; color: white; padding: 2px 6px; border-radius: 4px; display: none; font-weight: bold; }
 
-        /* Game Grids */
+        /* Grids & Inputs */
         .mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; }
         .cols-2 { grid-template-columns: 1fr 1fr; }
         .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -55,7 +52,6 @@
 
         .type-container { display: none; flex-direction: column; gap: 15px; margin-top: 10px; }
         .type-input { width: 100%; padding: 15px; font-size: 1.4rem; text-align: center; border: 2px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); outline: none; }
-        .type-input:focus { border-color: var(--primary); }
         .btn-check { width: 100%; background: var(--primary); color: white; padding: 15px; border-radius: 12px; font-weight: bold; border: none; font-size: 1rem; cursor: pointer; }
 
         /* Footer */
@@ -100,6 +96,7 @@
 
 <div class="nav-scroller">
     <button class="nav-btn active" onclick="setMode('numbers')" id="nav-numbers">123</button>
+    <button class="nav-btn" onclick="setMode('fractions')" id="nav-fractions">½</button>
     <button class="nav-btn" onclick="setMode('prices')" id="nav-prices">$$$</button>
     <button class="nav-btn" onclick="setMode('dates')" id="nav-dates">📅</button>
     <button class="nav-btn" onclick="setMode('time')" id="nav-time">🕒</button>
@@ -154,7 +151,7 @@
              <div class="set-row">
                 <span>Theme</span>
                 <select id="theme-select" onchange="applyTheme()">
-                    <option value="auto">Auto (System)</option>
+                    <option value="auto">Auto</option>
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
                 </select>
@@ -162,7 +159,7 @@
         </div>
 
         <div class="set-group" id="set-range">
-            <div class="set-title">Number Range</div>
+            <div class="set-title">Number Options</div>
             <div class="set-row">
                 <span>Min: <span id="lbl-min">1</span></span>
                 <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
@@ -172,8 +169,12 @@
                 <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()"></div>
             </div>
             <div class="set-row">
-                <span>Negative Numbers</span>
+                <span>Negatives</span>
                 <input type="checkbox" id="neg-toggle">
+            </div>
+            <div class="set-row">
+                <span>Include Decimals</span>
+                <input type="checkbox" id="decimal-toggle">
             </div>
         </div>
 
@@ -217,12 +218,8 @@
     <div class="modal-box">
         <button class="close-x" onclick="toggleTranslator()">×</button>
         <h2 style="margin-top:0; color:var(--primary)">Type & Speak</h2>
-        <p style="font-size:0.9rem; color:#666">Type a number to see and hear it in Polish.</p>
-        
         <input type="number" id="trans-input" class="type-input" placeholder="e.g. 1984" style="margin-bottom:15px">
-        
         <div id="trans-output" style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:15px; font-size:1.2rem; min-height:1.2em">...</div>
-        
         <button class="btn-check" onclick="runTranslator()">Translate & Speak 🔊</button>
     </div>
 </div>
@@ -237,6 +234,11 @@
     const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
+
+    // Fraction Data
+    const DENOM_S = [null, null, "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta"];
+    const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste", "trzynaste", "czternaste", "piętnaste", "szesnaste"];
+    const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
     let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
@@ -271,6 +273,15 @@
         return s.trim();
     }
 
+    function getFractionPl(n, d) {
+        let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
+        let denStr = "";
+        if (n === 1) denStr = DENOM_S[d];
+        else if (n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 > 20)) denStr = DENOM_P[d];
+        else denStr = DENOM_G[d];
+        return `${numStr} ${denStr}`;
+    }
+
     function timeToPl(h, m, formal) {
         if (formal) {
             let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
@@ -287,7 +298,7 @@
         }
     }
 
-    // --- GENERATION ENGINE ---
+    // --- GENERATOR ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.isReview = false;
@@ -303,29 +314,46 @@
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
 
-        // LEARNING ALGORITHM: 30% chance to pick a mistake if available
+        // Learning Review (Only for Numbers)
         let useMistake = (state.mode === 'numbers' && mistakes.length > 0 && Math.random() < 0.3);
-        
         if (useMistake) {
-            // Pick a mistake that fits current range if possible, else just pick any
             let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
             let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
-            
             setupNumber(target);
             state.isReview = true;
             document.getElementById('learning-badge').style.display = 'block';
         } else {
-            // Standard Logic
+            // Logic per Mode
             if (state.mode === 'numbers') {
-                let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-                setupNumber(n);
+                if (document.getElementById('decimal-toggle').checked) {
+                    let n = (Math.random() * (max - min) + min).toFixed(2);
+                    // Remove trailing zeros if clean
+                    if (n.endsWith('.00')) n = parseInt(n);
+                    else n = parseFloat(n);
+                    
+                    state.currentEN = n.toString().replace('.', ',');
+                    let intPart = Math.floor(n);
+                    let decPart = Math.round((n % 1) * 100);
+                    // Standard math reading: "dwa przecinek pięćdziesiąt"
+                    state.currentPL = `${numToPl(intPart)} przecinek ${numToPl(decPart)}`;
+                    state.rawData = n;
+                } else {
+                    let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                    if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
+                    setupNumber(n);
+                }
+            } else if (state.mode === 'fractions') {
+                let d = Math.floor(Math.random() * 15) + 2; // 2 to 16
+                let n = Math.floor(Math.random() * (d - 1)) + 1; // proper fraction
+                state.currentEN = `${n}/${d}`;
+                state.currentPL = getFractionPl(n, d);
+                state.rawData = {n, d};
             } else if (state.mode === 'prices') {
                 let n = Math.floor(Math.random() * (max - min + 1)) + min;
                 let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
                 state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
                 state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-                state.rawData = n;
+                state.rawData = n + (gr/100);
             } else if (state.mode === 'time') {
                 let h = Math.floor(Math.random() * 24);
                 let m = Math.floor(Math.random() * 12) * 5;
@@ -340,6 +368,7 @@
                 if (fmt === 'dmy') state.currentEN = `${d}/${mIdx+1}${y? '/'+y : ''}`;
                 else if (fmt === 'mdy') state.currentEN = `${mIdx+1}/${d}${y? '/'+y : ''}`;
                 else state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
+                
                 let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
                 state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
             } else if (state.mode === 'weights') {
@@ -392,30 +421,22 @@
         if(t === 'light') document.body.classList.add('force-light');
     }
 
-    // --- SMART DECOY SYSTEM ---
+    // --- DECOY LOGIC ---
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
         let opts = [state.currentEN];
         
-        // 1. Close Numbers (+- 1, 2)
-        if (state.rawData !== null && !isNaN(state.rawData)) {
-            opts.push(formatDecoy(state.rawData + 1));
-            opts.push(formatDecoy(state.rawData - 1));
+        // Smart Decoys (Swaps / Close Numbers)
+        if (state.mode === 'numbers' && typeof state.rawData === 'number') {
+             opts.push(formatDecoy(state.rawData + 1));
+             opts.push(formatDecoy(state.rawData - 1));
         }
 
-        // 2. Swapped Digits (12 -> 21)
-        if (state.rawData > 10 && state.rawData < 100) {
-            let s = state.rawData.toString();
-            let swapped = parseInt(s[1] + s[0]);
-            if (swapped !== state.rawData) opts.push(formatDecoy(swapped));
-        }
-
-        // 3. Fill remaining with Randoms in range
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
-        
         let safety = 0;
+        
         while(opts.length < state.btnCount && safety < 200) {
             let decoy = makeDecoy(state.currentEN, min, max);
             if(!opts.includes(decoy)) opts.push(decoy);
@@ -433,25 +454,67 @@
     }
 
     function formatDecoy(n) {
-        if (state.mode === 'prices') return n + " zł";
-        if (state.mode === 'weights') return n + " kg";
-        return n.toLocaleString();
+        if (state.mode === 'prices') {
+             let hasGrosze = document.getElementById('grosze-toggle').checked;
+             let intPart = Math.floor(n);
+             if (hasGrosze) {
+                 let decPart = Math.round((n % 1) * 100); 
+                 if(decPart === 0) decPart = Math.floor(Math.random()*99)+1; // Ensure fake grosze exists
+                 return `${intPart},${decPart.toString().padStart(2,'0')} zł`;
+             }
+             return intPart + ",00 zł"; // Consistency: if grosze ON, show full format, else flat. 
+        }
+        if (state.mode === 'weights') return Math.floor(n) + " kg";
+        // Decimals mode
+        if (document.getElementById('decimal-toggle').checked) {
+            return n.toFixed(2).replace('.', ',');
+        }
+        return Math.floor(n).toLocaleString();
     }
 
     function makeDecoy(target, min, max) {
-        if (state.mode === 'dates') {
-            let d = Math.floor(Math.random()*30)+1;
-            let m = Math.floor(Math.random()*12);
-            let fmt = document.getElementById('date-fmt').value;
-            if (fmt === 'dmy') return `${d}/${m+1}`;
-            if (fmt === 'mdy') return `${m+1}/${d}`;
-            return `${d} ${MONTHS_EN[m]}`;
+        // 1. Fractions
+        if (state.mode === 'fractions') {
+            let d = Math.floor(Math.random() * 15) + 2;
+            let n = Math.floor(Math.random() * (d - 1)) + 1;
+            return `${n}/${d}`;
         }
-        if (state.mode === 'time') return `${Math.floor(Math.random()*24).toString().padStart(2,'0')}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
-        
-        // Number Logic
+        // 2. Dates (Strict Format)
+        if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let m = Math.floor(Math.random() * 12);
+            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random() * 25) + 2000 : 0;
+            let fmt = document.getElementById('date-fmt').value;
+            let yearStr = y ? (fmt === 'full' ? ` ${y}` : `/${y}`) : '';
+            if (fmt === 'dmy') return `${d}/${m+1}${yearStr}`;
+            if (fmt === 'mdy') return `${m+1}/${d}${yearStr}`;
+            return `${d} ${MONTHS_EN[m]}${yearStr}`;
+        }
+        // 3. Time (Strict 5-min intervals)
+        if (state.mode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5; 
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+        }
+        // 4. Prices
+        if (state.mode === 'prices') {
+             let n = Math.floor(Math.random() * (max - min + 1)) + min;
+             let hasGrosze = document.getElementById('grosze-toggle').checked;
+             if (hasGrosze) {
+                 let gr = Math.floor(Math.random()*99)+1;
+                 return `${n},${gr.toString().padStart(2,'0')} zł`;
+             }
+             return n + ",00 zł"; // Force uniform format
+        }
+        // 5. Decimals
+        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+             let n = (Math.random() * (max - min) + min);
+             return n.toFixed(2).replace('.', ',');
+        }
+        // 6. Standard Numbers
+        if (state.mode === 'weights') return (Math.floor(Math.random() * (max - min + 1)) + min) + " kg";
         let n = Math.floor(Math.random() * (max - min + 1)) + min;
-        return formatDecoy(n);
+        return n.toLocaleString();
     }
 
     function check(val, btn) {
@@ -464,6 +527,7 @@
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = state.currentEN.toLowerCase();
+        // Allow lax check for dates/time
         if (state.mode === 'dates' || state.mode === 'time') {
              if (val.replace(/\D/g,'') === correct.replace(/\D/g,'')) { win(null); return; }
         }
@@ -478,11 +542,9 @@
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         document.getElementById('pl-text').classList.add('visible');
         document.getElementById('en-text').classList.add('visible');
-        
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
         
-        // Remove from mistakes if reviewed correctly
         if (state.isReview) {
             mistakes = mistakes.filter(m => m !== state.rawData);
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
@@ -498,11 +560,9 @@
         if(btn) btn.classList.add('wrong');
         else document.getElementById('type-input').style.borderColor = "#d93025";
         
-        // Add to mistakes (Only pure numbers for now)
-        if (state.mode === 'numbers' && state.rawData !== null) {
+        if (state.mode === 'numbers' && state.rawData !== null && !document.getElementById('decimal-toggle').checked) {
             if (!mistakes.includes(state.rawData)) {
                 mistakes.push(state.rawData);
-                // Keep mistakes list size manageable
                 if (mistakes.length > 50) mistakes.shift();
                 localStorage.setItem('mistakes', JSON.stringify(mistakes));
             }
@@ -529,15 +589,15 @@
         document.getElementById('nav-'+m).classList.add('active');
         
         ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
-        if (m==='numbers' || m==='weights') document.getElementById('set-range').style.display='block';
+        if (m==='numbers') document.getElementById('set-range').style.display='block';
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
+        // Fractions & Weights use no specific settings (Fixed ranges)
         
         generate();
     }
 
-    // --- TRANSLATOR ---
     function toggleTranslator() {
         let d = document.getElementById('translator-modal');
         d.style.display = (d.style.display === 'flex') ? 'none' : 'flex';
@@ -549,7 +609,6 @@
         if (isNaN(n)) return;
         let txt = numToPl(n);
         document.getElementById('trans-output').innerText = txt;
-        
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(txt);
         u.lang = 'pl-PL';
@@ -557,8 +616,6 @@
     }
 
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-
     function speak(rate) {
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
