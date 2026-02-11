@@ -24,7 +24,7 @@
         .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
         /* Main Game Area */
-        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; padding-bottom: 90px; /* Space for footer */ }
+        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; padding-bottom: 100px; /* Space for footer */ }
         
         /* Drawer for Settings */
         .config-drawer { display: none; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
@@ -33,7 +33,7 @@
         input[type=range] { width: 100%; }
 
         /* Big Text Display */
-        .display-box { text-align: center; margin: 20px 0; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .display-box { text-align: center; margin: 10px 0 20px 0; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
         .pl-text { font-size: 1.8rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
         .en-text { font-size: 1.2rem; color: #888; visibility: hidden; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
@@ -46,17 +46,21 @@
         .wrong { opacity: 0.4; background: #ff5252 !important; color: #fff !important; }
 
         /* Fixed Footer for Buttons */
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; z-index: 9999; height: 75px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 100%; }
-        .btn-repeat { background: var(--primary); width: 30%; font-size: 1.5rem; }
-        .btn-next { background: #5f6368; width: 70%; transition: background 0.3s; }
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 10px; border-top: 1px solid var(--border); display: grid; gap: 8px; z-index: 9999; height: 85px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
+            grid-template-columns: 1fr 1fr 1fr 2fr; /* 3 small buttons, 1 big next button */
+        }
+        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-listen { background: var(--primary); font-size: 1.2rem; }
+        .btn-slow { background: #fb8c00; font-size: 1.2rem; }
+        .btn-vslow { background: #e65100; font-size: 1.2rem; }
+        .btn-next { background: #5f6368; transition: background 0.3s; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .btn-next.ready { background: var(--secondary); }
 
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body ontouchstart="wakeAudio()">
 
 <div class="header">
     <div class="stats">
@@ -101,7 +105,9 @@
 </div>
 
 <div class="footer">
-    <button class="btn-action btn-repeat" onclick="speak()">🔊</button>
+    <button class="btn-action btn-listen" onclick="speak(1.0)">🔊</button>
+    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
+    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
     <button class="btn-action btn-next" id="main-btn" onclick="handleMainButton()">Skip ➡️</button>
 </div>
 
@@ -116,6 +122,58 @@
 
     let state = { mode: 'numbers', currentPL: '', currentEN: '', solved: false, xp: 0, streak: 0 };
     let autoNextTimer = null;
+    let audioCtx = null; // Web Audio API Context
+
+    // --- Audio Engine Logic (Wake & SFX) ---
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function wakeAudio() {
+        // Keeps the audio engine warm on first touch
+        initAudio();
+        // Play silent sound to unlock audio
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.001; // Almost silent
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    function playSound(type) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            // High Ding
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+            // Low Buzz
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+    }
 
     // --- Core Functions ---
     function init() {
@@ -123,10 +181,13 @@
         updateUI();
         updateRange();
         setMode('numbers');
+        // Initial speech to warm up TTS engine (volume 0)
+        let warmUp = new SpeechSynthesisUtterance('');
+        warmUp.volume = 0;
+        window.speechSynthesis.speak(warmUp);
     }
 
     function generate() {
-        // Clear previous timers if any
         if (autoNextTimer) clearTimeout(autoNextTimer);
 
         state.solved = false;
@@ -141,7 +202,6 @@
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
 
-        // Logic Selection
         if (state.mode === 'numbers') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
@@ -171,7 +231,7 @@
         document.getElementById('en-text').innerText = state.currentEN;
         
         generateMCButtons();
-        setTimeout(() => speak(), 250);
+        setTimeout(() => speak(1.0), 200);
     }
 
     function generateMCButtons() {
@@ -181,14 +241,12 @@
         let opts = [state.currentEN];
         let safety = 0;
         
-        // Safety loop to prevent crash on small ranges
         while(opts.length < 4 && safety < 50) {
             let decoy = makeDecoy(state.currentEN);
             if(!opts.includes(decoy)) opts.push(decoy);
             safety++;
         }
         
-        // Fallback if safety triggered (fill with randoms)
         while(opts.length < 4) {
             opts.push(Math.floor(Math.random() * 100).toString() + "?");
         }
@@ -209,6 +267,7 @@
         
         if (val === state.currentEN) {
             // WIN
+            playSound('correct');
             state.solved = true;
             state.xp += 10;
             state.streak++;
@@ -216,14 +275,14 @@
             document.getElementById('pl-text').classList.add('visible');
             document.getElementById('en-text').classList.add('visible');
             
-            // Auto-Next Logic
             const mainBtn = document.getElementById('main-btn');
             mainBtn.innerText = "Next >>";
             mainBtn.classList.add('ready');
             
-            autoNextTimer = setTimeout(generate, 1500); // Wait 1.5s then load new
+            autoNextTimer = setTimeout(generate, 1500);
         } else {
             // LOSE
+            playSound('wrong');
             state.streak = 0;
             btn.classList.add('wrong');
         }
@@ -231,7 +290,7 @@
     }
 
     function handleMainButton() {
-        generate(); // User clicked "Skip" or "Next" manually
+        generate();
     }
 
     // --- Helpers ---
@@ -239,7 +298,6 @@
         if (state.mode === 'dates') return `${Math.floor(Math.random()*30)+1} ${MONTHS_EN[Math.floor(Math.random()*12)]}`;
         if (state.mode === 'time') return `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60).toString().padStart(2,'0')}`;
         
-        // Extract number from string (e.g. "-5 kg" -> -5)
         let numStr = target.replace(/[^\d-]/g, '');
         let num = parseInt(numStr);
         if (isNaN(num)) num = 10;
@@ -278,7 +336,6 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-mode-'+m).classList.add('active');
         document.getElementById('range-row').style.display = (m === 'dates' || m === 'time') ? 'none' : 'flex';
-        // Only show negative toggle in number mode
         document.getElementById('neg-toggle').parentElement.parentElement.style.display = (m === 'numbers') ? 'flex' : 'none';
         generate();
     }
@@ -289,10 +346,11 @@
         document.getElementById('streak-display').innerText = state.streak;
     }
 
-    function speak() {
+    function speak(rate = 1.0) {
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
         u.lang = 'pl-PL';
+        u.rate = rate;
         window.speechSynthesis.speak(u);
     }
     
