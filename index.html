@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polish Master Trainer</title>
+    <title>Polish Master Trainer: Game Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PL Trainer">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Polish%20Master%20Trainer%22,%22short_name%22:%22PL%20Trainer%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f0f2f5%22,%22theme_color%22:%22%231a73e8%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/197/197529.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
-
     <style>
-        :root { --primary: #1a73e8; --secondary: #34a853; --accent: #673ab7; --bg: #f0f2f5; --card-bg: #ffffff; --text: #202124; --border: #e0e0e0; }
-        .dark-mode { --bg: #121212; --card-bg: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --accent: #673ab7; --bg: #f0f2f5; --card-bg: #ffffff; --text: #202124; --border: #e0e0e0; --xp-bar: #34a853; }
+        .dark-mode { --bg: #121212; --card-bg: #1e1e1e; --text: #e8eaed; --border: #3c4043; --xp-bar: #42f57e; }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: var(--bg); color: var(--text); margin: 0; padding: 10px; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
+        /* Game Stats Styles */
+        .stats-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 420px; background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .stat-item { display: flex; flex-direction: column; align-items: center; font-weight: bold; font-size: 0.75rem; }
+        .stat-value { font-size: 1.1rem; color: var(--primary); }
+        .xp-progress-bg { flex-grow: 1; height: 12px; background: #eee; border-radius: 6px; margin: 0 15px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        .xp-progress-fill { height: 100%; background: var(--xp-bar); width: 0%; transition: width 0.4s ease-out; }
+
         .header-section { text-align: center; margin-bottom: 10px; width: 100%; max-width: 420px; }
         .main-title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; margin: 0; }
         .header-controls { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
@@ -25,7 +30,6 @@
 
         .top-bar { display: flex; justify-content: center; width: 100%; max-width: 420px; margin-bottom: 10px; }
         nav { display: flex; gap: 2px; background: var(--card-bg); padding: 4px; border-radius: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; scrollbar-width: none; }
-        nav::-webkit-scrollbar { display: none; }
         nav button { background: none; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; color: #5f6368; font-size: 0.7rem; white-space: nowrap; }
         nav button.active { background: var(--primary); color: white; }
 
@@ -52,8 +56,6 @@
         
         .toggle-row { display: flex; flex-direction: column; background: rgba(0,0,0,0.03); border-radius: 10px; padding: 8px; border: 1px solid var(--border); margin-bottom: 8px; gap: 8px; }
         .unit-group { display: flex; justify-content: space-around; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .unit-group:last-child { border-bottom: none; padding-bottom: 0; }
-        .unit-tag { font-size: 0.55rem; font-weight: bold; color: #888; text-transform: uppercase; width: 50px; text-align: left; }
         .toggle-item { display: flex; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: bold; }
 
         #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:1000; padding:20px; }
@@ -62,6 +64,20 @@
     </style>
 </head>
 <body>
+
+<div class="stats-container">
+    <div class="stat-item">
+        <span id="lbl-lvl">LVL</span>
+        <span id="game-level" class="stat-value">1</span>
+    </div>
+    <div class="xp-progress-bg">
+        <div id="game-xp-bar" class="xp-progress-fill"></div>
+    </div>
+    <div class="stat-item">
+        <span id="lbl-streak">STREAK</span>
+        <span id="game-streak" class="stat-value">0</span>
+    </div>
+</div>
 
 <div class="header-section">
     <div class="main-title" id="lbl-title">Understand Spoken Polish Numbers</div>
@@ -109,8 +125,8 @@
 
     <div id="timeControls" style="display:none;">
         <div class="toggle-row" style="flex-direction: row; justify-content: space-around;">
-            <label class="toggle-item"><input type="radio" name="timeStyle" id="styleFormal" checked onchange="generateNext()"> <span id="lbl-incFormal">Formal</span></label>
-            <label class="toggle-item"><input type="radio" name="timeStyle" id="styleCasual" onchange="generateNext()"> <span id="lbl-incCasual">Casual</span></label>
+            <label class="toggle-item"><input type="radio" name="timeStyle" id="styleFormal" onchange="generateNext()"> <span id="lbl-incFormal">Formal</span></label>
+            <label class="toggle-item"><input type="radio" name="timeStyle" id="styleCasual" checked onchange="generateNext()"> <span id="lbl-incCasual">Casual</span></label>
         </div>
     </div>
 
@@ -141,7 +157,7 @@
     </div>
 
     <div class="button-grid">
-        <button class="action btn-next" onclick="generateNext()"><span id="btn-next">Load and Play next ➡️</span></button>
+        <button class="action btn-next" onclick="generateNext()"><span id="btn-next">Next Level ➡️</span></button>
         <div class="audio-group">
             <button class="action btn-listen" onclick="speak(1.0)"><span id="btn-listen">🔊 Repeat</span></button>
             <button class="action btn-slow" onclick="speak(0.4)"><span id="btn-slow">🐢 Slowly (0.4)</span></button>
@@ -156,31 +172,39 @@
 
 <div id="modalOverlay">
     <div class="modal-content">
-        <h3 id="help-h" style="margin-top:0; color:var(--primary);">How to Use</h3>
+        <h3 id="help-h" style="margin-top:0; color:var(--primary);">Game Mode Active</h3>
         <ul id="help-l" style="padding-left:20px; font-size:0.85rem; line-height:1.6;">
-            <li>Select a category at the top.</li>
-            <li>Adjust difficulty using the <b>Min/Max</b> sliders.</li>
-            <li>Tap <b>Next</b> to hear a new number/phrase.</li>
-            <li>Tap <b>Reveal</b> to check your understanding.</li>
-            <li>Install this app via <b>Share > Add to Home Screen</b> to use it offline!</li>
+            <li>Listen to the Polish number.</li>
+            <li>Tap <b>Reveal Polish</b> to earn 20 XP.</li>
+            <li>Tapping <b>English</b> first reduces XP to 5.</li>
+            <li>Maintain your <b>Streak</b> to level up faster!</li>
         </ul>
         <div class="modal-footer">
             <label style="font-size:0.75rem;"><input type="checkbox" id="dontShow"> Don't show again</label>
-            <button class="ui-btn" style="background:var(--primary); color:white; border:none;" onclick="closeHelp()">Start Training</button>
+            <button class="ui-btn" style="background:var(--primary); color:white; border:none;" onclick="closeHelp()">Start Playing</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- Logic & Translation ---
     let currentMode = 'numbers', uiLang = 'en', currentPolish = "", currentEnglish = "";
+    
+    // Game State Logic
+    let gameState = {
+        xp: parseInt(localStorage.getItem('pl_xp')) || 0,
+        level: parseInt(localStorage.getItem('pl_lvl')) || 1,
+        streak: 0,
+        revealedPl: false,
+        revealedEn: false
+    };
+
     const translations = {
-        en: { title: "Understand Spoken Polish Numbers", numbers: "Numbers", prices: "Prices", dates: "Dates", time: "Time", weights: "Weights", min: "Min", max: "Max", incYear: "Year", incDay: "Day", incGrosz: "Grosze", incFrac: "Frac.", incFormal: "Formal", incCasual: "Casual", listen: "🔊 Repeat", slow: "🐢 Slowly (0.4)", vslow: "🐌 Snail (0.2)", revPl: "Reveal Polish", revEn: "Reveal English", next: "Load and Play next ➡️", helpH: "How to Use", dark: "Dark Mode", help: "Help" },
-        pl: { title: "Rozumienie Polskich Liczebników", numbers: "Liczby", prices: "Ceny", dates: "Daty", time: "Czas", weights: "Waga", min: "Min", max: "Max", incYear: "Rok", incDay: "Dzień", incGrosz: "Grosze", incFrac: "Uł.", incFormal: "Oficjalny", incCasual: "Potoczny", listen: "🔊 Powtórz", slow: "Wolno (0.4)", vslow: "B.Wolno (0.2)", revPl: "Pokaż PL", revEn: "Pokaż EN", next: "Kolejny ➡️", helpH: "Jak używać", dark: "Tryb nocny", help: "Pomoc" }
+        en: { title: "Polish Master Trainer", numbers: "Numbers", prices: "Prices", dates: "Dates", time: "Time", weights: "Weights", min: "Min", max: "Max", incYear: "Year", incDay: "Day", incGrosz: "Grosze", incFrac: "Frac.", incFormal: "Formal", incCasual: "Casual", listen: "🔊 Repeat", slow: "🐢 Slowly (0.4)", vslow: "🐌 Snail (0.2)", revPl: "Reveal Polish", revEn: "Reveal English", next: "Next Exercise ➡️", helpH: "How to Play", dark: "Dark Mode", help: "Help", lvl: "LEVEL", streak: "STREAK" },
+        pl: { title: "Mistrz Polskich Liczb", numbers: "Liczby", prices: "Ceny", dates: "Daty", time: "Czas", weights: "Waga", min: "Min", max: "Max", incYear: "Rok", incDay: "Dzień", incGrosz: "Grosze", incFrac: "Uł.", incFormal: "Oficjalny", incCasual: "Potoczny", listen: "🔊 Powtórz", slow: "Wolno (0.4)", vslow: "B.Wolno (0.2)", revPl: "Pokaż PL", revEn: "Pokaż EN", next: "Kolejne ➡️", helpH: "Jak grać", dark: "Tryb nocny", help: "Pomoc", lvl: "POZIOM", streak: "SERIA" }
     };
 
     const units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
-    const teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+    const teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnasta"];
     const tens = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
     const hundreds = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const ordinals = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
@@ -223,15 +247,32 @@
             const hNow = hoursOrdFem[displayH === 0 ? 12 : displayH];
             const hNext = hoursOrdGen[(displayH === 0 ? 0 : displayH) + 1];
             if (mm === 0) return hNow;
-            if (mm === 15) return `kwadrans po ${hoursOrdGen[displayH === 0 ? 12 : displayH]}`;
+            // Kwadrans check removed per saved instructions
             if (mm === 30) return `wpół do ${hNext}`;
-            if (mm === 45) return `kwadrans za ${hNext}`;
             if (mm < 30) return `${numberToPolish(mm)} po ${hoursOrdGen[displayH === 0 ? 12 : displayH]}`;
             return `za ${numberToPolish(60 - mm)} ${hNext}`;
         }
     }
 
+    function updateGameUI() {
+        const xpToLevel = gameState.level * 100;
+        if (gameState.xp >= xpToLevel) {
+            gameState.xp -= xpToLevel;
+            gameState.level++;
+            localStorage.setItem('pl_lvl', gameState.level);
+        }
+        localStorage.setItem('pl_xp', gameState.xp);
+        
+        const progress = (gameState.xp / xpToLevel) * 100;
+        document.getElementById('game-xp-bar').style.width = progress + '%';
+        document.getElementById('game-level').innerText = gameState.level;
+        document.getElementById('game-streak').innerText = gameState.streak;
+    }
+
     function generateNext() {
+        gameState.revealedPl = false;
+        gameState.revealedEn = false;
+        
         const min = Math.pow(10, document.getElementById('minPower').value);
         const max = Math.pow(10, document.getElementById('maxPower').value);
         
@@ -242,7 +283,7 @@
             if (document.getElementById('includeYear').checked) { const year = Math.floor(Math.random() * 125) + 1900; enStr += " " + year; plStr += " " + numberToPolish(year) + " roku"; }
             currentEnglish = enStr; currentPolish = plStr;
         } else if (currentMode === 'time') {
-            const hh = Math.floor(Math.random() * 24), mm = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55][Math.floor(Math.random() * 12)];
+            const hh = Math.floor(Math.random() * 24), mm = [0, 5, 10, 20, 25, 30, 35, 40, 50, 55][Math.floor(Math.random() * 10)];
             currentEnglish = `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
             currentPolish = timeToPolish(hh, mm, document.getElementById('styleFormal').checked);
         } else if (currentMode === 'weights') {
@@ -273,6 +314,24 @@
         document.getElementById('polishText').style.visibility = 'hidden'; document.getElementById('englishText').style.visibility = 'hidden';
         document.getElementById('polishText').innerText = currentPolish; document.getElementById('englishText').innerText = currentEnglish;
         setTimeout(() => speak(1.0), 50);
+    }
+
+    function reveal(id) {
+        if (document.getElementById(id).style.visibility === 'visible') return;
+        document.getElementById(id).style.visibility = 'visible';
+
+        if (id === 'polishText') {
+            gameState.revealedPl = true;
+            // Reward system: 20 XP for hearing it and checking PL. Only 5 if they peeked at EN first.
+            let gain = gameState.revealedEn ? 5 : 20;
+            gameState.xp += gain;
+            gameState.streak++;
+            updateGameUI();
+        } else if (id === 'englishText') {
+            gameState.revealedEn = true;
+            gameState.streak = 0; // Peeked at English = Streak broken
+            updateGameUI();
+        }
     }
 
     function handleMinChange() {
@@ -311,6 +370,7 @@
         document.getElementById('btn-revPl').innerText = t.revPl; document.getElementById('btn-revEn').innerText = t.revEn;
         document.getElementById('btn-next').innerText = t.next; document.getElementById('help-h').innerText = t.helpH;
         document.getElementById('lbl-dark').innerText = t.dark; document.getElementById('lbl-help').innerText = t.help;
+        document.getElementById('lbl-lvl').innerText = t.lvl; document.getElementById('lbl-streak').innerText = t.streak;
         document.getElementById('uiLangBtn').innerText = (uiLang === 'en') ? 'EN / PL' : 'PL / EN';
     }
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
@@ -321,23 +381,16 @@
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(currentPolish); u.lang = 'pl-PL'; u.rate = rate; window.speechSynthesis.speak(u);
     }
-    function reveal(id) { document.getElementById(id).style.visibility = 'visible'; }
 
-    // --- Service Worker & PWA Init ---
     window.onload = () => { 
-        updateSliders(); updateUI(); setMode('numbers'); 
+        updateSliders(); updateUI(); setMode('numbers'); updateGameUI();
         if (!localStorage.getItem('hidePolishHelp')) showHelp();
 
-        // Register Service Worker for Offline access
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'pl-trainer-v1';
-                self.addEventListener('install', e => {
-                    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['index.html'])));
-                });
-                self.addEventListener('fetch', e => {
-                    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-                });
+                const CACHE_NAME = 'pl-trainer-v2';
+                self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['index.html']))); });
+                self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(res => res || fetch(e.request))); });
             `;
             const blob = new Blob([swCode], {type: 'application/javascript'});
             navigator.serviceWorker.register(URL.createObjectURL(blob));
