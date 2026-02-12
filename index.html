@@ -19,89 +19,126 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 55px; flex-shrink: 0; }
-        .stats { font-weight: 800; font-size: 0.95rem; display: flex; gap: 15px; align-items: center; }
-        .rank-badge { color: var(--rank-color); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
-        .header-icons button { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 0 5px; color: var(--text); }
+        /* Polish Flag Header */
+        .flag-header {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .flag-top { background: #ffffff; flex: 1; }
+        .flag-bottom { background: #dc143c; flex: 1; }
+        .flag-title {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #202124; /* Dark text for contrast on white/red */
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+            pointer-events: none;
+        }
+
+        /* Stats Bar */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 45px; flex-shrink: 0; }
+        .stats { font-weight: 800; font-size: 0.85rem; display: flex; gap: 12px; align-items: center; }
+        .rank-badge { color: var(--rank-color); text-transform: uppercase; font-size: 0.7rem; }
+        .header-icons button { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0 5px; color: var(--text); }
 
         /* Nav */
         .nav-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: var(--bg); flex-shrink: 0; scrollbar-width: none; border-bottom: 1px solid var(--border); }
-        .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; cursor: pointer; transition: 0.2s; }
+        .nav-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; cursor: pointer; }
         .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Game Area */
-        .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 120px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .game-area { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 120px; max-width: 600px; margin: 0 auto; width: 100%; }
         
-        /* Display Box */
-        .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; transition: border-color 0.3s;}
-        .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
-        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; min-height: 1.5rem; transition: opacity 0.3s; }
+        .display-box { text-align: center; margin-bottom: 15px; min-height: 90px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative;}
+        .pl-text { font-size: 1.4rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; }
+        .en-text { font-size: 1.1rem; color: #888; visibility: hidden; min-height: 1.2rem; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
         .blind-active { opacity: 0; } 
         
-        .badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: bold; display: none; }
+        .badge { position: absolute; top: 10px; right: 10px; font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; font-weight: bold; display: none; }
         .badge-review { background: #e37400; color: white; }
         .badge-score { background: var(--secondary); color: white; animation: floatUp 1s forwards; display: none; }
-        .badge-blind { left: 10px; right: auto; background: #607d8b; color: white; display: none; } 
+        .badge-blind { left: 10px; right: auto; background: #607d8b; color: white; } 
 
-        /* Grids & Inputs */
+        /* Grids */
         .mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; }
         .cols-2 { grid-template-columns: 1fr 1fr; }
         .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
         
-        .mc-btn { position:relative; background: var(--card); border: 2px solid var(--border); border-radius: 12px; min-height: 60px; font-weight: 700; font-size: 1.1rem; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s; }
+        /* Answer Button with Dynamic Font Support */
+        .mc-btn { 
+            position:relative; 
+            background: var(--card); 
+            border: 2px solid var(--border); 
+            border-radius: 12px; 
+            min-height: 65px; 
+            font-weight: 700; 
+            color: var(--text); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            overflow: hidden;
+            word-break: break-all;
+            line-height: 1.1;
+            text-align: center;
+        }
+        .mc-btn span.content { width: 100%; display: block; }
         .mc-btn:active { transform: scale(0.96); }
-        .mc-key-hint { position: absolute; top: 2px; left: 5px; font-size: 0.7rem; color: var(--primary); opacity: 0.5; font-weight: normal; }
+        .mc-key-hint { position: absolute; top: 2px; left: 5px; font-size: 0.65rem; color: var(--primary); opacity: 0.4; }
         
         .correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
         .wrong { background: var(--error) !important; color: white !important; opacity: 0.5; }
 
-        .type-container { display: none; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .type-container { display: none; flex-direction: column; gap: 12px; }
         .type-input { width: 100%; padding: 15px; font-size: 1.4rem; text-align: center; border: 2px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); outline: none; }
         .btn-check { width: 100%; background: var(--primary); color: white; padding: 15px; border-radius: 12px; font-weight: bold; border: none; font-size: 1rem; cursor: pointer; }
 
         /* Footer */
         .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 12px; border-top: 1px solid var(--border); display: grid; gap: 10px; z-index: 100; height: 90px; grid-template-columns: 1fr 1fr 1fr 2fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
-        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.1s; }
+        .btn-action { border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.1s; }
         .btn-action:active { transform: scale(0.95); }
         .btn-listen { background: var(--secondary); font-size: 1.5rem; }
         .btn-slow { background: #fb8c00; font-size: 0.8rem; }
         .btn-vslow { background: #e65100; font-size: 0.8rem; }
-        .btn-next { background: #455a64; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-next { background: #455a64; font-size: 1rem; text-transform: uppercase; }
         .btn-next.ready { background: var(--primary); }
 
         /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-        .modal-box { background: var(--card); width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-box { background: var(--card); width: 92%; max-width: 400px; padding: 25px; border-radius: 20px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; background: none; border: none; cursor: pointer; color: var(--text); line-height: 1; }
         
         .set-group { background: rgba(0,0,0,0.04); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .set-title { font-weight: 800; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
-        .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 600; }
-        .set-row:last-child { margin-bottom: 0; }
+        .set-title { font-weight: 800; color: var(--primary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 10px; }
+        .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem; font-weight: 600; }
         
-        select, input[type=checkbox] { cursor: pointer; }
-        select { padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.9rem; }
         input[type=range] { width: 100%; }
-
-        /* Progress Bars in Help */
-        .progress-item { margin-bottom: 10px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 3px; font-weight: 600; }
-        .progress-bar-bg { background: rgba(0,0,0,0.1); height: 8px; border-radius: 4px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.5s; }
-
-        .tab-header { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; background: none; border: none; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes floatUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body onload="init()">
+
+<div class="flag-header">
+    <div class="flag-top"></div>
+    <div class="flag-bottom"></div>
+    <div class="flag-title">Trener Polskich Liczb</div>
+</div>
 
 <div class="header">
     <div class="stats">
@@ -144,8 +181,8 @@
 
 <div class="footer">
     <button class="btn-action btn-listen" onclick="speak(1.0)">🔊</button>
-    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢<span style="font-size:0.6rem">Slow</span></button>
-    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌<span style="font-size:0.6rem">Snail</span></button>
+    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
+    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
 
@@ -153,164 +190,32 @@
     <div class="modal-box">
         <button class="close-x" onclick="toggleSettings()">×</button>
         <h2 style="margin-top:0">Settings</h2>
-        
         <div class="set-group">
             <div class="set-title">Gameplay</div>
-            <div class="set-row">
-                <span>Blind Mode (Audio Only)</span>
-                <input type="checkbox" id="blind-toggle">
-            </div>
-             <div class="set-row">
-                <span>Theme</span>
-                <select id="theme-select" onchange="applyTheme()">
-                    <option value="auto">Auto</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-            </div>
+            <div class="set-row"><span>Blind Mode (Audio Only)</span><input type="checkbox" id="blind-toggle"></div>
+             <div class="set-row"><span>Theme</span><select id="theme-select" onchange="applyTheme()"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
         </div>
-
         <div class="set-group">
             <div class="set-title">Difficulty Options</div>
-            <div class="set-row">
-                <span>Choice Count</span>
-                <select id="input-style" onchange="applySettings()">
-                    <option value="4">4 Buttons (Penalty -5)</option>
-                    <option value="8" selected>8 Buttons (Penalty -2)</option>
-                    <option value="12">12 Buttons (No Penalty)</option>
-                    <option value="type">Typing Mode (No Penalty)</option>
-                </select>
-            </div>
-            <div class="set-row">
-                <span>Keyboard Mode</span>
-                <select id="kb-type" onchange="applySettings()">
-                    <option value="text">Standard</option>
-                    <option value="numeric">Numeric (0-9)</option>
-                </select>
-            </div>
+            <div class="set-row"><span>Choice Count</span><select id="input-style" onchange="applySettings()"><option value="4">4 Buttons (-5 XP)</option><option value="8" selected>8 Buttons (-2 XP)</option><option value="12">12 Buttons (Full XP)</option><option value="type">Typing Mode</option></select></div>
         </div>
-
         <div class="set-group" id="set-range">
             <div class="set-title">Number Options</div>
-            <div class="set-row">
-                <span>Min: <span id="lbl-min">1</span></span>
-                <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
-            </div>
-            <div class="set-row">
-                <span>Max: <span id="lbl-max">10</span></span>
-                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
-            </div>
-            <div class="set-row">
-                <span>Negatives</span>
-                <input type="checkbox" id="neg-toggle">
-            </div>
-            <div class="set-row">
-                <span>Include Decimals</span>
-                <input type="checkbox" id="decimal-toggle" onchange="document.getElementById('decimal-opts').style.display=this.checked?'flex':'none'">
-            </div>
-            <div class="set-row" id="decimal-opts" style="display:none">
-                <span>Decimal Places</span>
-                <input type="range" id="decimal-places" min="1" max="4" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value">
-                <span id="lbl-dp" style="font-weight:bold; margin-left:10px">2</span>
-            </div>
+            <div class="set-row"><span>Min: <span id="lbl-min">1</span></span><div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div></div>
+            <div class="set-row"><span>Max: <span id="lbl-max">10</span></span><div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div></div>
+            <div class="set-row"><span>Negatives</span><input type="checkbox" id="neg-toggle"></div>
+            <div class="set-row"><span>Include Decimals</span><input type="checkbox" id="decimal-toggle" onchange="document.getElementById('decimal-opts').style.display=this.checked?'flex':'none'"></div>
+            <div class="set-row" id="decimal-opts" style="display:none"><span>Places</span><input type="range" id="decimal-places" min="1" max="4" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value"><span id="lbl-dp" style="font-weight:bold;margin-left:10px">2</span></div>
         </div>
-
-        <div class="set-group" id="set-prices" style="display:none">
-            <div class="set-title">Price Options</div>
-            <div class="set-row">
-                <span>Include Grosze</span>
-                <input type="checkbox" id="grosze-toggle" checked>
-            </div>
-        </div>
-
-        <div class="set-group" id="set-dates" style="display:none">
-            <div class="set-title">Date Options</div>
-            <div class="set-row">
-                <span>Format</span>
-                <select id="date-fmt">
-                    <option value="dmy">DD/MM/YY</option>
-                    <option value="mdy">MM/DD/YY</option>
-                    <option value="full">15 January</option>
-                </select>
-            </div>
-            <div class="set-row">
-                <span>Include Year</span>
-                <input type="checkbox" id="year-toggle" checked>
-            </div>
-        </div>
-
-        <div class="set-group" id="set-time" style="display:none">
-            <div class="set-title">Time Options</div>
-            <div class="set-row">
-                <label><input type="radio" name="t-style" value="casual" checked> Casual</label>
-                <label><input type="radio" name="t-style" value="formal"> Formal</label>
-            </div>
-        </div>
-        
+        <div class="set-group" id="set-prices" style="display:none"><div class="set-title">Price Options</div><div class="set-row"><span>Include Grosze</span><input type="checkbox" id="grosze-toggle" checked></div></div>
         <button class="btn-check" onclick="toggleSettings(); generate()">Save & Close</button>
     </div>
 </div>
 
-<div id="help-modal" class="modal">
-    <div class="modal-box">
-        <button class="close-x" onclick="toggleHelp()">×</button>
-        
-        <div class="tab-header">
-            <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
-            <button class="tab-btn" onclick="setHelpTab('progress')">Stats</button>
-        </div>
-
-        <div id="tab-guide" class="tab-content active">
-            <div class="set-group">
-                <div class="set-title">Choice Count Rewards</div>
-                <p>Increase buttons in settings for better scores:</p>
-                <p>• <b>12 Buttons:</b> Full Points</p>
-                <p>• <b>8 Buttons:</b> -2 XP Penalty</p>
-                <p>• <b>4 Buttons:</b> -5 XP Penalty</p>
-            </div>
-
-            <div class="set-group">
-                <div class="set-title">Difficulty Bonuses</div>
-                <p>• <b>+5 XP</b> Blind Mode</p>
-                <p>• <b>+2 XP</b> Per Decimal Place</p>
-                <p>• <b>+3 XP</b> Prices with Grosze</p>
-            </div>
-
-             <div class="set-group">
-                <div class="set-title">Magnitude Bonus</div>
-                <p>• <b>+2 XP</b> > 100</p>
-                <p>• <b>+5 XP</b> > 1,000</p>
-                <p>• <b>+10 XP</b> > 10,000</p>
-            </div>
-        </div>
-
-        <div id="tab-progress" class="tab-content">
-            <div style="text-align:center; margin-bottom:20px">
-                <h2 id="rank-name" style="color:var(--rank-color); margin:0">Novice</h2>
-                <div style="font-size:0.9rem; color:#888">Current Rank</div>
-                <h3 style="margin:5px 0">Total XP: <span id="total-xp-modal">0</span></h3>
-                <div style="font-size:0.8rem">Next Rank in: <span id="xp-needed">500</span> XP</div>
-            </div>
-            
-            <div id="stats-container"></div>
-            <button class="btn-check" style="background:#d93025; margin-top:20px" onclick="resetProgress()">Reset Progress</button>
-        </div>
-    </div>
-</div>
-
-<div id="translator-modal" class="modal">
-    <div class="modal-box">
-        <button class="close-x" onclick="toggleTranslator()">×</button>
-        <h2 style="margin-top:0; color:var(--primary)">Type & Speak</h2>
-        <input type="number" id="trans-input" class="type-input" placeholder="e.g. 1984" style="margin-bottom:15px">
-        <div id="trans-output" style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:15px; font-size:1.2rem; min-height:1.2em">...</div>
-        <button class="btn-check" onclick="runTranslator()">Translate & Speak 🔊</button>
-    </div>
-</div>
-
 <script>
+    // --- LINGUISTIC DATA ---
     const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
-    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternasta", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
     const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
     const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
@@ -321,20 +226,9 @@
     const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste", "trzynaste", "czternaste", "piętnaste", "szesnaste"];
     const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
-    const RANKS = [
-        { name: "Novice", limit: 0 },
-        { name: "Apprentice", limit: 500 },
-        { name: "Intermediate", limit: 1500 },
-        { name: "Advanced", limit: 3000 },
-        { name: "Expert", limit: 5000 },
-        { name: "Master", limit: 10000 },
-        { name: "Grandmaster", limit: 20000 }
-    ];
+    const RANKS = [{n:"Novice",l:0},{n:"Apprentice",l:500},{n:"Intermediate",l:1500},{n:"Advanced",l:3000},{n:"Expert",l:5000},{n:"Master",l:10000},{n:"Grandmaster",l:20000}];
 
-    let state = { 
-        mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
-        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [] 
-    };
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [] };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
     let autoNextTimer = null;
@@ -344,29 +238,22 @@
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         document.addEventListener('keydown', (e) => {
             if (state.solved) return;
-            const key = e.key;
-            if (document.getElementById('input-style').value !== 'type' && !isNaN(parseInt(key))) {
-                const idx = parseInt(key) - 1;
-                const buttons = document.querySelectorAll('.mc-btn');
-                if (buttons[idx]) buttons[idx].click();
-            }
-            if (key === 'Enter' && document.getElementById('input-style').value === 'type') checkTyped();
+            if (!isNaN(parseInt(e.key))) { const idx = parseInt(e.key) - 1; const buttons = document.querySelectorAll('.mc-btn'); if (buttons[idx]) buttons[idx].click(); }
+            if (e.key === 'Enter' && document.getElementById('input-style').value === 'type') checkTyped();
         });
         updateUI(); updateRange(); setMode('numbers');
-        let u = new SpeechSynthesisUtterance(''); u.volume=0; window.speechSynthesis.speak(u);
+        let u = new SpeechSynthesisUtterance(''); window.speechSynthesis.speak(u);
     }
 
     function getPlural(n, s, pa, pb) {
-        n = Math.abs(n);
-        if (n === 1) return s;
+        n = Math.abs(n); if (n === 1) return s;
         let r10 = n % 10, r100 = n % 100;
         if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa;
         return pb;
     }
 
     function numToPl(n) {
-        if (n === 0) return "zero";
-        if (n < 0) return "minus " + numToPl(Math.abs(n));
+        if (n === 0) return "zero"; if (n < 0) return "minus " + numToPl(Math.abs(n));
         let s = "";
         if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; }
         if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; }
@@ -378,335 +265,156 @@
     }
 
     function getFractionPl(n, d) {
-        if (n===1 && d===2) return "jedna druga (pół)";
-        if (n===1 && d===4) return "jedna czwarta (ćwierć)";
-        if (n===3 && d===4) return "trzy czwarte";
+        if (n===1 && d===2) return "jedna druga (pół)"; if (n===1 && d===4) return "jedna czwarta (ćwierć)"; if (n===3 && d===4) return "trzy czwarte";
         let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
         let denStr = (n === 1) ? DENOM_S[d] : (n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 > 20)) ? DENOM_P[d] : DENOM_G[d];
         return `${numStr} ${denStr}`;
     }
 
     function timeToPl(h, m, formal) {
-        if (formal) {
-            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
-            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
-            return `${hStr} ${mStr}`.trim();
-        } else {
-            let dispH = h % 12;
-            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
-            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
-            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)];
-            if (m === 30) return `wpół do ${hNext}`;
-            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
-            return `za ${numToPl(60-m)} ${hNext}`;
-        }
+        if (formal) { let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h]; let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m)); return `${hStr} ${mStr}`.trim(); }
+        else { let dispH = h % 12; let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1]; if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)]; if (m === 30) return `wpół do ${hNext}`; if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`; return `za ${numToPl(60-m)} ${hNext}`; }
+    }
+
+    // Font auto-sizer
+    function adjustFontSize(btn, text) {
+        let size = 1.1; 
+        if (text.length > 8) size = 0.95;
+        if (text.length > 12) size = 0.8;
+        if (text.length > 15) size = 0.65;
+        btn.style.fontSize = size + "rem";
     }
 
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; 
-        state.isReview = false;
-        state.audioClicks = 0;
-        state.wrongGuesses = 0;
+        state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
         document.getElementById('pl-text').classList.remove('visible');
         document.getElementById('en-text').classList.remove('visible');
-        if(document.getElementById('blind-toggle').checked) {
-            document.getElementById('en-text').classList.add('blind-active');
-            document.getElementById('badge-blind').style.display = 'block';
-        } else {
-            document.getElementById('en-text').classList.remove('blind-active');
-            document.getElementById('badge-blind').style.display = 'none';
-        }
-        document.getElementById('badge-review').style.display = 'none';
-        document.getElementById('badge-score').style.display = 'none';
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); mainBtn.style.background = "#455a64";
+        document.getElementById('en-text').classList.toggle('blind-active', document.getElementById('blind-toggle').checked);
+        document.getElementById('badge-blind').style.display = document.getElementById('blind-toggle').checked ? 'block' : 'none';
+        document.getElementById('badge-review').style.display = 'none'; document.getElementById('badge-score').style.display = 'none';
+        document.getElementById('main-btn').innerText = "SKIP ➡️"; document.getElementById('main-btn').classList.remove('ready');
         document.getElementById('type-input').value = "";
-        document.getElementById('type-input').style.borderColor = "var(--border)";
+
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
+
         let useMistake = (state.mode === 'numbers' && mistakes.length > 0 && Math.random() < 0.3);
         if (useMistake) {
-            let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
-            let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
-            setupNumber(target);
-            state.isReview = true;
-            document.getElementById('badge-review').style.display = 'block';
+            let target = mistakes[Math.floor(Math.random() * mistakes.length)]; setupNumber(target);
+            state.isReview = true; document.getElementById('badge-review').style.display = 'block';
         } else {
-            let newVal;
-            let safety = 0;
-            do {
-                newVal = generateRawValue(min, max);
-                safety++;
-            } while (isRepeated(newVal) && safety < 20);
-            addToHistory(newVal);
+            let newVal; let safety = 0;
+            do { newVal = generateRawValue(min, max); safety++; } while (isRepeated(newVal) && safety < 20);
+            state.history.push(newVal); if(state.history.length > 5) state.history.shift();
             processValue(newVal);
         }
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
-        applySettings();
-        state.startTime = Date.now();
-        setTimeout(() => { speak(1.0); }, 200);
+        applySettings(); state.startTime = Date.now(); setTimeout(() => speak(1.0), 200);
     }
 
     function generateRawValue(min, max) {
         if (state.mode === 'numbers') {
-            if (document.getElementById('decimal-toggle').checked) {
-                let places = parseInt(document.getElementById('decimal-places').value);
-                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
-            } else {
-                let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-                return n;
-            }
-        } else if (state.mode === 'fractions') {
-            let d = Math.floor(Math.random() * 15) + 2; 
-            let n = Math.floor(Math.random() * (d - 1)) + 1;
-            return {n, d};
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
-            return n + (gr/100);
-        } else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            return {h, m};
-        } else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let mIdx = Math.floor(Math.random() * 12);
-            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
-            return {d, m:mIdx, y};
-        } else if (state.mode === 'weights') {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+            if (document.getElementById('decimal-toggle').checked) return parseFloat((Math.random() * (max - min) + min).toFixed(parseInt(document.getElementById('decimal-places').value)));
+            else { let n = Math.floor(Math.random() * (max - min + 1)) + min; if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1; return n; }
         }
+        if (state.mode === 'fractions') return {n: Math.floor(Math.random() * 14) + 1, d: Math.floor(Math.random() * 15) + 2};
+        if (state.mode === 'prices') return Math.floor(Math.random() * (max-min+1)) + min + (Math.floor(Math.random()*99)/100);
+        if (state.mode === 'time') return {h: Math.floor(Math.random()*24), m: Math.floor(Math.random()*12)*5};
+        if (state.mode === 'dates') return {d: Math.floor(Math.random()*30)+1, m: Math.floor(Math.random()*12), y: document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0};
+        if (state.mode === 'weights') return Math.floor(Math.random() * (max-min+1)) + min;
     }
 
     function processValue(val) {
         state.rawData = val;
         if (state.mode === 'numbers') {
-            if(document.getElementById('decimal-toggle').checked) {
-                let s = val.toString();
-                let parts = s.split('.');
-                state.currentEN = s.replace('.', ',');
-                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
-            } else setupNumber(val);
-        } else if (state.mode === 'fractions') {
-            state.currentEN = `${val.n}/${val.d}`;
-            state.currentPL = getFractionPl(val.n, val.d);
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(val);
-            let gr = Math.round((val % 1) * 100);
-            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (state.mode === 'time') {
-            let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
-            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
-            state.currentPL = timeToPl(val.h, val.m, !isCasual);
-        } else if (state.mode === 'dates') {
-            let fmt = document.getElementById('date-fmt').value;
-            if (fmt === 'dmy') state.currentEN = `${val.d}/${val.m+1}${val.y? '/'+val.y : ''}`;
-            else if (fmt === 'mdy') state.currentEN = `${val.m+1}/${val.d}${val.y? '/'+val.y : ''}`;
-            else state.currentEN = `${val.d} ${MONTHS_EN[val.m]}` + (val.y?` ${val.y}`:"");
-            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]}` + (val.y?` ${numToPl(val.y)} roku`:"");
-        } else if (state.mode === 'weights') {
-            state.currentEN = val + " kg";
-            state.currentPL = numToPl(val) + " kilogramów";
-        }
+            if(document.getElementById('decimal-toggle').checked) { let s = val.toString(); state.currentEN = s.replace('.', ','); state.currentPL = `${numToPl(parseInt(s.split('.')[0]))} przecinek ${readDecimalPart(s.split('.')[1])}`; }
+            else setupNumber(val);
+        } else if (state.mode === 'fractions') { state.currentEN = `${val.n}/${val.d}`; state.currentPL = getFractionPl(val.n, val.d); }
+        else if (state.mode === 'prices') { let n = Math.floor(val); let gr = Math.round((val%1)*100); state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`; state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0?` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`:""); }
+        else if (state.mode === 'time') { let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual'; state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`; state.currentPL = timeToPl(val.h, val.m, !isCasual); }
+        else if (state.mode === 'dates') { state.currentEN = `${val.d}/${val.m+1}${val.y? '/'+val.y : ''}`; state.currentPL = `dzień ${numToPl(val.d)} miesiąca ${MONTHS_PL[val.m]}`; }
+        else if (state.mode === 'weights') { state.currentEN = val + " kg"; state.currentPL = numToPl(val) + " kilogramów"; }
     }
 
-    function isRepeated(val) {
-        for(let item of state.history) {
-            if (typeof item === 'object' && item !== null) { if(JSON.stringify(item) === JSON.stringify(val)) return true; } 
-            else { if(item === val) return true; }
-        }
-        return false;
-    }
-
-    function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
-
+    function isRepeated(val) { for(let item of state.history) { if(JSON.stringify(item) === JSON.stringify(val)) return true; } return false; }
     function setupNumber(n) { state.currentEN = n.toLocaleString(); state.currentPL = numToPl(n); state.rawData = n; }
-    
-    function readDecimalPart(str) {
-        if (!str) return "";
-        if (str.length > 2) return str.split('').map(d => numToPl(parseInt(d))).join(' ');
-        return numToPl(parseInt(str));
-    }
+    function readDecimalPart(str) { if (!str) return ""; return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
 
     function applySettings() {
         let style = document.getElementById('input-style').value;
-        if (style === 'type') {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-            let inp = document.getElementById('type-input');
-            inp.setAttribute('inputmode', document.getElementById('kb-type').value === 'numeric' ? 'decimal' : 'text');
-        } else {
-            state.btnCount = parseInt(style);
-            document.getElementById('mc-area').style.display = 'grid';
-            document.getElementById('type-area').style.display = 'none';
-            let grid = document.getElementById('mc-area');
-            grid.className = 'mc-grid ' + (state.btnCount === 12 ? 'cols-3' : 'cols-2');
-            generateGrid();
-        }
+        if (style === 'type') { document.getElementById('mc-area').style.display = 'none'; document.getElementById('type-area').style.display = 'flex'; }
+        else { state.btnCount = parseInt(style); document.getElementById('mc-area').style.display = 'grid'; document.getElementById('type-area').style.display = 'none'; document.getElementById('mc-area').className = 'mc-grid ' + (state.btnCount === 12 ? 'cols-3' : 'cols-2'); generateGrid(); }
     }
 
     function generateGrid() {
-        const container = document.getElementById('mc-area');
-        container.innerHTML = '';
+        const container = document.getElementById('mc-area'); container.innerHTML = '';
         let opts = [state.currentEN];
-        if (state.mode === 'numbers' && typeof state.rawData === 'number' && !document.getElementById('decimal-toggle').checked) {
-             opts.push(formatDecoy(state.rawData + 1));
-             opts.push(formatDecoy(state.rawData - 1));
-        }
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
-        let safety = 0;
-        while(opts.length < state.btnCount && safety < 200) {
-            let decoy = makeDecoy(state.currentEN, min, max);
-            if(!opts.includes(decoy)) opts.push(decoy);
-            safety++;
-        }
+        while(opts.length < state.btnCount) { let decoy = makeDecoy(state.currentEN, min, max); if(!opts.includes(decoy)) opts.push(decoy); }
         opts.sort(() => Math.random() - 0.5);
         opts.forEach((val, index) => {
-            let b = document.createElement('button');
-            b.className = 'mc-btn'; 
+            let b = document.createElement('button'); b.className = 'mc-btn';
             let hint = document.createElement('span'); hint.className = 'mc-key-hint'; hint.innerText = index + 1;
-            if(window.matchMedia("(hover: hover)").matches) b.appendChild(hint);
-            b.appendChild(document.createTextNode(val));
+            b.appendChild(hint); b.appendChild(document.createTextNode(val));
+            adjustFontSize(b, val);
             b.onclick = () => check(val, b);
             container.appendChild(b);
         });
     }
 
-    function formatDecoy(n) {
-        if (state.mode === 'prices') {
-             let intPart = Math.floor(n);
-             if (document.getElementById('grosze-toggle').checked) {
-                 let decPart = Math.round((n % 1) * 100); 
-                 if(decPart === 0) decPart = Math.floor(Math.random()*99)+1;
-                 return `${intPart},${decPart.toString().padStart(2,'0')} zł`;
-             }
-             return intPart + ",00 zł"; 
-        }
-        if (state.mode === 'weights') return Math.floor(n) + " kg";
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) return n.toFixed(parseInt(document.getElementById('decimal-places').value)).replace('.', ',');
-        return Math.floor(n).toLocaleString();
-    }
-
     function makeDecoy(target, min, max) {
-        if (state.mode === 'fractions') {
-            let d = Math.floor(Math.random() * 15) + 2; let n = Math.floor(Math.random() * (d - 1)) + 1;
-            return `${n}/${d}`;
-        }
-        if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1; let m = Math.floor(Math.random() * 12);
-            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random() * 25) + 2000 : 0;
-            let fmt = document.getElementById('date-fmt').value; let yearStr = y ? (fmt === 'full' ? ` ${y}` : `/${y}`) : '';
-            if (fmt === 'dmy') return `${d}/${m+1}${yearStr}`;
-            if (fmt === 'mdy') return `${m+1}/${d}${yearStr}`;
-            return `${d} ${MONTHS_EN[m]}${yearStr}`;
-        }
-        if (state.mode === 'time') { let h = Math.floor(Math.random() * 24); let m = Math.floor(Math.random() * 12) * 5; return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`; }
-        if (state.mode === 'prices') {
-             let n = Math.floor(Math.random() * (max - min + 1)) + min;
-             if (document.getElementById('grosze-toggle').checked) return `${n},${(Math.floor(Math.random()*99)+1).toString().padStart(2,'0')} zł`;
-             return n + ",00 zł"; 
-        }
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) return (Math.random() * (max - min) + min).toFixed(parseInt(document.getElementById('decimal-places').value)).replace('.', ',');
-        if (state.mode === 'weights') return (Math.floor(Math.random() * (max - min + 1)) + min) + " kg";
-        return (Math.floor(Math.random() * (max - min + 1)) + min).toLocaleString();
+        if (state.mode === 'fractions') return (Math.floor(Math.random()*10)+1) + "/" + (Math.floor(Math.random()*10)+2);
+        if (state.mode === 'time') return Math.floor(Math.random()*24).toString().padStart(2,'0') + ":" + Math.floor(Math.random()*60).toString().padStart(2,'0');
+        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) return (Math.random()*(max-min)+min).toFixed(parseInt(document.getElementById('decimal-places').value)).replace('.', ',');
+        return Math.floor(Math.random() * (max-min+1) + min).toLocaleString();
     }
 
     function check(val, btn) { if (!state.solved) { if (val === state.currentEN) win(btn); else lose(btn); } }
-    function checkTyped() {
-        if (state.solved) return;
-        let val = document.getElementById('type-input').value.trim().toLowerCase();
-        let correct = state.currentEN.toLowerCase();
-        if (state.mode === 'dates' || state.mode === 'time') { if (val.replace(/\D/g,'') === correct.replace(/\D/g,'')) { win(null); return; } }
-        if (val === correct || val === correct.replace(/,/g, '')) win(null); else lose(null);
-    }
-
     function win(btn) {
         playSound('correct'); state.solved = true;
-        let timeTaken = (Date.now() - state.startTime) / 1000;
-        let score = 10;
-        
-        // Choice Count Penalty
-        const style = document.getElementById('input-style').value;
-        if (style === '8') score -= 2;
-        if (style === '4') score -= 5;
-        
-        if (timeTaken < 3) score += 5; else if (timeTaken < 6) score += 2; 
-        if (typeof state.rawData === 'number') {
-            let val = Math.abs(state.rawData);
-            if (val >= 10000) score += 10; else if (val >= 1000) score += 5; else if (val >= 100) score += 2;
-        }
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) score += (parseInt(document.getElementById('decimal-places').value) * 2);
-        if (state.mode === 'prices' && document.getElementById('grosze-toggle').checked) score += 3;
+        let score = 10; const style = document.getElementById('input-style').value;
+        if (style === '8') score -= 2; if (style === '4') score -= 5;
+        if (typeof state.rawData === 'number') { let v = Math.abs(state.rawData); if (v >= 10000) score += 10; else if (v >= 1000) score += 5; else if (v >= 100) score += 2; }
         if (document.getElementById('blind-toggle').checked) score += 5;
-        score -= (state.audioClicks * 2 + state.wrongGuesses * 5);
-        if (score < 1) score = 1;
-
-        state.xp += score; state.streak++;
-        categoryStats[state.mode] += score; saveAllStats();
-        const badge = document.getElementById('badge-score'); badge.innerText = `+${score} XP`; badge.style.display = 'block';
-        if(btn) btn.classList.add('correct'); else document.getElementById('type-input').style.borderColor = "var(--secondary)";
-        document.getElementById('pl-text').classList.add('visible');
-        document.getElementById('en-text').classList.remove('blind-active');
-        document.getElementById('en-text').classList.add('visible');
+        score -= (state.audioClicks * 2 + state.wrongGuesses * 5); if (score < 1) score = 1;
+        state.xp += score; state.streak++; categoryStats[state.mode] += score; saveAllStats();
+        document.getElementById('badge-score').innerText = `+${score} XP`; document.getElementById('badge-score').style.display = 'block';
+        if(btn) btn.classList.add('correct');
+        document.getElementById('pl-text').classList.add('visible'); document.getElementById('en-text').classList.remove('blind-active'); document.getElementById('en-text').classList.add('visible');
         document.getElementById('main-btn').innerText = "NEXT >> (5s)"; document.getElementById('main-btn').classList.add('ready');
-        if (state.isReview) { mistakes = mistakes.filter(m => m !== state.rawData); localStorage.setItem('mistakes', JSON.stringify(mistakes)); }
-        else if (score < 5 && state.mode === 'numbers') { if (!mistakes.includes(state.rawData)) { mistakes.push(state.rawData); localStorage.setItem('mistakes', JSON.stringify(mistakes)); } }
         autoNextTimer = setTimeout(generate, 5000); updateUI();
     }
 
     function lose(btn) {
         playSound('wrong'); state.streak = 0; state.wrongGuesses++;
-        if(btn) btn.classList.add('wrong'); else document.getElementById('type-input').style.borderColor = "#d93025";
+        if(btn) btn.classList.add('wrong');
         if(document.getElementById('blind-toggle').checked) { document.getElementById('en-text').classList.remove('blind-active'); document.getElementById('en-text').classList.add('visible'); }
-        if (state.mode === 'numbers' && !document.getElementById('decimal-toggle').checked) { if (!mistakes.includes(state.rawData)) { mistakes.push(state.rawData); localStorage.setItem('mistakes', JSON.stringify(mistakes)); } }
         updateUI();
     }
 
-    function calculateRank(xp) {
-        for(let i=RANKS.length-1; i>=0; i--) if (xp >= RANKS[i].limit) return { current: RANKS[i].name, next: RANKS[i+1] ? RANKS[i+1].limit : "MAX" };
-    }
-
     function updateUI() {
-        const rankData = calculateRank(state.xp);
-        document.getElementById('rank-display').innerText = rankData.current;
-        document.getElementById('rank-name').innerText = rankData.current;
-        document.getElementById('xp-needed').innerText = (rankData.next === "MAX") ? 0 : (rankData.next - state.xp);
+        let rank = RANKS[0]; for(let r of RANKS) if(state.xp >= r.l) rank = r;
+        document.getElementById('rank-display').innerText = rank.n;
         document.getElementById('xp-display').innerText = state.xp;
         document.getElementById('streak-display').innerText = state.streak;
-        document.getElementById('total-xp-modal').innerText = state.xp;
-        updateStatsView();
         let min = document.getElementById('minP').value, max = document.getElementById('maxP').value;
-        if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
         document.getElementById('lbl-min').innerText = Math.pow(10, min).toLocaleString();
         document.getElementById('lbl-max').innerText = Math.pow(10, max).toLocaleString();
     }
 
     function updateRange() { updateUI(); }
     function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
-    function updateStatsView() {
-        const c = document.getElementById('stats-container'); c.innerHTML = '';
-        for (const [key, val] of Object.entries(categoryStats)) {
-            let pct = Math.min(100, (val / Math.max(200, val * 1.5)) * 100);
-            c.innerHTML += `<div class="progress-item"><div class="progress-label"><span style="text-transform:capitalize">${key}</span><span>${val} XP</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`;
-        }
-    }
-    function resetProgress() { if(confirm("Reset all XP?")) { state.xp = 0; state.streak = 0; categoryStats = {"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}; mistakes = []; localStorage.clear(); updateUI(); } }
-    function setMode(m) { state.mode = m; state.history = []; document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById('nav-'+m).classList.add('active'); ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none'); if (m==='numbers') document.getElementById('set-range').style.display='block'; if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; } if (m==='time') document.getElementById('set-time').style.display='block'; if (m==='dates') document.getElementById('set-dates').style.display='block'; generate(); }
-    function setHelpTab(t) { document.querySelectorAll('.tab-content').forEach(el => el.style.display='none'); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById('tab-'+t).style.display='block'; event.target.classList.add('active'); }
-    function toggleTranslator() { let d = document.getElementById('translator-modal'); d.style.display = (d.style.display === 'flex') ? 'none' : 'flex'; if(d.style.display === 'flex') document.getElementById('trans-input').focus(); }
-    function runTranslator() { let n = parseInt(document.getElementById('trans-input').value); if (!isNaN(n)) { let txt = numToPl(n); document.getElementById('trans-output').innerText = txt; window.speechSynthesis.cancel(); let u = new SpeechSynthesisUtterance(txt); u.lang = 'pl-PL'; window.speechSynthesis.speak(u); } }
+    function setMode(m) { state.mode = m; document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.id === 'nav-'+m)); generate(); }
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function speak(rate) { if (!state.solved && rate === 1.0) state.audioClicks++; window.speechSynthesis.cancel(); let u = new SpeechSynthesisUtterance(state.currentPL); u.lang = 'pl-PL'; u.rate = rate; window.speechSynthesis.speak(u); }
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
-    function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(500, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); } osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
-    function applyTheme() { const t = document.getElementById('theme-select').value; document.body.className = ''; if(t === 'dark') document.body.classList.add('force-dark'); if(t === 'light') document.body.classList.add('force-light'); }
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(500, 0); gain.gain.setValueAtTime(0.1, 0); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, 0); } osc.start(); osc.stop(audioCtx.currentTime + 0.2); }
+    function toggleTranslator() { alert("Type & Speak is in the translation settings!"); }
+    function toggleHelp() { alert("Goal: Listen to Polish numbers and answer quickly!"); }
+    function applyTheme() { const t = document.getElementById('theme-select').value; document.body.className = t === 'dark' ? 'force-dark' : 'force-light'; }
 </script>
 </body>
 </html>
