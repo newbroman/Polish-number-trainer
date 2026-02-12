@@ -9,12 +9,12 @@
 
     <style>
         /* Theme Variables */
-        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; }
         @media (prefers-color-scheme: dark) {
-            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
+            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; }
         }
-        body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; }
-        body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; }
+        body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; }
+        body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -38,17 +38,19 @@
         .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
         
-        .learning-badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: #e37400; color: white; padding: 2px 6px; border-radius: 4px; display: none; font-weight: bold; }
+        .badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: bold; display: none; }
+        .badge-review { background: #e37400; color: white; }
+        .badge-score { background: var(--secondary); color: white; animation: floatUp 1s forwards; display: none; }
 
         /* Grids & Inputs */
         .mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; }
         .cols-2 { grid-template-columns: 1fr 1fr; }
         .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
         
-        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; min-height: 60px; font-weight: 700; font-size: 1.1rem; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; min-height: 60px; font-weight: 700; font-size: 1.1rem; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s; }
         .mc-btn:active { transform: scale(0.96); }
         .correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
-        .wrong { background: #d93025 !important; color: white !important; opacity: 0.5; }
+        .wrong { background: var(--error) !important; color: white !important; opacity: 0.5; }
 
         .type-container { display: none; flex-direction: column; gap: 15px; margin-top: 10px; }
         .type-input { width: 100%; padding: 15px; font-size: 1.4rem; text-align: center; border: 2px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); outline: none; }
@@ -91,6 +93,7 @@
         .tab-content.active { display: block; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body onload="init()">
@@ -118,7 +121,8 @@
 
 <div class="game-area">
     <div class="display-box">
-        <div id="learning-badge" class="learning-badge">Reviewing Mistake</div>
+        <div id="badge-review" class="badge badge-review">Reviewing Mistake</div>
+        <div id="badge-score" class="badge badge-score">+10 XP</div>
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
@@ -242,23 +246,24 @@
         </div>
 
         <div id="tab-guide" class="tab-content active">
-            <p><b>Goal:</b> Listen to the Polish phrase and select the correct matching value.</p>
+            <p><b>Goal:</b> Listen to Polish numbers and answer quickly!</p>
             <div class="set-group">
-                <div class="set-title">Scoring System</div>
-                <p>• <b>+10 XP</b> for every correct answer.</p>
-                <p>• <b>Streak Bonus:</b> Answer correctly in a row to build fire 🔥.</p>
-                <p>• <b>Smart Review:</b> If you get an answer wrong, the app remembers it and will test you again later.</p>
+                <div class="set-title">Scoring</div>
+                <p>• <b>+10 XP</b> Base Score</p>
+                <p>• <b>+5 XP</b> Speed Bonus (< 3s)</p>
+                <p>• <b>+2 XP</b> Speed Bonus (< 6s)</p>
             </div>
             <div class="set-group">
-                <div class="set-title">Saving</div>
-                <p><b>Progress is saved automatically.</b> You can close the app and your XP, Streaks, and Settings will be here when you return.</p>
+                <div class="set-title">Penalties</div>
+                <p>• <b>-2 XP</b> per Audio Repeat</p>
+                <p>• <b>-5 XP</b> per Wrong Guess</p>
             </div>
+            <p style="font-size:0.9rem"><i>Answers that are wrong, slow (>10s), or use many repeats are marked as "Weaknesses" and will reappear later for review.</i></p>
         </div>
 
         <div id="tab-progress" class="tab-content">
             <h3 style="margin-top:0; text-align:center">Total XP: <span id="total-xp-modal">0</span></h3>
-            <div id="stats-container">
-                </div>
+            <div id="stats-container"></div>
             <button class="btn-check" style="background:#d93025; margin-top:20px" onclick="resetProgress()">Reset Progress</button>
         </div>
     </div>
@@ -289,8 +294,8 @@
     const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste", "trzynaste", "czternaste", "piętnaste", "szesnaste"];
     const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
-    // State & Storage
-    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false };
+    // State
+    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, startTime: 0, audioClicks: 0, wrongGuesses: 0 };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
     let autoNextTimer = null;
@@ -329,12 +334,8 @@
         if (n===1 && d===2) return "jedna druga (pół)";
         if (n===1 && d===4) return "jedna czwarta (ćwierć)";
         if (n===3 && d===4) return "trzy czwarte";
-        
         let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
-        let denStr = "";
-        if (n === 1) denStr = DENOM_S[d];
-        else if (n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 > 20)) denStr = DENOM_P[d];
-        else denStr = DENOM_G[d];
+        let denStr = (n === 1) ? DENOM_S[d] : (n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 > 20)) ? DENOM_P[d] : DENOM_G[d];
         return `${numStr} ${denStr}`;
     }
 
@@ -357,10 +358,15 @@
     // --- GENERATOR ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; state.isReview = false;
+        state.solved = false; 
+        state.isReview = false;
+        state.audioClicks = 0;
+        state.wrongGuesses = 0;
+        
         document.getElementById('pl-text').classList.remove('visible');
         document.getElementById('en-text').classList.remove('visible');
-        document.getElementById('learning-badge').style.display = 'none';
+        document.getElementById('badge-review').style.display = 'none';
+        document.getElementById('badge-score').style.display = 'none';
         
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); mainBtn.style.background = "#455a64";
@@ -377,7 +383,7 @@
             let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
             setupNumber(target);
             state.isReview = true;
-            document.getElementById('learning-badge').style.display = 'block';
+            document.getElementById('badge-review').style.display = 'block';
         } else {
             if (state.mode === 'numbers') {
                 if (document.getElementById('decimal-toggle').checked) {
@@ -385,9 +391,7 @@
                     let n = (Math.random() * (max - min) + min).toFixed(places);
                     state.currentEN = n.toString().replace('.', ',');
                     let parts = n.split('.');
-                    let intPart = parseInt(parts[0]);
-                    let decPart = parts[1];
-                    state.currentPL = `${numToPl(intPart)} przecinek ${readDecimalPart(decPart)}`;
+                    state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
                     state.rawData = parseFloat(n);
                 } else {
                     let n = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -434,7 +438,9 @@
         document.getElementById('pl-text').innerText = state.currentPL;
         document.getElementById('en-text').innerText = state.currentEN;
         applySettings();
-        setTimeout(() => speak(1.0), 200);
+        
+        state.startTime = Date.now();
+        setTimeout(() => { speak(1.0); }, 200);
     }
 
     function setupNumber(n) {
@@ -467,13 +473,6 @@
             else grid.classList.add('cols-2');
             generateGrid();
         }
-    }
-
-    function applyTheme() {
-        const t = document.getElementById('theme-select').value;
-        document.body.className = '';
-        if(t === 'dark') document.body.classList.add('force-dark');
-        if(t === 'light') document.body.classList.add('force-light');
     }
 
     function generateGrid() {
@@ -583,25 +582,47 @@
 
     function win(btn) {
         playSound('correct');
-        state.solved = true; state.xp += 10; state.streak++;
+        state.solved = true;
         
-        // Track stats
-        categoryStats[state.mode] += 10;
+        // --- SCORING SYSTEM ---
+        let timeTaken = (Date.now() - state.startTime) / 1000;
+        let score = 10; // Base
+        if (timeTaken < 3) score += 5; // Fast
+        else if (timeTaken < 6) score += 2; // Medium
+        score -= (state.audioClicks * 2); // Repeat penalty
+        score -= (state.wrongGuesses * 5); // Wrong penalty
+        if (score < 1) score = 1; // Min score
+
+        state.xp += score;
+        state.streak++;
+        categoryStats[state.mode] += score;
         saveAllStats();
+
+        // Show Score Badge
+        const badge = document.getElementById('badge-score');
+        badge.innerText = `+${score} XP`;
+        badge.style.display = 'block';
 
         if(btn) btn.classList.add('correct');
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         document.getElementById('pl-text').classList.add('visible');
         document.getElementById('en-text').classList.add('visible');
+        
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >> (5s)"; mainBtn.classList.add('ready');
         
+        // Weakness Tracking Logic
         if (state.isReview) {
             mistakes = mistakes.filter(m => m !== state.rawData);
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
+        } else if (score < 5 && state.mode === 'numbers' && state.rawData !== null) {
+            // If new number but scored poorly, mark as weakness
+             if (!mistakes.includes(state.rawData)) {
+                mistakes.push(state.rawData);
+                localStorage.setItem('mistakes', JSON.stringify(mistakes));
+            }
         }
 
-        // 5 Second Delay
         autoNextTimer = setTimeout(generate, 5000);
         updateUI();
     }
@@ -609,6 +630,7 @@
     function lose(btn) {
         playSound('wrong');
         state.streak = 0;
+        state.wrongGuesses++;
         if(btn) btn.classList.add('wrong');
         else document.getElementById('type-input').style.borderColor = "#d93025";
         
@@ -623,7 +645,6 @@
     }
 
     function updateUI() {
-        saveAllStats();
         document.getElementById('xp-display').innerText = state.xp;
         document.getElementById('streak-display').innerText = state.streak;
         document.getElementById('total-xp-modal').innerText = state.xp;
@@ -714,7 +735,9 @@
 
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
+    
     function speak(rate) {
+        if (state.solved === false && rate === 1.0) state.audioClicks++; // Track repeats only if not solved
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
         u.lang = 'pl-PL'; u.rate = rate;
@@ -734,6 +757,13 @@
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
         }
         osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    }
+
+    function applyTheme() {
+        const t = document.getElementById('theme-select').value;
+        document.body.className = '';
+        if(t === 'dark') document.body.classList.add('force-dark');
+        if(t === 'light') document.body.classList.add('force-light');
     }
 </script>
 </body>
