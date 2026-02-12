@@ -183,7 +183,7 @@
             </div>
             <div class="set-row">
                 <span>Max: <span id="lbl-max">10</span></span>
-                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="1" oninput="updateRange()"></div>
+                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
             </div>
             <div class="set-row">
                 <span>Negatives</span>
@@ -247,12 +247,31 @@
 
         <div id="tab-guide" class="tab-content active">
             <p><b>Goal:</b> Listen to Polish numbers and answer quickly!</p>
+            
+            <div class="set-group">
+                <div class="set-title">Game Modes</div>
+                <p><b>123 Numbers:</b> Integers, decimals, and negatives.</p>
+                <p><b>½ Fractions:</b> Halves, quarters, thirds, etc.</p>
+                <p><b>$$$ Prices:</b> Złoty and Grosze currency.</p>
+                <p><b>📅 Dates:</b> Days, months, and years.</p>
+                <p><b>🕒 Time:</b> Casual and formal clock reading.</p>
+                <p><b>⚖️ Weights:</b> Kilograms.</p>
+            </div>
+
             <div class="set-group">
                 <div class="set-title">Scoring</div>
                 <p>• <b>+10 XP</b> Base Score</p>
                 <p>• <b>+5 XP</b> Speed Bonus (< 3s)</p>
                 <p>• <b>+2 XP</b> Speed Bonus (< 6s)</p>
             </div>
+
+            <div class="set-group">
+                <div class="set-title">Big Number Bonus 🚀</div>
+                <p>• <b>+2 XP</b> for numbers > 100</p>
+                <p>• <b>+5 XP</b> for numbers > 1,000</p>
+                <p>• <b>+10 XP</b> for numbers > 10,000</p>
+            </div>
+
             <div class="set-group">
                 <div class="set-title">Penalties</div>
                 <p>• <b>-2 XP</b> per Audio Repeat</p>
@@ -295,7 +314,11 @@
     const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
     // State
-    let state = { mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, startTime: 0, audioClicks: 0, wrongGuesses: 0 };
+    let state = { 
+        mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
+        startTime: 0, audioClicks: 0, wrongGuesses: 0,
+        history: [] // Last 5 answers
+    };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
     let autoNextTimer = null;
@@ -381,58 +404,26 @@
         if (useMistake) {
             let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
             let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
+            
+            // Prevent same mistake appearing instantly
+            if (state.history.length > 0 && state.history[state.history.length-1] === target && validMistakes.length > 1) {
+                // Pick another one if available
+            }
+            
             setupNumber(target);
             state.isReview = true;
             document.getElementById('badge-review').style.display = 'block';
         } else {
-            if (state.mode === 'numbers') {
-                if (document.getElementById('decimal-toggle').checked) {
-                    let places = parseInt(document.getElementById('decimal-places').value);
-                    let n = (Math.random() * (max - min) + min).toFixed(places);
-                    state.currentEN = n.toString().replace('.', ',');
-                    let parts = n.split('.');
-                    state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
-                    state.rawData = parseFloat(n);
-                } else {
-                    let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                    if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
-                    setupNumber(n);
-                }
-            } else if (state.mode === 'fractions') {
-                let d = Math.floor(Math.random() * 15) + 2; 
-                let n = Math.floor(Math.random() * (d - 1)) + 1; 
-                state.currentEN = `${n}/${d}`;
-                state.currentPL = getFractionPl(n, d);
-                state.rawData = {n, d};
-            } else if (state.mode === 'prices') {
-                let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
-                state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-                state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-                state.rawData = n + (gr/100);
-            } else if (state.mode === 'time') {
-                let h = Math.floor(Math.random() * 24);
-                let m = Math.floor(Math.random() * 12) * 5;
-                let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
-                state.currentEN = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-                state.currentPL = timeToPl(h, m, !isCasual);
-            } else if (state.mode === 'dates') {
-                let d = Math.floor(Math.random() * 30) + 1;
-                let mIdx = Math.floor(Math.random() * 12);
-                let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
-                let fmt = document.getElementById('date-fmt').value;
-                if (fmt === 'dmy') state.currentEN = `${d}/${mIdx+1}${y? '/'+y : ''}`;
-                else if (fmt === 'mdy') state.currentEN = `${mIdx+1}/${d}${y? '/'+y : ''}`;
-                else state.currentEN = `${d} ${MONTHS_EN[mIdx]}` + (y?` ${y}`:"");
-                
-                let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-                state.currentPL = `${ord[d]} ${MONTHS_PL[mIdx]}` + (y?` ${numToPl(y)} roku`:"");
-            } else if (state.mode === 'weights') {
-                 let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                 state.currentEN = n + " kg";
-                 state.currentPL = numToPl(n) + " kilogramów";
-                 state.rawData = n;
-            }
+            // New Question with Anti-Repetition
+            let newVal;
+            let safety = 0;
+            do {
+                newVal = generateRawValue(min, max);
+                safety++;
+            } while (isRepeated(newVal) && safety < 20);
+
+            addToHistory(newVal);
+            processValue(newVal);
         }
 
         document.getElementById('pl-text').innerText = state.currentPL;
@@ -443,6 +434,91 @@
         setTimeout(() => { speak(1.0); }, 200);
     }
 
+    function generateRawValue(min, max) {
+        if (state.mode === 'numbers') {
+            if (document.getElementById('decimal-toggle').checked) {
+                let places = parseInt(document.getElementById('decimal-places').value);
+                let n = (Math.random() * (max - min) + min).toFixed(places);
+                return parseFloat(n);
+            } else {
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (document.getElementById('neg-toggle').checked && Math.random() > 0.5) n *= -1;
+                return n;
+            }
+        } else if (state.mode === 'fractions') {
+            let d = Math.floor(Math.random() * 15) + 2; 
+            let n = Math.floor(Math.random() * (d - 1)) + 1;
+            return {n, d};
+        } else if (state.mode === 'prices') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+            return n + (gr/100);
+        } else if (state.mode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            return {h, m};
+        } else if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let mIdx = Math.floor(Math.random() * 12);
+            let y = document.getElementById('year-toggle').checked ? Math.floor(Math.random()*25)+2000 : 0;
+            return {d, m:mIdx, y};
+        } else if (state.mode === 'weights') {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+    }
+
+    function processValue(val) {
+        state.rawData = val;
+        if (state.mode === 'numbers') {
+            if(document.getElementById('decimal-toggle').checked) {
+                let s = val.toString();
+                let parts = s.split('.');
+                state.currentEN = s.replace('.', ',');
+                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+            } else {
+                setupNumber(val);
+            }
+        } else if (state.mode === 'fractions') {
+            state.currentEN = `${val.n}/${val.d}`;
+            state.currentPL = getFractionPl(val.n, val.d);
+        } else if (state.mode === 'prices') {
+            let n = Math.floor(val);
+            let gr = Math.round((val % 1) * 100);
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
+        } else if (state.mode === 'time') {
+            let isCasual = document.querySelector('input[name="t-style"]:checked').value === 'casual';
+            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
+            state.currentPL = timeToPl(val.h, val.m, !isCasual);
+        } else if (state.mode === 'dates') {
+            let fmt = document.getElementById('date-fmt').value;
+            if (fmt === 'dmy') state.currentEN = `${val.d}/${val.m+1}${val.y? '/'+val.y : ''}`;
+            else if (fmt === 'mdy') state.currentEN = `${val.m+1}/${val.d}${val.y? '/'+val.y : ''}`;
+            else state.currentEN = `${val.d} ${MONTHS_EN[val.m]}` + (val.y?` ${val.y}`:"");
+            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+            state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]}` + (val.y?` ${numToPl(val.y)} roku`:"");
+        } else if (state.mode === 'weights') {
+            state.currentEN = val + " kg";
+            state.currentPL = numToPl(val) + " kilogramów";
+        }
+    }
+
+    function isRepeated(val) {
+        for(let item of state.history) {
+            if (typeof item === 'object' && item !== null) {
+                if(JSON.stringify(item) === JSON.stringify(val)) return true;
+            } else {
+                if(item === val) return true;
+            }
+        }
+        return false;
+    }
+
+    function addToHistory(val) {
+        state.history.push(val);
+        if(state.history.length > 5) state.history.shift();
+    }
+
     function setupNumber(n) {
         state.currentEN = n.toLocaleString();
         state.currentPL = numToPl(n);
@@ -450,6 +526,7 @@
     }
     
     function readDecimalPart(str) {
+        if (!str) return "";
         if (str.length > 2) return str.split('').map(d => numToPl(parseInt(d))).join(' ');
         return numToPl(parseInt(str));
     }
@@ -584,21 +661,28 @@
         playSound('correct');
         state.solved = true;
         
-        // --- SCORING SYSTEM ---
         let timeTaken = (Date.now() - state.startTime) / 1000;
-        let score = 10; // Base
-        if (timeTaken < 3) score += 5; // Fast
-        else if (timeTaken < 6) score += 2; // Medium
-        score -= (state.audioClicks * 2); // Repeat penalty
-        score -= (state.wrongGuesses * 5); // Wrong penalty
-        if (score < 1) score = 1; // Min score
+        let score = 10; 
+        if (timeTaken < 3) score += 5; 
+        else if (timeTaken < 6) score += 2; 
+        
+        // Magnitude Bonus
+        if (typeof state.rawData === 'number') {
+            let val = Math.abs(state.rawData);
+            if (val >= 10000) score += 10;
+            else if (val >= 1000) score += 5;
+            else if (val >= 100) score += 2;
+        }
+
+        score -= (state.audioClicks * 2); 
+        score -= (state.wrongGuesses * 5); 
+        if (score < 1) score = 1; 
 
         state.xp += score;
         state.streak++;
         categoryStats[state.mode] += score;
         saveAllStats();
 
-        // Show Score Badge
         const badge = document.getElementById('badge-score');
         badge.innerText = `+${score} XP`;
         badge.style.display = 'block';
@@ -611,12 +695,10 @@
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >> (5s)"; mainBtn.classList.add('ready');
         
-        // Weakness Tracking Logic
         if (state.isReview) {
             mistakes = mistakes.filter(m => m !== state.rawData);
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
         } else if (score < 5 && state.mode === 'numbers' && state.rawData !== null) {
-            // If new number but scored poorly, mark as weakness
              if (!mistakes.includes(state.rawData)) {
                 mistakes.push(state.rawData);
                 localStorage.setItem('mistakes', JSON.stringify(mistakes));
@@ -697,6 +779,7 @@
 
     function setMode(m) {
         state.mode = m;
+        state.history = []; 
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
         
@@ -737,7 +820,7 @@
     function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     
     function speak(rate) {
-        if (state.solved === false && rate === 1.0) state.audioClicks++; // Track repeats only if not solved
+        if (state.solved === false && rate === 1.0) state.audioClicks++; 
         window.speechSynthesis.cancel();
         let u = new SpeechSynthesisUtterance(state.currentPL);
         u.lang = 'pl-PL'; u.rate = rate;
