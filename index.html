@@ -86,8 +86,24 @@
 
         .badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: none; }
         .badge-review { background: #e37400; color: white; }
-        .badge-score { background: var(--secondary); color: white; animation: floatUp 1s forwards; display: none; top: 40%; right: 40%; font-size: 1.2rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        /* Score Badge Position */
+        .badge-score { 
+            background: var(--secondary); color: white; 
+            display: none; top: 45%; left: 50%; transform: translate(-50%, -50%); 
+            font-size: 2rem; z-index: 20; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-radius: 12px;
+            padding: 10px 20px;
+            animation: scorePop 0.5s forwards; 
+        }
         .badge-blind { left: auto; right: 10px; top: auto; bottom: 10px; background: #607d8b; color: white; display: none; } 
+        .badge-handsfree { 
+            position: absolute; bottom: 10px; left: 10px; 
+            background: #673ab7; color: white; font-size: 0.75rem; padding: 4px 8px; 
+            border-radius: 6px; font-weight: bold; display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
 
         /* Grids */
         .mc-grid { display: grid; gap: 12px; flex-grow: 1; align-content: start; margin-bottom: 100px; }
@@ -98,7 +114,7 @@
             position:relative; background: var(--card); border: 1px solid var(--border); border-bottom-width: 3px;
             border-radius: 12px; min-height: 65px; font-weight: 700; font-size: 0.95rem; color: var(--text); 
             cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; 
-            transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s; word-break: break-word;
+            transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s; word-break: break-word; text-align: center;
         }
         .mc-btn:active { transform: translateY(2px); border-bottom-width: 1px; margin-top: 2px; }
         .mc-key-hint { position: absolute; top: 4px; left: 6px; font-size: 0.65rem; color: var(--primary); opacity: 0.6; }
@@ -116,15 +132,18 @@
         .footer { 
             position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 15px; 
             border-top: 1px solid var(--border); display: grid; gap: 12px; z-index: 100; height: 85px; 
-            grid-template-columns: 1fr 1fr 1fr 2.5fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
+            grid-template-columns: 1fr 1fr 2fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
         }
         .btn-action { 
             border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
-        .btn-listen { background: var(--secondary); font-size: 1.4rem; }
-        .btn-slow { background: #fb8c00; font-size: 0.9rem; }
-        .btn-vslow { background: #e65100; font-size: 0.9rem; }
+        .btn-listen { background: var(--secondary); font-size: 1.4rem; transition: transform 0.1s; }
+        .btn-listen:active { transform: scale(0.95); }
+        
+        .btn-hf { background: #673ab7; font-size: 1.6rem; }
+        .btn-hf.active { background: #d32f2f; animation: pulse 1.5s infinite; }
+        
         .btn-next { background: #5f6368; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.3s; }
         .btn-next.ready { background: var(--primary); }
 
@@ -133,8 +152,7 @@
         .modal-box { background: var(--card); width: 95%; max-width: 420px; padding: 25px; border-radius: 24px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
         .close-x { 
             position: absolute; top: 20px; right: 20px; font-size: 1.5rem; 
-            background: var(--bg); /* Fixed visibility in Dark Mode */
-            width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; color: var(--text); 
+            background: var(--bg); width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; color: var(--text); 
             display:flex; align-items:center; justify-content:center; 
             border: 1px solid var(--border);
         }
@@ -144,13 +162,11 @@
         .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.95rem; font-weight: 600; }
         .set-row:last-child { margin-bottom: 0; }
         
-        /* Mode Grid in Settings */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .mode-btn { padding: 10px; border: 2px solid var(--border); background: var(--card); border-radius: 10px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
         .mode-btn.active { border-color: var(--primary); background: rgba(26, 115, 232, 0.1); color: var(--primary); }
         .mode-btn span { font-size: 1.1rem; }
 
-        /* Help Styles */
         .help-sec { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .help-sec:last-child { border: none; }
         .help-h { font-size: 1rem; color: var(--primary); margin-bottom: 8px; font-weight: 800; }
@@ -164,7 +180,13 @@
         input[type=range] { width: 100%; accent-color: var(--primary); }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes floatUp { from { opacity: 0; transform: translateY(10px) scale(0.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes scorePop { 
+            0% { opacity: 0; transform: translate(-50%, -20%) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(0.8); } 
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body onload="init()">
@@ -177,7 +199,7 @@
     <div class="stats-group">
         <div class="stat-item" title="XP">⭐ <span id="xp-display">0</span></div>
         <div class="stat-item" title="Streak">🔥 <span id="streak-display">0</span></div>
-        <div class="stat-item" title="Rank">🏆 <span id="rank-display">Novice</span></div>
+        <div class="stat-item" title="Rank">🏆 <span id="rank-display">Nowicjusz</span></div>
     </div>
     <div class="stats-group">
         <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
@@ -191,6 +213,7 @@
         <div id="badge-review" class="badge badge-review">Review</div>
         <div id="badge-score" class="badge badge-score">+10</div>
         <div id="badge-blind" class="badge badge-blind">🙈 Audio Only</div>
+        <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
         
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
@@ -205,9 +228,8 @@
 </div>
 
 <div class="footer">
-    <button class="btn-action btn-listen" onclick="speak(1.0)">🔊</button>
-    <button class="btn-action btn-slow" onclick="speak(0.6)">🐢</button>
-    <button class="btn-action btn-vslow" onclick="speak(0.3)">🐌</button>
+    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
+    <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
 
@@ -225,7 +247,6 @@
                 <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
                 <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
-                <button class="mode-btn" onclick="selectMode('dictation')" id="nav-dictation" style="background:#455a64; color:white; border-color:#455a64"><span>✏️</span> Dictation</button>
                 <button class="mode-btn" onclick="selectMode('translator')" id="nav-translator" style="background:#1a73e8; color:white; border-color:#1a73e8"><span>🗣️</span> Translate</button>
             </div>
         </div>
@@ -290,6 +311,10 @@
                 <span>Include Year</span>
                 <input type="checkbox" id="year-toggle" checked>
             </div>
+            <div class="set-row">
+                <span>Include Day of Week</span>
+                <input type="checkbox" id="day-toggle">
+            </div>
         </div>
 
         <div class="set-group" id="set-time" style="display:none">
@@ -313,27 +338,33 @@
         <h2 style="margin-top:0">Help & Stats</h2>
         
         <div class="help-sec">
-            <div class="help-h">Game Modes (Tabs)</div>
-            <p class="help-p"><b>123 Numbers:</b> Basic integer practice. Configurable range.</p>
-            <p class="help-p"><b>💬 Context:</b> Numbers inside real sentences (Grammar focus).</p>
-            <p class="help-p"><b>$$ Prices:</b> Polish currency format (Złoty & Grosze).</p>
-            <p class="help-p"><b>🕒 Time:</b> Telling time. Supports Casual (wpół do) and Formal.</p>
-            <p class="help-p"><b>📅 Dates:</b> Day, Month, and Year formats.</p>
-            <p class="help-p"><b>🚻 Gender:</b> Tricky gender forms for 1 (jeden/jedna) and 2 (dwa/dwie).</p>
-            <p class="help-p"><b>✏️ Dictation:</b> Hard mode. Audio only -> Type digits.</p>
-            <p class="help-p"><b>🗣️ Translate:</b> Type any number to see/hear it in Polish.</p>
+            <div class="help-h">Audio Controls (Tap the Speaker 🔊)</div>
+            <p class="help-p"><b>1 Tap:</b> Normal Speed</p>
+            <p class="help-p"><b>2 Taps:</b> Slow Speed (0.5x)</p>
+            <p class="help-p"><b>3 Taps:</b> Very Slow Speed (0.25x)</p>
         </div>
 
         <div class="help-sec">
-            <div class="help-h">Scoring System</div>
-            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct answer</p>
-            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Fast answer (< 3s)</p>
-            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Blind Mode (Audio only)</p>
-            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Dictation Mode</p>
-            <p class="help-p"><span class="point-tag pt-red">-2 XP</span> Using Audio Replay</p>
-            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect Guess</p>
+            <div class="help-h">Handsfree Mode 🚗</div>
+            <p class="help-p">Loop: Polish (Normal) → English → Polish (Slow) → Polish (Normal). Good for driving!</p>
         </div>
 
+        <div class="help-sec">
+            <div class="help-h">Game Modes</div>
+            <p class="help-p"><b>123 Numbers:</b> Basic integer practice.</p>
+            <p class="help-p"><b>💬 Context:</b> Numbers in sentences.</p>
+            <p class="help-p"><b>$$ Prices:</b> Polish currency format.</p>
+            <p class="help-p"><b>🕒 Time:</b> Telling time.</p>
+            <p class="help-p"><b>📅 Dates:</b> Day, Month, Year.</p>
+            <p class="help-p"><b>🚻 Gender:</b> Match forms (e.g. dwa psy vs dwie kury).</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">Scoring</div>
+            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct</p>
+            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect</p>
+        </div>
+        
         <div class="help-sec">
             <div class="help-h">Statistics</div>
             <div id="stats-container"></div>
@@ -350,40 +381,52 @@
     const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
     const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
     const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const DAYS_PL = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+    const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
     
-    // Noun Grammar for Context Mode
+    // Noun Grammar
     const GRAMMAR = {
-        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]' }, 
-        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]' }, 
-        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]' }, 
-        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]' } 
+        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]', enPhrase: 'I am [N] years old' }, 
+        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]', enPhrase: 'It costs [N] PLN' }, 
+        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]', enPhrase: 'I see [N] people' }, 
+        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]', enPhrase: '[N] days left' } 
     };
 
     const GENDER_NOUNS = [
-        { word: 'pies', form: 'm', pl: 'psy' }, { word: 'kot', form: 'm', pl: 'koty' },
-        { word: 'kura', form: 'f', pl: 'kury' }, { word: 'kobieta', form: 'f', pl: 'kobiety' },
-        { word: 'okno', form: 'n', pl: 'okna' }, { word: 'dziecko', form: 'n', pl: 'dzieci' }
+        { word: 'pies', form: 'm', pl: 'psy', gen: 'psów', en: 'dogs' }, 
+        { word: 'kot', form: 'm', pl: 'koty', gen: 'kotów', en: 'cats' },
+        { word: 'kura', form: 'f', pl: 'kury', gen: 'kur', en: 'hens' }, 
+        { word: 'kobieta', form: 'f', pl: 'kobiety', gen: 'kobiet', en: 'women' },
+        { word: 'okno', form: 'n', pl: 'okna', gen: 'okien', en: 'windows' }, 
+        { word: 'dziecko', form: 'n', pl: 'dzieci', gen: 'dzieci', en: 'children' },
+        { word: 'dom', form: 'm', pl: 'domy', gen: 'domów', en: 'houses' },
+        { word: 'książka', form: 'f', pl: 'książki', gen: 'książek', en: 'books' }
     ];
 
-    const RANKS = [ { name: "Novice", limit: 0 }, { name: "Apprentice", limit: 500 }, { name: "Intermediate", limit: 1500 }, { name: "Advanced", limit: 3000 }, { name: "Master", limit: 10000 } ];
+    // Updated Polish Ranks
+    const RANKS = [ { name: "Nowicjusz", limit: 0 }, { name: "Uczeń", limit: 500 }, { name: "Średni", limit: 1500 }, { name: "Zaawansowany", limit: 3000 }, { name: "Mistrz", limit: 10000 } ];
 
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
         startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
-        genderTarget: null, currentContextKey: null 
+        genderTarget: null, currentContextKey: null,
+        handsfree: false
     };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
-    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0,"dictation":0}');
+    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0}');
     let autoNextTimer = null;
     let audioCtx = null;
+    let audioKeepAliveTimer = null;
+    let speakerTaps = 0;
+    let speakerTapTimer = null;
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         document.addEventListener('keydown', (e) => {
             if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
-            if (document.getElementById('input-style').value === 'type' || state.mode === 'dictation' || state.mode === 'translator') {
+            if (document.getElementById('input-style').value === 'type' || state.mode === 'translator') {
                 if (e.key === 'Enter') checkTyped();
             } else {
                 if (!isNaN(parseInt(e.key)) && e.key !== '0') {
@@ -394,6 +437,8 @@
             }
         });
         updateUI(); updateRange(); 
+        audioKeepAliveTimer = setInterval(keepAudioAwake, 8000);
+        document.body.addEventListener('click', initAudio, { once: true });
         switchMode('numbers'); 
         window.speechSynthesis.cancel();
     }
@@ -421,18 +466,16 @@
         return s.trim();
     }
 
-    // --- GENERATOR ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
         
-        // Handle Translator Mode
         if (state.mode === 'translator') {
             document.getElementById('pl-text').innerText = "Type a number...";
             document.getElementById('display-box').classList.add('trans-active');
             document.getElementById('type-input').value = "";
             document.getElementById('type-input').focus();
-            document.getElementById('main-btn').style.display = 'none'; // Hide SKIP
+            document.getElementById('main-btn').style.display = 'none'; 
             document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
             return;
         } else {
@@ -446,7 +489,7 @@
         plBox.classList.remove('visible'); enBox.classList.remove('visible');
         plBox.innerHTML = '---'; enBox.innerText = '???';
         
-        const isBlind = document.getElementById('blind-toggle').checked || state.mode === 'dictation';
+        const isBlind = document.getElementById('blind-toggle').checked;
         if(isBlind) {
             enBox.classList.add('blind-active');
             document.getElementById('badge-blind').style.display = 'block';
@@ -476,21 +519,30 @@
         addToHistory(newVal);
         processValue(newVal);
 
-        if (state.mode === 'context') {
-            plBox.innerHTML = state.currentPL; 
-        } else {
-            plBox.innerText = state.currentPL;
-        }
+        if (state.mode === 'context') plBox.innerHTML = state.currentPL; 
+        else plBox.innerText = state.currentPL;
         
-        if (!isBlind) enBox.innerText = state.currentEN;
+        if (!isBlind) {
+            if (state.mode === 'gender') {
+                enBox.innerText = state.currentEN;
+                enBox.classList.add('visible');
+            } else if (state.mode === 'context') {
+                enBox.innerText = "???"; 
+                enBox.classList.remove('visible');
+            } else {
+                enBox.innerText = state.currentEN;
+            }
+        }
         
         applySettings();
         state.startTime = Date.now();
-        setTimeout(() => { speak(1.0); }, 250);
+        
+        if (state.handsfree) playHandsfreeSequence();
+        else setTimeout(() => { speak(1.0); }, 250);
     }
 
     function generateRawValue(min, max) {
-        if (state.mode === 'numbers' || state.mode === 'dictation' || state.mode === 'context') {
+        if (state.mode === 'numbers' || state.mode === 'context') {
             if (state.mode === 'context') {
                 const keys = Object.keys(GRAMMAR);
                 const k = keys[Math.floor(Math.random() * keys.length)];
@@ -498,7 +550,7 @@
                 let n = Math.floor(Math.random() * (max - min + 1)) + min;
                 return { val: n, key: k };
             }
-            if (document.getElementById('decimal-toggle').checked && state.mode !== 'dictation') {
+            if (document.getElementById('decimal-toggle').checked) {
                 let places = parseInt(document.getElementById('decimal-places').value);
                 return parseFloat((Math.random() * (max - min) + min).toFixed(places));
             }
@@ -518,12 +570,14 @@
             let d = Math.floor(Math.random() * 30) + 1;
             let mIdx = Math.floor(Math.random() * 12);
             let y = Math.floor(Math.random()*25)+2000;
-            return {d, m:mIdx, y};
+            let dow = Math.floor(Math.random()*7);
+            return {d, m:mIdx, y, dow};
         }
         else if (state.mode === 'gender') {
-            let num = Math.random() < 0.5 ? 1 : 2;
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
-            return { num, noun };
+            return { num: n, noun };
         }
     }
 
@@ -531,22 +585,31 @@
         state.rawData = val;
         
         if (state.mode === 'gender') {
-            let nWord = val.noun.word;
+            let n = val.num;
+            let nounObj = val.noun;
             let numStr = "";
-            if (val.num === 1) {
-                if (val.noun.form === 'm') numStr = 'jeden';
-                else if (val.noun.form === 'f') numStr = 'jedna';
+            let nounStr = "";
+
+            if (n === 1) {
+                if (nounObj.form === 'm') numStr = 'jeden';
+                else if (nounObj.form === 'f') numStr = 'jedna';
                 else numStr = 'jedno';
-                state.currentEN = `1 ${val.noun.word}`;
-            } else {
-                if (val.noun.form === 'f') numStr = 'dwie';
+                nounStr = nounObj.word;
+            } else if (n === 2) {
+                if (nounObj.form === 'f') numStr = 'dwie';
                 else numStr = 'dwa';
-                nWord = val.noun.pl;
-                state.currentEN = `2 ${val.noun.pl}`;
+                nounStr = nounObj.pl;
+            } else {
+                numStr = numToPl(n);
+                let r10 = n % 10;
+                let r100 = n % 100;
+                if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl;
+                else nounStr = nounObj.gen;
             }
-            state.currentPL = `${numStr} ${nWord}`;
-            state.genderTarget = numStr;
-            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nWord}</span>`;
+            state.currentEN = `${n} ${nounObj.en}`; 
+            state.currentPL = `${numStr} ${nounStr}`;
+            state.genderTarget = numStr; 
+            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`;
             return;
         }
 
@@ -556,21 +619,14 @@
             let word = getPlural(n, g.s, g.p, g.g);
             let numTxt = numToPl(n);
             let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
-            
-            state.currentEN = g.phrase.replace('[N]', n).replace('[W]', val.key === 'zł' ? 'PLN' : val.key);
-            
+            state.currentEN = g.enPhrase.replace('[N]', n);
             let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
             state.currentPL = visualPhrase; 
-            
             state.speechText = fullPhrase; 
             return;
         }
 
-        if (state.mode === 'dictation') {
-            state.currentEN = val.toLocaleString();
-            state.currentPL = numToPl(val);
-        }
-        else if (state.mode === 'numbers') {
+        if (state.mode === 'numbers') {
             if(document.getElementById('decimal-toggle').checked) {
                 let s = val.toString(); if(!s.includes('.')) s += ".0";
                 let parts = s.split('.');
@@ -591,13 +647,12 @@
         } else if (state.mode === 'dates') {
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
             let includeYear = document.getElementById('year-toggle').checked;
-            if (includeYear) {
-                state.currentEN = `${val.d} ${MONTHS_EN[val.m]} ${val.y}`;
-                state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]} ${numToPl(val.y)} roku`;
-            } else {
-                state.currentEN = `${val.d} ${MONTHS_EN[val.m]}`;
-                state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]}`;
-            }
+            let includeDay = document.getElementById('day-toggle').checked;
+            let enStr = ""; let plStr = "";
+            if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
+            enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`;
+            if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
+            state.currentEN = enStr; state.currentPL = plStr;
         }
     }
 
@@ -617,14 +672,10 @@
         }
     }
 
-    function addToHistory(val) {
-        state.history.push(val);
-        if(state.history.length > 5) state.history.shift();
-    }
+    function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
     function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
     function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
 
-    // --- UI & INTERACTION ---
     function applySettings() {
         if (state.mode === 'translator') {
             document.getElementById('mc-area').style.display = 'none';
@@ -632,15 +683,6 @@
             document.getElementById('type-input').setAttribute('type', 'number'); 
             return;
         }
-
-        if (state.mode === 'dictation') {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').setAttribute('type', 'number'); 
-            document.getElementById('type-input').focus();
-            return;
-        }
-
         let style = document.getElementById('input-style').value;
         if (style === 'type') {
             document.getElementById('mc-area').style.display = 'none';
@@ -661,11 +703,67 @@
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
-        
         let opts = [];
         
         if (state.mode === 'gender') {
-            opts = ['jeden', 'jedna', 'jedno', 'dwa', 'dwie'];
+            let noun = state.rawData.noun;
+            let correct = state.currentPL;
+            opts = [correct];
+            
+            if (state.rawData.num === 1) {
+                ['jeden', 'jedna', 'jedno'].forEach(f => {
+                    let phrase = `${f} ${noun.word}`;
+                    if (phrase !== correct) opts.push(phrase);
+                });
+            } else if (state.rawData.num === 2) {
+                ['dwa', 'dwie'].forEach(f => {
+                    let phrase = `${f} ${noun.pl}`;
+                    if (phrase !== correct) opts.push(phrase);
+                });
+            } else {
+                 const min = Math.pow(10, document.getElementById('minP').value);
+                 const max = Math.pow(10, document.getElementById('maxP').value);
+                 let safety = 0;
+                 while(opts.length < state.btnCount && safety < 100) {
+                     let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
+                     let dNum = numToPl(decoy);
+                     let dNoun = noun.gen;
+                     let r10 = decoy % 10, r100 = decoy % 100;
+                     if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) dNoun = noun.pl;
+                     if (decoy === 1) dNoun = noun.word;
+                     let phrase = `${dNum} ${dNoun}`;
+                     if(!opts.includes(phrase)) opts.push(phrase);
+                     safety++;
+                 }
+            }
+            while (opts.length < state.btnCount) opts.push(`zły ${noun.word} ${opts.length}`); 
+            opts = opts.slice(0, state.btnCount); 
+            opts.sort(() => Math.random() - 0.5);
+            
+        } else if (state.mode === 'context') {
+            // CONTEXT TILES ARE NOW IN POLISH
+            let g = GRAMMAR[state.currentContextKey];
+            let n = state.rawData.val;
+            
+            // Correct Answer (Full Polish Phrase)
+            let correct = state.speechText; 
+            opts = [correct];
+            
+            const min = Math.pow(10, document.getElementById('minP').value);
+            const max = Math.pow(10, document.getElementById('maxP').value);
+            let safety = 0;
+            
+            while(opts.length < state.btnCount && safety < 100) {
+                let decoyN = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (decoyN !== n) {
+                     let word = getPlural(decoyN, g.s, g.p, g.g);
+                     let numTxt = numToPl(decoyN);
+                     let decoyPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
+                     if (!opts.includes(decoyPhrase)) opts.push(decoyPhrase);
+                }
+                safety++;
+            }
+            opts.sort(() => Math.random() - 0.5);
         } else {
             opts = [state.currentEN];
             const min = Math.pow(10, document.getElementById('minP').value);
@@ -682,7 +780,7 @@
         opts.forEach((val, index) => {
             let b = document.createElement('button');
             b.className = 'mc-btn'; 
-            if (state.mode !== 'gender') {
+            if (state.mode !== 'gender' && state.mode !== 'context') {
                 let hint = document.createElement('span');
                 hint.className = 'mc-key-hint'; hint.innerText = index + 1;
                 b.appendChild(hint);
@@ -694,18 +792,16 @@
     }
 
     function makeDecoy(min, max) {
-        if (state.mode === 'context') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            let g = GRAMMAR[state.currentContextKey];
-            let phrase = g.phrase.replace('[N]', n).replace('[W]', state.currentContextKey === 'zł' ? 'PLN' : state.currentContextKey);
-            return phrase;
-        }
         if (state.mode === 'prices') return (Math.floor(Math.random()*(max-min))+min) + ",00 zł";
         if (state.mode === 'dates') {
              let d = Math.floor(Math.random()*30)+1, m=Math.floor(Math.random()*12), y=Math.floor(Math.random()*25)+2000;
              let includeYear = document.getElementById('year-toggle').checked;
-             if (includeYear) return `${d} ${MONTHS_EN[m]} ${y}`;
-             else return `${d} ${MONTHS_EN[m]}`;
+             let includeDay = document.getElementById('day-toggle').checked;
+             let s = "";
+             if(includeDay) s += DAYS_EN[Math.floor(Math.random()*7)] + ", ";
+             s += `${d} ${MONTHS_EN[m]}`;
+             if(includeYear) s += ` ${y}`;
+             return s;
         }
         if (state.mode === 'time') {
             let h=Math.floor(Math.random()*24), m=Math.floor(Math.random()*12)*5;
@@ -718,8 +814,8 @@
     function check(val, btn) {
         if (state.solved) return;
         let isCorrect = false;
-        if (state.mode === 'gender') {
-             if (val === state.genderTarget) isCorrect = true;
+        if (state.mode === 'gender' || state.mode === 'context') {
+             if (val === state.speechText || val === state.currentPL) isCorrect = true;
         } else {
              if (val == state.currentEN) isCorrect = true;
         }
@@ -727,18 +823,10 @@
     }
 
     function checkTyped() {
-        if (state.mode === 'translator') {
-            runTranslator();
-            return;
-        }
+        if (state.mode === 'translator') { runTranslator(); return; }
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = state.currentEN.toString().toLowerCase();
-
-        if (state.mode === 'dictation') {
-             if (val.replace(/\s/g,'') === correct.replace(/\s/g,'')) { win(null); return; }
-        }
-
         if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null);
         else lose(null);
     }
@@ -746,10 +834,7 @@
     function win(btn) {
         playSound('correct');
         state.solved = true;
-        let score = 10;
-        if (state.mode === 'dictation') score += 10; 
-        if (state.mode === 'context') score += 5;
-
+        let score = 10; if (state.mode === 'context') score += 5;
         state.xp += score; state.streak++;
         categoryStats[state.mode] += score;
         saveAllStats();
@@ -760,8 +845,12 @@
         if(btn) btn.classList.add('correct');
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
-        if (state.mode === 'context') document.getElementById('pl-text').innerHTML = state.speechText; 
-        else document.getElementById('pl-text').classList.add('visible');
+        if (state.mode === 'context') {
+            document.getElementById('en-text').innerText = state.currentEN;
+            document.getElementById('pl-text').innerHTML = state.speechText; 
+        } else {
+             document.getElementById('pl-text').classList.add('visible');
+        }
         
         document.getElementById('en-text').classList.add('visible');
         document.getElementById('en-text').classList.remove('blind-active');
@@ -769,7 +858,7 @@
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
         
-        autoNextTimer = setTimeout(generate, 3000);
+        if(!state.handsfree) autoNextTimer = setTimeout(generate, 3000);
         updateUI();
     }
 
@@ -782,47 +871,98 @@
         
         document.getElementById('en-text').classList.remove('blind-active');
         document.getElementById('en-text').classList.add('visible');
-        if (state.mode === 'context') document.getElementById('pl-text').innerHTML = state.speechText;
+        if (state.mode === 'context') {
+             document.getElementById('en-text').innerText = state.currentEN;
+             document.getElementById('pl-text').innerHTML = state.speechText;
+        }
         document.getElementById('pl-text').classList.add('visible');
-
-        speak(0.8);
+        
+        if (!state.handsfree) speak(0.8);
         updateUI();
     }
     
-    function selectMode(m) {
-        toggleSettings();
-        switchMode(m);
+    // --- HANDSFREE & AUDIO ---
+    function toggleHandsfree() {
+        state.handsfree = !state.handsfree;
+        let btn = document.getElementById('hf-btn');
+        if (state.handsfree) {
+            btn.classList.add('active');
+            document.getElementById('badge-handsfree').style.display = 'block';
+            initAudio(); generate(); 
+        } else {
+            btn.classList.remove('active');
+            document.getElementById('badge-handsfree').style.display = 'none';
+            window.speechSynthesis.cancel();
+            if (autoNextTimer) clearTimeout(autoNextTimer);
+        }
+    }
+
+    function playHandsfreeSequence() {
+        if (!state.handsfree) return;
+        window.speechSynthesis.cancel();
+        
+        let plText = (state.mode === 'context') ? state.speechText : state.currentPL;
+        let enText = state.currentEN;
+        
+        let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0;
+        let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0;
+        let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5;
+        let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0;
+
+        u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); };
+        window.speechSynthesis.speak(u1);
+        window.speechSynthesis.speak(u2);
+        window.speechSynthesis.speak(u3);
+        window.speechSynthesis.speak(u4);
     }
     
+    function handleSpeakerClick() {
+        speakerTaps++;
+        if (speakerTapTimer) clearTimeout(speakerTapTimer);
+        speakerTapTimer = setTimeout(() => {
+            let rate = 1.0;
+            if (speakerTaps === 2) rate = 0.5;
+            if (speakerTaps >= 3) rate = 0.25;
+            speak(rate);
+            speakerTaps = 0;
+        }, 300); 
+    }
+
+    // --- UTILS ---
+    function selectMode(m) { toggleSettings(); switchMode(m); }
     function switchMode(m) {
-        state.mode = m; state.history = []; 
+        state.mode = m; state.history = []; state.handsfree = false;
+        document.getElementById('hf-btn').classList.remove('active');
+        document.getElementById('badge-handsfree').style.display = 'none';
+        
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
-        
-        let label = m;
-        if(m === 'context') label = "Sentences";
-        if(m === 'dictation') label = "Dictation";
-        if(m === 'translator') label = "Translator";
-        document.getElementById('mode-label').innerText = label;
+        document.getElementById('mode-label').innerText = m === 'context' ? "Sentences" : (m === 'translator' ? "Translator" : m);
         
         ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
-        
-        if (m==='numbers' || m==='dictation' || m==='context') document.getElementById('set-range').style.display='block';
+        if (m==='numbers' || m==='context' || m==='gender') document.getElementById('set-range').style.display='block';
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
         
-        if (m==='dictation' || m==='translator') {
-            document.getElementById('input-row').style.display = 'none'; 
-        } else if (m === 'gender') {
-            document.getElementById('input-row').style.display = 'none'; 
-        } else {
-            document.getElementById('input-row').style.display = 'flex';
-        }
-
+        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context') ? 'none' : 'flex';
         generate();
     }
 
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function keepAudioAwake() {
+        if (!audioCtx) initAudio();
+        if (audioCtx.state === 'running') {
+            const buffer = audioCtx.createBuffer(1, 1, 22050);
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+        }
+    }
     function speak(rate) {
         if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
         window.speechSynthesis.cancel();
@@ -856,11 +996,10 @@
     }
     function saveAndGenerate() { toggleSettings(); generate(); }
     function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
-    function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0,dictation:0}; localStorage.clear(); location.reload(); } }
+    function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
     
     function playSound(type) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        initAudio();
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
         if (type === 'correct') {
@@ -886,7 +1025,7 @@
     }
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
     function updateUI() {
-        const rankData = { current: "Novice" }; 
+        const rankData = { current: "Nowicjusz" }; 
         for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; }
         document.getElementById('rank-display').innerText = rankData.current;
         document.getElementById('xp-display').innerText = state.xp;
