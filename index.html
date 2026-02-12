@@ -9,12 +9,12 @@
 
     <style>
         /* Theme Variables */
-        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; --rank-color: #fbbc04; }
         @media (prefers-color-scheme: dark) {
-            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; }
+            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; }
         }
-        body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; }
-        body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; }
+        body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; }
+        body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f0f2f5; --card: #ffffff; --text: #202124; --border: #e0e0e0; --error: #d93025; --rank-color: #fbbc04; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -22,6 +22,7 @@
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: var(--card); border-bottom: 1px solid var(--border); height: 55px; flex-shrink: 0; }
         .stats { font-weight: 800; font-size: 0.95rem; display: flex; gap: 15px; align-items: center; }
+        .rank-badge { color: var(--rank-color); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
         .header-icons button { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 0 5px; color: var(--text); }
 
         /* Nav */
@@ -33,22 +34,26 @@
         .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 120px; max-width: 600px; margin: 0 auto; width: 100%; }
         
         /* Display Box */
-        .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative;}
+        .display-box { text-align: center; margin-bottom: 20px; min-height: 100px; display: flex; flex-direction: column; justify-content: center; background: var(--card); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; transition: border-color 0.3s;}
         .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 700; margin-bottom: 5px; visibility: hidden; line-height: 1.2; }
-        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; }
+        .en-text { font-size: 1.2rem; color: #888; visibility: hidden; font-weight: 500; min-height: 1.5rem; transition: opacity 0.3s; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
+        .blind-active { opacity: 0; } /* Hides EN text in blind mode */
         
         .badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: bold; display: none; }
         .badge-review { background: #e37400; color: white; }
         .badge-score { background: var(--secondary); color: white; animation: floatUp 1s forwards; display: none; }
+        .badge-blind { left: 10px; right: auto; background: #607d8b; color: white; display: none; } 
 
         /* Grids & Inputs */
         .mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; }
         .cols-2 { grid-template-columns: 1fr 1fr; }
         .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
         
-        .mc-btn { background: var(--card); border: 2px solid var(--border); border-radius: 12px; min-height: 60px; font-weight: 700; font-size: 1.1rem; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s; }
+        .mc-btn { position:relative; background: var(--card); border: 2px solid var(--border); border-radius: 12px; min-height: 60px; font-weight: 700; font-size: 1.1rem; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s; }
         .mc-btn:active { transform: scale(0.96); }
+        .mc-key-hint { position: absolute; top: 2px; left: 5px; font-size: 0.7rem; color: var(--primary); opacity: 0.5; font-weight: normal; }
+        
         .correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
         .wrong { background: var(--error) !important; color: white !important; opacity: 0.5; }
 
@@ -101,6 +106,7 @@
 <div class="header">
     <div class="stats">
         <div>⭐ <span id="xp-display">0</span> XP</div>
+        <div id="rank-display" class="rank-badge">Novice</div>
         <div>🔥 <span id="streak-display">0</span></div>
     </div>
     <div class="header-icons">
@@ -121,6 +127,7 @@
 
 <div class="game-area">
     <div class="display-box">
+        <div id="badge-blind" class="badge badge-blind">🙈 Blind Mode</div>
         <div id="badge-review" class="badge badge-review">Reviewing Mistake</div>
         <div id="badge-score" class="badge badge-score">+10 XP</div>
         <div id="pl-text" class="pl-text">---</div>
@@ -148,7 +155,23 @@
         <h2 style="margin-top:0">Settings</h2>
         
         <div class="set-group">
-            <div class="set-title">General</div>
+            <div class="set-title">Gameplay</div>
+            <div class="set-row">
+                <span>Blind Mode (Audio Only)</span>
+                <input type="checkbox" id="blind-toggle">
+            </div>
+             <div class="set-row">
+                <span>Theme</span>
+                <select id="theme-select" onchange="applyTheme()">
+                    <option value="auto">Auto</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="set-group">
+            <div class="set-title">Controls</div>
             <div class="set-row">
                 <span>Buttons</span>
                 <select id="input-style" onchange="applySettings()">
@@ -163,14 +186,6 @@
                 <select id="kb-type" onchange="applySettings()">
                     <option value="text">Standard</option>
                     <option value="numeric">Numeric (0-9)</option>
-                </select>
-            </div>
-             <div class="set-row">
-                <span>Theme</span>
-                <select id="theme-select" onchange="applyTheme()">
-                    <option value="auto">Auto</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
                 </select>
             </div>
         </div>
@@ -241,47 +256,48 @@
         <button class="close-x" onclick="toggleHelp()">×</button>
         
         <div class="tab-header">
-            <button class="tab-btn active" onclick="setHelpTab('guide')">How to Play</button>
-            <button class="tab-btn" onclick="setHelpTab('progress')">My Progress</button>
+            <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
+            <button class="tab-btn" onclick="setHelpTab('progress')">Stats & Rank</button>
         </div>
 
         <div id="tab-guide" class="tab-content active">
             <p><b>Goal:</b> Listen to Polish numbers and answer quickly!</p>
             
             <div class="set-group">
-                <div class="set-title">Game Modes</div>
-                <p><b>123 Numbers:</b> Integers, decimals, and negatives.</p>
-                <p><b>½ Fractions:</b> Halves, quarters, thirds, etc.</p>
-                <p><b>$$$ Prices:</b> Złoty and Grosze currency.</p>
-                <p><b>📅 Dates:</b> Days, months, and years.</p>
-                <p><b>🕒 Time:</b> Casual and formal clock reading.</p>
-                <p><b>⚖️ Weights:</b> Kilograms.</p>
+                <div class="set-title">Shortcuts ⌨️</div>
+                <p>On PC, press <b>1, 2, 3...</b> to answer.</p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">Difficulty Bonuses 🎓</div>
+                <p>• <b>+5 XP</b> Blind Mode (Audio Only)</p>
+                <p>• <b>+2 XP</b> per Decimal Place</p>
+                <p>• <b>+3 XP</b> for Grosze (Prices)</p>
+            </div>
+
+             <div class="set-group">
+                <div class="set-title">Big Number Bonus 🚀</div>
+                <p>• <b>+2 XP</b> > 100</p>
+                <p>• <b>+5 XP</b> > 1,000</p>
+                <p>• <b>+10 XP</b> > 10,000</p>
             </div>
 
             <div class="set-group">
                 <div class="set-title">Scoring</div>
                 <p>• <b>+10 XP</b> Base Score</p>
                 <p>• <b>+5 XP</b> Speed Bonus (< 3s)</p>
-                <p>• <b>+2 XP</b> Speed Bonus (< 6s)</p>
-            </div>
-
-            <div class="set-group">
-                <div class="set-title">Big Number Bonus 🚀</div>
-                <p>• <b>+2 XP</b> for numbers > 100</p>
-                <p>• <b>+5 XP</b> for numbers > 1,000</p>
-                <p>• <b>+10 XP</b> for numbers > 10,000</p>
-            </div>
-
-            <div class="set-group">
-                <div class="set-title">Penalties</div>
                 <p>• <b>-2 XP</b> per Audio Repeat</p>
-                <p>• <b>-5 XP</b> per Wrong Guess</p>
             </div>
-            <p style="font-size:0.9rem"><i>Answers that are wrong, slow (>10s), or use many repeats are marked as "Weaknesses" and will reappear later for review.</i></p>
         </div>
 
         <div id="tab-progress" class="tab-content">
-            <h3 style="margin-top:0; text-align:center">Total XP: <span id="total-xp-modal">0</span></h3>
+            <div style="text-align:center; margin-bottom:20px">
+                <h2 id="rank-name" style="color:var(--rank-color); margin:0">Novice</h2>
+                <div style="font-size:0.9rem; color:#888">Current Rank</div>
+                <h3 style="margin:5px 0">Total XP: <span id="total-xp-modal">0</span></h3>
+                <div style="font-size:0.8rem">Next Rank in: <span id="xp-needed">500</span> XP</div>
+            </div>
+            
             <div id="stats-container"></div>
             <button class="btn-check" style="background:#d93025; margin-top:20px" onclick="resetProgress()">Reset Progress</button>
         </div>
@@ -313,11 +329,21 @@
     const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste", "trzynaste", "czternaste", "piętnaste", "szesnaste"];
     const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych", "trzynastych", "czternastych", "piętnastych", "szesnastych"];
 
+    // Ranks
+    const RANKS = [
+        { name: "Novice", limit: 0 },
+        { name: "Apprentice", limit: 500 },
+        { name: "Intermediate", limit: 1500 },
+        { name: "Advanced", limit: 3000 },
+        { name: "Expert", limit: 5000 },
+        { name: "Master", limit: 10000 },
+        { name: "Grandmaster", limit: 20000 }
+    ];
+
     // State
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
-        startTime: 0, audioClicks: 0, wrongGuesses: 0,
-        history: [] // Last 5 answers
+        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [] 
     };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
@@ -326,8 +352,24 @@
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
+        
+        // Keyboard Listener
+        document.addEventListener('keydown', (e) => {
+            if (state.solved) return;
+            const key = e.key;
+            // Map 1-8 to buttons if not in type mode
+            if (document.getElementById('input-style').value !== 'type' && !isNaN(parseInt(key))) {
+                const idx = parseInt(key) - 1;
+                const buttons = document.querySelectorAll('.mc-btn');
+                if (buttons[idx]) buttons[idx].click();
+            }
+            // Enter key for type mode
+            if (key === 'Enter' && document.getElementById('input-style').value === 'type') {
+                checkTyped();
+            }
+        });
+
         updateUI(); updateRange(); setMode('numbers');
-        updateStatsView();
         let u = new SpeechSynthesisUtterance(''); u.volume=0; window.speechSynthesis.speak(u);
     }
 
@@ -388,6 +430,16 @@
         
         document.getElementById('pl-text').classList.remove('visible');
         document.getElementById('en-text').classList.remove('visible');
+        
+        // Blind Mode Handling
+        if(document.getElementById('blind-toggle').checked) {
+            document.getElementById('en-text').classList.add('blind-active');
+            document.getElementById('badge-blind').style.display = 'block';
+        } else {
+            document.getElementById('en-text').classList.remove('blind-active');
+            document.getElementById('badge-blind').style.display = 'none';
+        }
+
         document.getElementById('badge-review').style.display = 'none';
         document.getElementById('badge-score').style.display = 'none';
         
@@ -405,16 +457,14 @@
             let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
             let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : mistakes[Math.floor(Math.random() * mistakes.length)];
             
-            // Prevent same mistake appearing instantly
             if (state.history.length > 0 && state.history[state.history.length-1] === target && validMistakes.length > 1) {
-                // Pick another one if available
+                // Try not to repeat
             }
             
             setupNumber(target);
             state.isReview = true;
             document.getElementById('badge-review').style.display = 'block';
         } else {
-            // New Question with Anti-Repetition
             let newVal;
             let safety = 0;
             do {
@@ -573,9 +623,17 @@
         }
         
         opts.sort(() => Math.random() - 0.5);
-        opts.forEach(val => {
+        opts.forEach((val, index) => {
             let b = document.createElement('button');
-            b.className = 'mc-btn'; b.innerText = val;
+            b.className = 'mc-btn'; 
+            
+            // Add Keyboard Hint if on desktop
+            let hint = document.createElement('span');
+            hint.className = 'mc-key-hint';
+            hint.innerText = index + 1;
+            if(window.matchMedia("(hover: hover)").matches) b.appendChild(hint);
+
+            b.appendChild(document.createTextNode(val));
             b.onclick = () => check(val, b);
             container.appendChild(b);
         });
@@ -673,6 +731,15 @@
             else if (val >= 1000) score += 5;
             else if (val >= 100) score += 2;
         }
+        
+        // Difficulty Bonus
+        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+             // +2 per decimal place
+             let places = parseInt(document.getElementById('decimal-places').value);
+             score += (places * 2); 
+        }
+        if (state.mode === 'prices' && document.getElementById('grosze-toggle').checked) score += 3;
+        if (document.getElementById('blind-toggle').checked) score += 5;
 
         score -= (state.audioClicks * 2); 
         score -= (state.wrongGuesses * 5); 
@@ -690,6 +757,9 @@
         if(btn) btn.classList.add('correct');
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         document.getElementById('pl-text').classList.add('visible');
+        
+        // Reveal EN text in blind mode
+        document.getElementById('en-text').classList.remove('blind-active');
         document.getElementById('en-text').classList.add('visible');
         
         const mainBtn = document.getElementById('main-btn');
@@ -716,6 +786,12 @@
         if(btn) btn.classList.add('wrong');
         else document.getElementById('type-input').style.borderColor = "#d93025";
         
+        // Reveal text if incorrect so they see what it was (optional choice, but helpful for learning)
+        if(document.getElementById('blind-toggle').checked) {
+             document.getElementById('en-text').classList.remove('blind-active');
+             document.getElementById('en-text').classList.add('visible');
+        }
+
         if (state.mode === 'numbers' && state.rawData !== null && !document.getElementById('decimal-toggle').checked) {
             if (!mistakes.includes(state.rawData)) {
                 mistakes.push(state.rawData);
@@ -726,7 +802,23 @@
         updateUI();
     }
 
+    function calculateRank(xp) {
+        for(let i=RANKS.length-1; i>=0; i--) {
+            if (xp >= RANKS[i].limit) {
+                let next = RANKS[i+1] ? RANKS[i+1].limit : "MAX";
+                return { current: RANKS[i].name, next: next };
+            }
+        }
+        return { current: "Novice", next: 500 };
+    }
+
     function updateUI() {
+        // Rank Logic
+        const rankData = calculateRank(state.xp);
+        document.getElementById('rank-display').innerText = rankData.current;
+        document.getElementById('rank-name').innerText = rankData.current;
+        document.getElementById('xp-needed').innerText = (rankData.next === "MAX") ? 0 : (rankData.next - state.xp);
+
         document.getElementById('xp-display').innerText = state.xp;
         document.getElementById('streak-display').innerText = state.streak;
         document.getElementById('total-xp-modal').innerText = state.xp;
