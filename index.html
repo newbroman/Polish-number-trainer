@@ -72,10 +72,14 @@
         }
         .mode-label { position: absolute; top: 10px; left: 12px; font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 1px; }
         
-        .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 800; margin-bottom: 8px; visibility: hidden; line-height: 1.3; }
+        .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 800; margin-bottom: 8px; visibility: hidden; line-height: 1.3; word-wrap: break-word; }
         .en-text { font-size: 1.1rem; color: #888; visibility: hidden; font-weight: 500; min-height: 1.5rem; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
         .blind-active { opacity: 0; }
+        
+        /* Translator Mode Specifics */
+        .trans-active .pl-text { visibility: visible; color: var(--text); font-size: 1.3rem; }
+        .trans-active .en-text { display: none; }
         
         .ctx-prefix, .ctx-suffix { color: var(--text); font-weight: 400; opacity: 0.7; font-size: 0.9em; }
         .ctx-highlight { color: var(--primary); font-weight: 800; border-bottom: 2px solid rgba(26, 115, 232, 0.3); }
@@ -176,14 +180,13 @@
         <div class="stat-item" title="Rank">🏆 <span id="rank-display">Novice</span></div>
     </div>
     <div class="stats-group">
-        <button class="icon-btn" onclick="toggleTranslator()" title="Translator">🗣️</button>
         <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
         <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
     </div>
 </div>
 
 <div class="game-area">
-    <div class="display-box">
+    <div id="display-box" class="display-box">
         <div id="mode-label" class="mode-label">Numbers</div>
         <div id="badge-review" class="badge badge-review">Review</div>
         <div id="badge-score" class="badge badge-score">+10</div>
@@ -197,7 +200,7 @@
     
     <div id="type-area" class="type-container">
         <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
-        <button class="btn-check" onclick="checkTyped()">CHECK ANSWER</button>
+        <button class="btn-check" id="action-btn" onclick="checkTyped()">CHECK ANSWER</button>
     </div>
 </div>
 
@@ -216,13 +219,14 @@
         <div class="set-group">
             <div class="set-title">Game Mode</div>
             <div class="mode-grid">
-                <button class="mode-btn active" onclick="setMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
-                <button class="mode-btn" onclick="setMode('context')" id="nav-context"><span>💬</span> Context</button>
-                <button class="mode-btn" onclick="setMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
-                <button class="mode-btn" onclick="setMode('time')" id="nav-time"><span>🕒</span> Time</button>
-                <button class="mode-btn" onclick="setMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
-                <button class="mode-btn" onclick="setMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
-                <button class="mode-btn" onclick="setMode('dictation')" id="nav-dictation" style="background:#455a64; color:white; border-color:#455a64"><span>✏️</span> Dictation</button>
+                <button class="mode-btn active" onclick="selectMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
+                <button class="mode-btn" onclick="selectMode('context')" id="nav-context"><span>💬</span> Context</button>
+                <button class="mode-btn" onclick="selectMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
+                <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
+                <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
+                <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="selectMode('dictation')" id="nav-dictation" style="background:#455a64; color:white; border-color:#455a64"><span>✏️</span> Dictation</button>
+                <button class="mode-btn" onclick="selectMode('translator')" id="nav-translator" style="background:#1a73e8; color:white; border-color:#1a73e8"><span>🗣️</span> Translate</button>
             </div>
         </div>
         
@@ -309,10 +313,15 @@
         <h2 style="margin-top:0">Help & Stats</h2>
         
         <div class="help-sec">
-            <div class="help-h">How to Play</div>
-            <p class="help-p">1. Listen to the number spoken in Polish (or read it).</p>
-            <p class="help-p">2. Select the matching option from the grid or type it in.</p>
-            <p class="help-p">3. If you get it wrong, the app will speak the correct answer so you can learn.</p>
+            <div class="help-h">Game Modes (Tabs)</div>
+            <p class="help-p"><b>123 Numbers:</b> Basic integer practice. Configurable range.</p>
+            <p class="help-p"><b>💬 Context:</b> Numbers inside real sentences (Grammar focus).</p>
+            <p class="help-p"><b>$$ Prices:</b> Polish currency format (Złoty & Grosze).</p>
+            <p class="help-p"><b>🕒 Time:</b> Telling time. Supports Casual (wpół do) and Formal.</p>
+            <p class="help-p"><b>📅 Dates:</b> Day, Month, and Year formats.</p>
+            <p class="help-p"><b>🚻 Gender:</b> Tricky gender forms for 1 (jeden/jedna) and 2 (dwa/dwie).</p>
+            <p class="help-p"><b>✏️ Dictation:</b> Hard mode. Audio only -> Type digits.</p>
+            <p class="help-p"><b>🗣️ Translate:</b> Type any number to see/hear it in Polish.</p>
         </div>
 
         <div class="help-sec">
@@ -326,25 +335,10 @@
         </div>
 
         <div class="help-sec">
-            <div class="help-h">Ranks</div>
-            <p class="help-p">Novice (0), Apprentice (500), Intermediate (1500), Advanced (3000), Master (10000).</p>
-        </div>
-
-        <div class="help-sec">
             <div class="help-h">Statistics</div>
             <div id="stats-container"></div>
             <button class="btn-check" style="background:#d93025; margin-top:15px; font-size:0.9rem; padding:10px" onclick="resetProgress()">Reset All Progress</button>
         </div>
-    </div>
-</div>
-
-<div id="translator-modal" class="modal">
-    <div class="modal-box">
-        <button class="close-x" onclick="toggleTranslator()">×</button>
-        <h2 style="margin-top:0; color:var(--primary)">Quick Translate</h2>
-        <input type="number" id="trans-input" class="type-input" placeholder="e.g. 1984" style="margin-bottom:15px">
-        <div id="trans-output" style="text-align:center; font-weight:800; color:var(--primary); margin-bottom:15px; font-size:1.3rem; min-height:1.3em">...</div>
-        <button class="btn-check" onclick="runTranslator()">Translate & Speak 🔊</button>
     </div>
 </div>
 
@@ -378,7 +372,7 @@
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
         startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
-        genderTarget: null, currentContextKey: null // Stores 'lat', 'zł', etc.
+        genderTarget: null, currentContextKey: null 
     };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0,"dictation":0}');
@@ -388,8 +382,8 @@
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         document.addEventListener('keydown', (e) => {
-            if (state.solved) { if (e.key === 'Enter') generate(); return; }
-            if (document.getElementById('input-style').value === 'type' || state.mode === 'dictation') {
+            if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
+            if (document.getElementById('input-style').value === 'type' || state.mode === 'dictation' || state.mode === 'translator') {
                 if (e.key === 'Enter') checkTyped();
             } else {
                 if (!isNaN(parseInt(e.key)) && e.key !== '0') {
@@ -399,7 +393,8 @@
                 }
             }
         });
-        updateUI(); updateRange(); setMode('numbers');
+        updateUI(); updateRange(); 
+        switchMode('numbers'); 
         window.speechSynthesis.cancel();
     }
 
@@ -413,6 +408,7 @@
     }
 
     function numToPl(n) {
+        if (isNaN(n)) return "...";
         if (n === 0) return "zero";
         if (n < 0) return "minus " + numToPl(Math.abs(n));
         let s = "";
@@ -430,6 +426,21 @@
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
         
+        // Handle Translator Mode
+        if (state.mode === 'translator') {
+            document.getElementById('pl-text').innerText = "Type a number...";
+            document.getElementById('display-box').classList.add('trans-active');
+            document.getElementById('type-input').value = "";
+            document.getElementById('type-input').focus();
+            document.getElementById('main-btn').style.display = 'none'; // Hide SKIP
+            document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
+            return;
+        } else {
+            document.getElementById('display-box').classList.remove('trans-active');
+            document.getElementById('main-btn').style.display = 'flex';
+            document.getElementById('action-btn').innerText = "CHECK ANSWER";
+        }
+
         const plBox = document.getElementById('pl-text');
         const enBox = document.getElementById('en-text');
         plBox.classList.remove('visible'); enBox.classList.remove('visible');
@@ -466,7 +477,7 @@
         processValue(newVal);
 
         if (state.mode === 'context') {
-            plBox.innerHTML = state.currentPL; // Contains spans
+            plBox.innerHTML = state.currentPL; 
         } else {
             plBox.innerText = state.currentPL;
         }
@@ -579,10 +590,7 @@
             state.currentPL = timeToPl(val.h, val.m, style === 'formal');
         } else if (state.mode === 'dates') {
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            
-            // YEAR TOGGLE CHECK
             let includeYear = document.getElementById('year-toggle').checked;
-            
             if (includeYear) {
                 state.currentEN = `${val.d} ${MONTHS_EN[val.m]} ${val.y}`;
                 state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]} ${numToPl(val.y)} roku`;
@@ -618,6 +626,13 @@
 
     // --- UI & INTERACTION ---
     function applySettings() {
+        if (state.mode === 'translator') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+            document.getElementById('type-input').setAttribute('type', 'number'); 
+            return;
+        }
+
         if (state.mode === 'dictation') {
             document.getElementById('mc-area').style.display = 'none';
             document.getElementById('type-area').style.display = 'flex';
@@ -680,7 +695,6 @@
 
     function makeDecoy(min, max) {
         if (state.mode === 'context') {
-            // Decoy MUST match the sentence structure
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             let g = GRAMMAR[state.currentContextKey];
             let phrase = g.phrase.replace('[N]', n).replace('[W]', state.currentContextKey === 'zł' ? 'PLN' : state.currentContextKey);
@@ -704,17 +718,19 @@
     function check(val, btn) {
         if (state.solved) return;
         let isCorrect = false;
-        
         if (state.mode === 'gender') {
              if (val === state.genderTarget) isCorrect = true;
         } else {
              if (val == state.currentEN) isCorrect = true;
         }
-
         if (isCorrect) win(btn); else lose(btn);
     }
 
     function checkTyped() {
+        if (state.mode === 'translator') {
+            runTranslator();
+            return;
+        }
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = state.currentEN.toString().toLowerCase();
@@ -772,8 +788,13 @@
         speak(0.8);
         updateUI();
     }
-
-    function setMode(m) {
+    
+    function selectMode(m) {
+        toggleSettings();
+        switchMode(m);
+    }
+    
+    function switchMode(m) {
         state.mode = m; state.history = []; 
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
@@ -781,6 +802,7 @@
         let label = m;
         if(m === 'context') label = "Sentences";
         if(m === 'dictation') label = "Dictation";
+        if(m === 'translator') label = "Translator";
         document.getElementById('mode-label').innerText = label;
         
         ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
@@ -790,7 +812,7 @@
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
         
-        if (m==='dictation') {
+        if (m==='dictation' || m==='translator') {
             document.getElementById('input-row').style.display = 'none'; 
         } else if (m === 'gender') {
             document.getElementById('input-row').style.display = 'none'; 
@@ -798,16 +820,13 @@
             document.getElementById('input-row').style.display = 'flex';
         }
 
-        toggleSettings();
         generate();
     }
 
     function speak(rate) {
-        if (!state.solved && rate === 1.0) state.audioClicks++; 
+        if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
         window.speechSynthesis.cancel();
         let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
-        
-        // AUDIO FIX: Add leading silence to prevent chopping
         let u = new SpeechSynthesisUtterance(" " + txt);
         u.lang = 'pl-PL'; u.rate = rate;
         window.speechSynthesis.speak(u);
@@ -822,13 +841,13 @@
             const c = document.getElementById('stats-container');
             c.innerHTML = '';
             for (const [key, val] of Object.entries(categoryStats)) {
+                if(val === 0) continue;
                 let max = Math.max(300, val * 1.5); 
                 let pct = Math.min(100, (val / max) * 100);
                 c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`;
             }
         }
     }
-    function toggleTranslator() { let d=document.getElementById('translator-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; if(d.style.display==='flex') document.getElementById('trans-input').focus(); }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
     function updateRange() { 
         let min=document.getElementById('minP').value, max=document.getElementById('maxP').value;
@@ -855,11 +874,24 @@
     }
     
     function runTranslator() {
-        let n=parseInt(document.getElementById('trans-input').value); if(isNaN(n)) return;
-        let txt=numToPl(n); document.getElementById('trans-output').innerText=txt;
-        window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u);
+        let n=parseInt(document.getElementById('type-input').value); 
+        if(isNaN(n)) return;
+        let txt=numToPl(n); 
+        state.currentPL = txt; 
+        document.getElementById('pl-text').innerText = txt;
+        window.speechSynthesis.cancel(); 
+        let u=new SpeechSynthesisUtterance(" "+txt); 
+        u.lang='pl-PL'; 
+        window.speechSynthesis.speak(u);
     }
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
+    function updateUI() {
+        const rankData = { current: "Novice" }; 
+        for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; }
+        document.getElementById('rank-display').innerText = rankData.current;
+        document.getElementById('xp-display').innerText = state.xp;
+        document.getElementById('streak-display').innerText = state.streak;
+    }
 </script>
 </body>
 </html>
