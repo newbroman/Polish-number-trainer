@@ -1,1 +1,1 @@
-This is a laguage learning program developed by myself and google gemini 3. 
+This is a language learning program developed by myself and google gemini 3. 
