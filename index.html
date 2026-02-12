@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polish Number Trainer</title>
+    <title>Polski Trener Liczb</title>
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
 
@@ -30,7 +30,7 @@
             z-index: 10;
         }
         .brand-title {
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             color: #202124;
             display: inline-block;
             padding: 4px 15px;
@@ -38,7 +38,7 @@
             font-weight: 800;
             font-size: 1.1rem;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             text-transform: uppercase;
         }
 
@@ -58,14 +58,13 @@
         .stat-item { display: flex; align-items: center; gap: 4px; }
         .icon-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; color: var(--text); border-radius: 50%; transition: background 0.2s; }
         .icon-btn:active { background: rgba(0,0,0,0.1); }
-        .rank-icon { color: var(--rank-color); }
 
         /* Game Area */
         .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; width: 100%; position: relative; }
         
         /* Display Box */
         .display-box { 
-            text-align: center; margin-bottom: 20px; min-height: 120px; 
+            text-align: center; margin-bottom: 20px; min-height: 140px; 
             display: flex; flex-direction: column; justify-content: center; 
             background: var(--card); border-radius: 16px; padding: 20px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border); 
@@ -73,11 +72,14 @@
         }
         .mode-label { position: absolute; top: 10px; left: 12px; font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 1px; }
         
-        .pl-text { font-size: 1.6rem; color: var(--primary); font-weight: 800; margin-bottom: 8px; visibility: hidden; line-height: 1.2; }
+        .pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 800; margin-bottom: 8px; visibility: hidden; line-height: 1.3; }
         .en-text { font-size: 1.1rem; color: #888; visibility: hidden; font-weight: 500; min-height: 1.5rem; }
         .visible { visibility: visible !important; animation: popIn 0.3s; }
         .blind-active { opacity: 0; }
         
+        .ctx-prefix, .ctx-suffix { color: var(--text); font-weight: 400; opacity: 0.7; font-size: 0.9em; }
+        .ctx-highlight { color: var(--primary); font-weight: 800; border-bottom: 2px solid rgba(26, 115, 232, 0.3); }
+
         .badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: none; }
         .badge-review { background: #e37400; color: white; }
         .badge-score { background: var(--secondary); color: white; animation: floatUp 1s forwards; display: none; top: 40%; right: 40%; font-size: 1.2rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -90,9 +92,9 @@
         
         .mc-btn { 
             position:relative; background: var(--card); border: 1px solid var(--border); border-bottom-width: 3px;
-            border-radius: 12px; min-height: 65px; font-weight: 700; font-size: 1.1rem; color: var(--text); 
+            border-radius: 12px; min-height: 65px; font-weight: 700; font-size: 0.95rem; color: var(--text); 
             cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; 
-            transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s; 
+            transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s; word-break: break-word;
         }
         .mc-btn:active { transform: translateY(2px); border-bottom-width: 1px; margin-top: 2px; }
         .mc-key-hint { position: absolute; top: 4px; left: 6px; font-size: 0.65rem; color: var(--primary); opacity: 0.6; }
@@ -116,7 +118,6 @@
             border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
-        .btn-action:active { opacity: 0.8; }
         .btn-listen { background: var(--secondary); font-size: 1.4rem; }
         .btn-slow { background: #fb8c00; font-size: 0.9rem; }
         .btn-vslow { background: #e65100; font-size: 0.9rem; }
@@ -125,8 +126,14 @@
 
         /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-box { background: var(--card); width: 90%; max-width: 420px; padding: 25px; border-radius: 24px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
-        .close-x { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; background: #f1f3f4; width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; color: var(--text); display:flex; align-items:center; justify-content:center; }
+        .modal-box { background: var(--card); width: 95%; max-width: 420px; padding: 25px; border-radius: 24px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+        .close-x { 
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; 
+            background: var(--bg); /* Fixed visibility in Dark Mode */
+            width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; color: var(--text); 
+            display:flex; align-items:center; justify-content:center; 
+            border: 1px solid var(--border);
+        }
         
         .set-group { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border); }
         .set-title { font-weight: 800; color: var(--primary); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
@@ -134,18 +141,23 @@
         .set-row:last-child { margin-bottom: 0; }
         
         /* Mode Grid in Settings */
-        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .mode-btn { padding: 12px; border: 2px solid var(--border); background: var(--card); border-radius: 12px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .mode-btn { padding: 10px; border: 2px solid var(--border); background: var(--card); border-radius: 10px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
         .mode-btn.active { border-color: var(--primary); background: rgba(26, 115, 232, 0.1); color: var(--primary); }
+        .mode-btn span { font-size: 1.1rem; }
+
+        /* Help Styles */
+        .help-sec { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .help-sec:last-child { border: none; }
+        .help-h { font-size: 1rem; color: var(--primary); margin-bottom: 8px; font-weight: 800; }
+        .help-p { font-size: 0.9rem; line-height: 1.5; color: var(--text); margin-bottom: 6px; opacity: 0.9; }
+        .point-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #eee; color: #333; margin-right: 5px; }
+        .pt-green { background: var(--secondary); color: white; }
+        .pt-red { background: var(--error); color: white; }
         
         select, input[type=checkbox] { cursor: pointer; accent-color: var(--primary); }
         select { padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.9rem; }
         input[type=range] { width: 100%; accent-color: var(--primary); }
-
-        .progress-item { margin-bottom: 12px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; font-weight: 700; color: #5f6368; }
-        .progress-bar-bg { background: rgba(0,0,0,0.08); height: 10px; border-radius: 5px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--secondary); width: 0%; transition: width 0.5s; border-radius: 5px; }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes floatUp { from { opacity: 0; transform: translateY(10px) scale(0.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -154,7 +166,7 @@
 <body onload="init()">
 
 <div class="brand-header">
-    <div class="brand-title">Polish Number Trainer</div>
+    <div class="brand-title">Polski Trener Liczb</div>
 </div>
 
 <div class="status-bar">
@@ -204,16 +216,17 @@
         <div class="set-group">
             <div class="set-title">Game Mode</div>
             <div class="mode-grid">
-                <button class="mode-btn active" onclick="setMode('numbers')" id="nav-numbers">123 Numbers</button>
-                <button class="mode-btn" onclick="setMode('prices')" id="nav-prices">$$ Prices</button>
-                <button class="mode-btn" onclick="setMode('time')" id="nav-time">🕒 Time</button>
-                <button class="mode-btn" onclick="setMode('dates')" id="nav-dates">📅 Dates</button>
-                <button class="mode-btn" onclick="setMode('fractions')" id="nav-fractions">½ Fractions</button>
-                <button class="mode-btn" onclick="setMode('weights')" id="nav-weights">⚖️ Weights</button>
+                <button class="mode-btn active" onclick="setMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
+                <button class="mode-btn" onclick="setMode('context')" id="nav-context"><span>💬</span> Context</button>
+                <button class="mode-btn" onclick="setMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
+                <button class="mode-btn" onclick="setMode('time')" id="nav-time"><span>🕒</span> Time</button>
+                <button class="mode-btn" onclick="setMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
+                <button class="mode-btn" onclick="setMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="setMode('dictation')" id="nav-dictation" style="background:#455a64; color:white; border-color:#455a64"><span>✏️</span> Dictation</button>
             </div>
         </div>
         
-        <div class="set-group">
+        <div class="set-group" id="set-gameplay">
             <div class="set-title">Gameplay</div>
             <div class="set-row">
                 <span>Blind Mode (Audio Only)</span>
@@ -227,7 +240,7 @@
                     <option value="dark">Dark</option>
                 </select>
             </div>
-            <div class="set-row">
+            <div class="set-row" id="input-row">
                 <span>Input Style</span>
                 <select id="input-style" onchange="applySettings()">
                     <option value="4">4 Buttons</option>
@@ -267,12 +280,20 @@
             </div>
         </div>
 
+        <div class="set-group" id="set-dates" style="display:none">
+            <div class="set-title">Date Options</div>
+            <div class="set-row">
+                <span>Include Year</span>
+                <input type="checkbox" id="year-toggle" checked>
+            </div>
+        </div>
+
         <div class="set-group" id="set-time" style="display:none">
             <div class="set-title">Time Options</div>
             <div class="set-row">
                 <span>Style</span>
                 <select id="time-style-sel">
-                    <option value="casual" selected>Casual (Default)</option>
+                    <option value="casual" selected>Casual</option>
                     <option value="formal">Formal</option>
                 </select>
             </div>
@@ -285,9 +306,35 @@
 <div id="help-modal" class="modal">
     <div class="modal-box">
         <button class="close-x" onclick="toggleHelp()">×</button>
-        <h2 style="margin-top:0">Statistics</h2>
-        <div id="stats-container"></div>
-        <button class="btn-check" style="background:#d93025; margin-top:20px" onclick="resetProgress()">Reset Progress</button>
+        <h2 style="margin-top:0">Help & Stats</h2>
+        
+        <div class="help-sec">
+            <div class="help-h">How to Play</div>
+            <p class="help-p">1. Listen to the number spoken in Polish (or read it).</p>
+            <p class="help-p">2. Select the matching option from the grid or type it in.</p>
+            <p class="help-p">3. If you get it wrong, the app will speak the correct answer so you can learn.</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">Scoring System</div>
+            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct answer</p>
+            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Fast answer (< 3s)</p>
+            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Blind Mode (Audio only)</p>
+            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Dictation Mode</p>
+            <p class="help-p"><span class="point-tag pt-red">-2 XP</span> Using Audio Replay</p>
+            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect Guess</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">Ranks</div>
+            <p class="help-p">Novice (0), Apprentice (500), Intermediate (1500), Advanced (3000), Master (10000).</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">Statistics</div>
+            <div id="stats-container"></div>
+            <button class="btn-check" style="background:#d93025; margin-top:15px; font-size:0.9rem; padding:10px" onclick="resetProgress()">Reset All Progress</button>
+        </div>
     </div>
 </div>
 
@@ -295,7 +342,6 @@
     <div class="modal-box">
         <button class="close-x" onclick="toggleTranslator()">×</button>
         <h2 style="margin-top:0; color:var(--primary)">Quick Translate</h2>
-        <p style="font-size:0.9rem; color:#666; margin-top:-10px">Type a number to hear it in Polish.</p>
         <input type="number" id="trans-input" class="type-input" placeholder="e.g. 1984" style="margin-bottom:15px">
         <div id="trans-output" style="text-align:center; font-weight:800; color:var(--primary); margin-bottom:15px; font-size:1.3rem; min-height:1.3em">...</div>
         <button class="btn-check" onclick="runTranslator()">Translate & Speak 🔊</button>
@@ -313,44 +359,47 @@
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
     
-    // Fractions support
-    const DENOM_S = [null, null, "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta"];
-    const DENOM_P = [null, null, "drugie", "trzecie", "czwarte", "piąte", "szóste", "siódme", "ósme", "dziewiąte", "dziesiąte", "jedenaste", "dwunaste"];
-    const DENOM_G = [null, null, "drugich", "trzecich", "czwartych", "piątych", "szóstych", "siódmych", "ósmych", "dziewiątych", "dziesiątych", "jedenastych", "dwunastych"];
+    // Noun Grammar for Context Mode
+    const GRAMMAR = {
+        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]' }, 
+        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]' }, 
+        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]' }, 
+        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]' } 
+    };
 
-    // Ranks
-    const RANKS = [
-        { name: "Novice", limit: 0 }, { name: "Apprentice", limit: 500 }, { name: "Intermediate", limit: 1500 },
-        { name: "Advanced", limit: 3000 }, { name: "Expert", limit: 5000 }, { name: "Master", limit: 10000 }, { name: "Grandmaster", limit: 20000 }
+    const GENDER_NOUNS = [
+        { word: 'pies', form: 'm', pl: 'psy' }, { word: 'kot', form: 'm', pl: 'koty' },
+        { word: 'kura', form: 'f', pl: 'kury' }, { word: 'kobieta', form: 'f', pl: 'kobiety' },
+        { word: 'okno', form: 'n', pl: 'okna' }, { word: 'dziecko', form: 'n', pl: 'dzieci' }
     ];
 
-    // State
+    const RANKS = [ { name: "Novice", limit: 0 }, { name: "Apprentice", limit: 500 }, { name: "Intermediate", limit: 1500 }, { name: "Advanced", limit: 3000 }, { name: "Master", limit: 10000 } ];
+
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
-        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [] 
+        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
+        genderTarget: null, currentContextKey: null // Stores 'lat', 'zł', etc.
     };
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
-    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"fractions":0,"prices":0,"dates":0,"time":0,"weights":0}');
+    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0,"dictation":0}');
     let autoNextTimer = null;
     let audioCtx = null;
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         document.addEventListener('keydown', (e) => {
-            if (state.solved) return;
-            const key = e.key;
-            if (document.getElementById('input-style').value !== 'type' && !isNaN(parseInt(key)) && key !== '0') {
-                const idx = parseInt(key) - 1;
-                const buttons = document.querySelectorAll('.mc-btn');
-                if (buttons[idx]) buttons[idx].click();
-            }
-            if (key === 'Enter') {
-                if(document.getElementById('input-style').value === 'type') checkTyped();
-                else if (state.solved) generate(); 
+            if (state.solved) { if (e.key === 'Enter') generate(); return; }
+            if (document.getElementById('input-style').value === 'type' || state.mode === 'dictation') {
+                if (e.key === 'Enter') checkTyped();
+            } else {
+                if (!isNaN(parseInt(e.key)) && e.key !== '0') {
+                    const idx = parseInt(e.key) - 1;
+                    const buttons = document.querySelectorAll('.mc-btn');
+                    if (buttons[idx]) buttons[idx].click();
+                }
             }
         });
         updateUI(); updateRange(); setMode('numbers');
-        // Initialize speech synthesis buffer
         window.speechSynthesis.cancel();
     }
 
@@ -376,13 +425,172 @@
         return s.trim();
     }
 
-    function getFractionPl(n, d) {
-        if (n===1 && d===2) return "jedna druga (pół)";
-        if (n===1 && d===4) return "jedna czwarta (ćwierć)";
-        if (n===3 && d===4) return "trzy czwarte";
-        let numStr = (n === 1) ? "jedna" : (n === 2 ? "dwie" : numToPl(n));
-        let denStr = (n === 1) ? DENOM_S[d] : (n%10 >= 2 && n%10 <= 4 && (n%100 < 10 || n%100 > 20)) ? DENOM_P[d] : DENOM_G[d];
-        return `${numStr} ${denStr}`;
+    // --- GENERATOR ---
+    function generate() {
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
+        
+        const plBox = document.getElementById('pl-text');
+        const enBox = document.getElementById('en-text');
+        plBox.classList.remove('visible'); enBox.classList.remove('visible');
+        plBox.innerHTML = '---'; enBox.innerText = '???';
+        
+        const isBlind = document.getElementById('blind-toggle').checked || state.mode === 'dictation';
+        if(isBlind) {
+            enBox.classList.add('blind-active');
+            document.getElementById('badge-blind').style.display = 'block';
+        } else {
+            enBox.classList.remove('blind-active');
+            document.getElementById('badge-blind').style.display = 'none';
+        }
+
+        document.getElementById('badge-review').style.display = 'none';
+        document.getElementById('badge-score').style.display = 'none';
+        
+        const mainBtn = document.getElementById('main-btn');
+        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
+        
+        document.getElementById('type-input').value = "";
+        document.getElementById('type-input').style.borderColor = "var(--border)";
+
+        const min = Math.pow(10, document.getElementById('minP').value);
+        const max = Math.pow(10, document.getElementById('maxP').value);
+        
+        let newVal, safety=0;
+        do {
+            newVal = generateRawValue(min, max);
+            safety++;
+        } while (isRepeated(newVal) && safety < 15);
+
+        addToHistory(newVal);
+        processValue(newVal);
+
+        if (state.mode === 'context') {
+            plBox.innerHTML = state.currentPL; // Contains spans
+        } else {
+            plBox.innerText = state.currentPL;
+        }
+        
+        if (!isBlind) enBox.innerText = state.currentEN;
+        
+        applySettings();
+        state.startTime = Date.now();
+        setTimeout(() => { speak(1.0); }, 250);
+    }
+
+    function generateRawValue(min, max) {
+        if (state.mode === 'numbers' || state.mode === 'dictation' || state.mode === 'context') {
+            if (state.mode === 'context') {
+                const keys = Object.keys(GRAMMAR);
+                const k = keys[Math.floor(Math.random() * keys.length)];
+                state.currentContextKey = k;
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                return { val: n, key: k };
+            }
+            if (document.getElementById('decimal-toggle').checked && state.mode !== 'dictation') {
+                let places = parseInt(document.getElementById('decimal-places').value);
+                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
+            }
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        } 
+        else if (state.mode === 'prices') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+            return n + (gr/100);
+        } 
+        else if (state.mode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            return {h, m};
+        } 
+        else if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let mIdx = Math.floor(Math.random() * 12);
+            let y = Math.floor(Math.random()*25)+2000;
+            return {d, m:mIdx, y};
+        }
+        else if (state.mode === 'gender') {
+            let num = Math.random() < 0.5 ? 1 : 2;
+            let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
+            return { num, noun };
+        }
+    }
+
+    function processValue(val) {
+        state.rawData = val;
+        
+        if (state.mode === 'gender') {
+            let nWord = val.noun.word;
+            let numStr = "";
+            if (val.num === 1) {
+                if (val.noun.form === 'm') numStr = 'jeden';
+                else if (val.noun.form === 'f') numStr = 'jedna';
+                else numStr = 'jedno';
+                state.currentEN = `1 ${val.noun.word}`;
+            } else {
+                if (val.noun.form === 'f') numStr = 'dwie';
+                else numStr = 'dwa';
+                nWord = val.noun.pl;
+                state.currentEN = `2 ${val.noun.pl}`;
+            }
+            state.currentPL = `${numStr} ${nWord}`;
+            state.genderTarget = numStr;
+            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nWord}</span>`;
+            return;
+        }
+
+        if (state.mode === 'context') {
+            let g = GRAMMAR[val.key];
+            let n = val.val;
+            let word = getPlural(n, g.s, g.p, g.g);
+            let numTxt = numToPl(n);
+            let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
+            
+            state.currentEN = g.phrase.replace('[N]', n).replace('[W]', val.key === 'zł' ? 'PLN' : val.key);
+            
+            let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
+            state.currentPL = visualPhrase; 
+            
+            state.speechText = fullPhrase; 
+            return;
+        }
+
+        if (state.mode === 'dictation') {
+            state.currentEN = val.toLocaleString();
+            state.currentPL = numToPl(val);
+        }
+        else if (state.mode === 'numbers') {
+            if(document.getElementById('decimal-toggle').checked) {
+                let s = val.toString(); if(!s.includes('.')) s += ".0";
+                let parts = s.split('.');
+                state.currentEN = s.replace('.', ',');
+                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+            } else {
+                state.currentEN = val.toLocaleString();
+                state.currentPL = numToPl(val);
+            }
+        } else if (state.mode === 'prices') {
+            let n = Math.floor(val); let gr = Math.round((val % 1) * 100);
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
+        } else if (state.mode === 'time') {
+            let style = document.getElementById('time-style-sel').value;
+            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
+            state.currentPL = timeToPl(val.h, val.m, style === 'formal');
+        } else if (state.mode === 'dates') {
+            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+            
+            // YEAR TOGGLE CHECK
+            let includeYear = document.getElementById('year-toggle').checked;
+            
+            if (includeYear) {
+                state.currentEN = `${val.d} ${MONTHS_EN[val.m]} ${val.y}`;
+                state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]} ${numToPl(val.y)} roku`;
+            } else {
+                state.currentEN = `${val.d} ${MONTHS_EN[val.m]}`;
+                state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]}`;
+            }
+        }
     }
 
     function timeToPl(h, m, formal) {
@@ -401,168 +609,28 @@
         }
     }
 
-    // --- GENERATOR ---
-    function generate() {
-        if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
-        
-        document.getElementById('pl-text').classList.remove('visible');
-        document.getElementById('en-text').classList.remove('visible');
-        document.getElementById('en-text').innerText = "???"; 
-        
-        if(document.getElementById('blind-toggle').checked) {
-            document.getElementById('en-text').classList.add('blind-active');
-            document.getElementById('badge-blind').style.display = 'block';
-        } else {
-            document.getElementById('en-text').classList.remove('blind-active');
-            document.getElementById('badge-blind').style.display = 'none';
-        }
-
-        document.getElementById('badge-review').style.display = 'none';
-        document.getElementById('badge-score').style.display = 'none';
-        
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
-        document.getElementById('type-input').value = "";
-        document.getElementById('type-input').style.borderColor = "var(--border)";
-
-        const min = Math.pow(10, document.getElementById('minP').value);
-        const max = Math.pow(10, document.getElementById('maxP').value);
-
-        // Learning Review
-        let useMistake = (state.mode === 'numbers' && mistakes.length > 0 && Math.random() < 0.3);
-        if (useMistake) {
-            let validMistakes = mistakes.filter(m => Math.abs(m) >= min && Math.abs(m) <= max);
-            let target = validMistakes.length > 0 ? validMistakes[Math.floor(Math.random() * validMistakes.length)] : null;
-            
-            if(target !== null && !isRepeated(target)) {
-                setupNumber(target);
-                state.isReview = true;
-                document.getElementById('badge-review').style.display = 'block';
-            } else {
-               generateNew(min, max);
-            }
-        } else {
-            generateNew(min, max);
-        }
-
-        document.getElementById('pl-text').innerText = state.currentPL;
-        document.getElementById('en-text').innerText = state.currentEN;
-        applySettings();
-        
-        state.startTime = Date.now();
-        setTimeout(() => { speak(1.0); }, 250);
-    }
-
-    function generateNew(min, max) {
-        let newVal;
-        let safety = 0;
-        do {
-            newVal = generateRawValue(min, max);
-            safety++;
-        } while (isRepeated(newVal) && safety < 20);
-
-        addToHistory(newVal);
-        processValue(newVal);
-    }
-
-    function generateRawValue(min, max) {
-        if (state.mode === 'numbers') {
-            if (document.getElementById('decimal-toggle').checked) {
-                let places = parseInt(document.getElementById('decimal-places').value);
-                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
-            } else {
-                return Math.floor(Math.random() * (max - min + 1)) + min;
-            }
-        } else if (state.mode === 'fractions') {
-            let d = Math.floor(Math.random() * 11) + 2; 
-            let n = Math.floor(Math.random() * (d - 1)) + 1;
-            return {n, d};
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
-            return n + (gr/100);
-        } else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            return {h, m};
-        } else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let mIdx = Math.floor(Math.random() * 12);
-            let y = Math.floor(Math.random()*25)+2000;
-            return {d, m:mIdx, y};
-        } else if (state.mode === 'weights') {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-    }
-
-    function processValue(val) {
-        state.rawData = val;
-        if (state.mode === 'numbers') {
-            if(document.getElementById('decimal-toggle').checked) {
-                let s = val.toString();
-                if(!s.includes('.')) s += ".0";
-                let parts = s.split('.');
-                state.currentEN = s.replace('.', ',');
-                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
-            } else {
-                setupNumber(val);
-            }
-        } else if (state.mode === 'fractions') {
-            state.currentEN = `${val.n}/${val.d}`;
-            state.currentPL = getFractionPl(val.n, val.d);
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(val);
-            let gr = Math.round((val % 1) * 100);
-            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (state.mode === 'time') {
-            let style = document.getElementById('time-style-sel').value;
-            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
-            state.currentPL = timeToPl(val.h, val.m, style === 'formal');
-        } else if (state.mode === 'dates') {
-            state.currentEN = `${val.d} ${MONTHS_EN[val.m]} ${val.y}`;
-            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            state.currentPL = `${ord[val.d]} ${MONTHS_PL[val.m]} ${numToPl(val.y)} roku`;
-        } else if (state.mode === 'weights') {
-            state.currentEN = val + " kg";
-            state.currentPL = numToPl(val) + " " + getPlural(val, "kilogram", "kilogramy", "kilogramów");
-        }
-    }
-
-    function isRepeated(val) {
-        for(let item of state.history) {
-            if (typeof item === 'object' && item !== null && typeof val === 'object') {
-                if(JSON.stringify(item) === JSON.stringify(val)) return true;
-            } else {
-                if(item === val) return true;
-            }
-        }
-        return false;
-    }
-
     function addToHistory(val) {
         state.history.push(val);
-        if(state.history.length > 5) state.history.shift(); // Keep last 5 unique
+        if(state.history.length > 5) state.history.shift();
     }
+    function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
+    function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
 
-    function setupNumber(n) {
-        state.currentEN = n.toLocaleString();
-        state.currentPL = numToPl(n);
-        state.rawData = n;
-    }
-    
-    function readDecimalPart(str) {
-        if (!str) return "zero";
-        // read digit by digit
-        return str.split('').map(d => numToPl(parseInt(d))).join(' ');
-    }
-
+    // --- UI & INTERACTION ---
     function applySettings() {
+        if (state.mode === 'dictation') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+            document.getElementById('type-input').setAttribute('type', 'number'); 
+            document.getElementById('type-input').focus();
+            return;
+        }
+
         let style = document.getElementById('input-style').value;
         if (style === 'type') {
             document.getElementById('mc-area').style.display = 'none';
             document.getElementById('type-area').style.display = 'flex';
+            document.getElementById('type-input').setAttribute('type', 'text');
             document.getElementById('type-input').focus();
         } else {
             state.btnCount = parseInt(style);
@@ -570,8 +638,7 @@
             document.getElementById('type-area').style.display = 'none';
             let grid = document.getElementById('mc-area');
             grid.className = 'mc-grid'; 
-            if (state.btnCount === 12) grid.classList.add('cols-3');
-            else grid.classList.add('cols-2');
+            if (state.btnCount === 12) grid.classList.add('cols-3'); else grid.classList.add('cols-2');
             generateGrid();
         }
     }
@@ -579,96 +646,83 @@
     function generateGrid() {
         const container = document.getElementById('mc-area');
         container.innerHTML = '';
-        let opts = [state.currentEN];
         
-        // Logical decoys
-        if (state.mode === 'numbers' && typeof state.rawData === 'number' && !document.getElementById('decimal-toggle').checked) {
-             opts.push(formatDecoy(state.rawData + 1));
-             opts.push(formatDecoy(state.rawData - 1));
+        let opts = [];
+        
+        if (state.mode === 'gender') {
+            opts = ['jeden', 'jedna', 'jedno', 'dwa', 'dwie'];
+        } else {
+            opts = [state.currentEN];
+            const min = Math.pow(10, document.getElementById('minP').value);
+            const max = Math.pow(10, document.getElementById('maxP').value);
+            let safety = 0;
+            while(opts.length < state.btnCount && safety < 100) {
+                let decoy = makeDecoy(min, max);
+                if(!opts.includes(decoy)) opts.push(decoy);
+                safety++;
+            }
+            opts.sort(() => Math.random() - 0.5);
         }
 
-        const min = Math.pow(10, document.getElementById('minP').value);
-        const max = Math.pow(10, document.getElementById('maxP').value);
-        let safety = 0;
-        
-        while(opts.length < state.btnCount && safety < 200) {
-            let decoy = makeDecoy(state.currentEN, min, max);
-            if(!opts.includes(decoy)) opts.push(decoy);
-            safety++;
-        }
-        
-        opts.sort(() => Math.random() - 0.5);
         opts.forEach((val, index) => {
             let b = document.createElement('button');
             b.className = 'mc-btn'; 
-            let hint = document.createElement('span');
-            hint.className = 'mc-key-hint';
-            hint.innerText = index + 1;
-            b.appendChild(hint);
+            if (state.mode !== 'gender') {
+                let hint = document.createElement('span');
+                hint.className = 'mc-key-hint'; hint.innerText = index + 1;
+                b.appendChild(hint);
+            }
             b.appendChild(document.createTextNode(val));
             b.onclick = () => check(val, b);
             container.appendChild(b);
         });
     }
 
-    function formatDecoy(n) {
-        if (state.mode === 'prices') {
-             let hasGrosze = document.getElementById('grosze-toggle').checked;
-             let intPart = Math.floor(n);
-             if (hasGrosze) {
-                 let decPart = Math.round((n % 1) * 100); 
-                 if(decPart === 0) decPart = Math.floor(Math.random()*99)+1;
-                 return `${intPart},${decPart.toString().padStart(2,'0')} zł`;
-             }
-             return intPart + ",00 zł"; 
+    function makeDecoy(min, max) {
+        if (state.mode === 'context') {
+            // Decoy MUST match the sentence structure
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            let g = GRAMMAR[state.currentContextKey];
+            let phrase = g.phrase.replace('[N]', n).replace('[W]', state.currentContextKey === 'zł' ? 'PLN' : state.currentContextKey);
+            return phrase;
         }
-        if (state.mode === 'weights') return Math.floor(n) + " kg";
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
-            let places = parseInt(document.getElementById('decimal-places').value);
-            return n.toFixed(places).replace('.', ',');
-        }
-        return Math.floor(n).toLocaleString();
-    }
-
-    function makeDecoy(target, min, max) {
-        if (state.mode === 'fractions') {
-            let d = Math.floor(Math.random() * 11) + 2;
-            let n = Math.floor(Math.random() * (d - 1)) + 1;
-            return `${n}/${d}`;
-        }
+        if (state.mode === 'prices') return (Math.floor(Math.random()*(max-min))+min) + ",00 zł";
         if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let m = Math.floor(Math.random() * 12);
-            let y = Math.floor(Math.random() * 25) + 2000;
-            return `${d} ${MONTHS_EN[m]} ${y}`;
+             let d = Math.floor(Math.random()*30)+1, m=Math.floor(Math.random()*12), y=Math.floor(Math.random()*25)+2000;
+             let includeYear = document.getElementById('year-toggle').checked;
+             if (includeYear) return `${d} ${MONTHS_EN[m]} ${y}`;
+             else return `${d} ${MONTHS_EN[m]}`;
         }
         if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5; 
+            let h=Math.floor(Math.random()*24), m=Math.floor(Math.random()*12)*5;
             return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
         }
-        if (state.mode === 'prices') return formatDecoy(Math.random() * (max - min) + min);
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
-             let n = (Math.random() * (max - min) + min);
-             return formatDecoy(n);
-        }
-        if (state.mode === 'weights') return formatDecoy(Math.floor(Math.random() * (max - min + 1)) + min);
-        
         let n = Math.floor(Math.random() * (max - min + 1)) + min;
         return n.toLocaleString();
     }
 
     function check(val, btn) {
         if (state.solved) return;
-        if (val === state.currentEN) win(btn);
-        else lose(btn);
+        let isCorrect = false;
+        
+        if (state.mode === 'gender') {
+             if (val === state.genderTarget) isCorrect = true;
+        } else {
+             if (val == state.currentEN) isCorrect = true;
+        }
+
+        if (isCorrect) win(btn); else lose(btn);
     }
 
     function checkTyped() {
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
-        let correct = state.currentEN.toLowerCase();
-        // Loose matching
+        let correct = state.currentEN.toString().toLowerCase();
+
+        if (state.mode === 'dictation') {
+             if (val.replace(/\s/g,'') === correct.replace(/\s/g,'')) { win(null); return; }
+        }
+
         if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null);
         else lose(null);
     }
@@ -676,18 +730,11 @@
     function win(btn) {
         playSound('correct');
         state.solved = true;
-        
-        let timeTaken = (Date.now() - state.startTime) / 1000;
-        let score = 10; 
-        if (timeTaken < 3) score += 5; 
-        
-        if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) score += 5;
-        if (document.getElementById('blind-toggle').checked) score += 5;
+        let score = 10;
+        if (state.mode === 'dictation') score += 10; 
+        if (state.mode === 'context') score += 5;
 
-        score = Math.max(1, score - (state.audioClicks * 2) - (state.wrongGuesses * 5));
-
-        state.xp += score;
-        state.streak++;
+        state.xp += score; state.streak++;
         categoryStats[state.mode] += score;
         saveAllStats();
 
@@ -697,118 +744,100 @@
         if(btn) btn.classList.add('correct');
         else document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
-        document.getElementById('pl-text').classList.add('visible');
+        if (state.mode === 'context') document.getElementById('pl-text').innerHTML = state.speechText; 
+        else document.getElementById('pl-text').classList.add('visible');
+        
         document.getElementById('en-text').classList.add('visible');
         document.getElementById('en-text').classList.remove('blind-active');
         
         const mainBtn = document.getElementById('main-btn');
         mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
         
-        if (state.isReview) {
-            mistakes = mistakes.filter(m => m !== state.rawData);
-            localStorage.setItem('mistakes', JSON.stringify(mistakes));
-        } else if (score < 5 && state.mode === 'numbers' && state.rawData !== null) {
-             if (!mistakes.includes(state.rawData)) {
-                mistakes.push(state.rawData);
-                localStorage.setItem('mistakes', JSON.stringify(mistakes));
-            }
-        }
-        autoNextTimer = setTimeout(generate, 4000);
+        autoNextTimer = setTimeout(generate, 3000);
         updateUI();
     }
 
     function lose(btn) {
         playSound('wrong');
-        state.streak = 0;
-        state.wrongGuesses++;
+        state.streak = 0; state.wrongGuesses++;
+        
         if(btn) btn.classList.add('wrong');
         else document.getElementById('type-input').style.borderColor = "#d93025";
         
-        // Show text on error so they learn
         document.getElementById('en-text').classList.remove('blind-active');
         document.getElementById('en-text').classList.add('visible');
+        if (state.mode === 'context') document.getElementById('pl-text').innerHTML = state.speechText;
+        document.getElementById('pl-text').classList.add('visible');
 
-        if (state.mode === 'numbers' && state.rawData !== null && !document.getElementById('decimal-toggle').checked) {
-            if (!mistakes.includes(state.rawData)) {
-                mistakes.push(state.rawData);
-                if (mistakes.length > 50) mistakes.shift();
-                localStorage.setItem('mistakes', JSON.stringify(mistakes));
-            }
-        }
+        speak(0.8);
         updateUI();
     }
-
-    function updateUI() {
-        const rankData = getRank(state.xp);
-        document.getElementById('rank-display').innerText = rankData.current;
-        document.getElementById('xp-display').innerText = state.xp;
-        document.getElementById('streak-display').innerText = state.streak;
-        
-        // Modal stats
-        const c = document.getElementById('stats-container');
-        c.innerHTML = '';
-        for (const [key, val] of Object.entries(categoryStats)) {
-            let max = Math.max(300, val * 1.5); 
-            let pct = Math.min(100, (val / max) * 100);
-            c.innerHTML += `<div class="progress-item"><div class="progress-label"><span style="text-transform:capitalize">${key}</span><span>${val} XP</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`;
-        }
-    }
-    
-    function getRank(xp) {
-        for(let i=RANKS.length-1; i>=0; i--) if (xp >= RANKS[i].limit) return { current: RANKS[i].name };
-        return { current: "Novice" };
-    }
-
-    function updateRange() { 
-        let min = document.getElementById('minP').value;
-        let max = document.getElementById('maxP').value;
-        if(parseInt(max) <= parseInt(min)) { max = parseInt(min)+1; document.getElementById('maxP').value = max; }
-        document.getElementById('lbl-min').innerText = Math.pow(10, min).toLocaleString();
-        document.getElementById('lbl-max').innerText = Math.pow(10, max).toLocaleString();
-    }
-
-    function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
-    function resetProgress() { if(confirm("Reset all XP?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,fractions:0,prices:0,dates:0,time:0,weights:0}; localStorage.clear(); location.reload(); } }
 
     function setMode(m) {
         state.mode = m; state.history = []; 
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+m).classList.add('active');
-        document.getElementById('mode-label').innerText = m;
         
-        ['range','prices','time'].forEach(id => document.getElementById('set-'+id).style.display='none');
-        if (m==='numbers') document.getElementById('set-range').style.display='block';
+        let label = m;
+        if(m === 'context') label = "Sentences";
+        if(m === 'dictation') label = "Dictation";
+        document.getElementById('mode-label').innerText = label;
+        
+        ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
+        
+        if (m==='numbers' || m==='dictation' || m==='context') document.getElementById('set-range').style.display='block';
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
+        if (m==='dates') document.getElementById('set-dates').style.display='block';
         
-        // Auto-close modal for smoother UX
+        if (m==='dictation') {
+            document.getElementById('input-row').style.display = 'none'; 
+        } else if (m === 'gender') {
+            document.getElementById('input-row').style.display = 'none'; 
+        } else {
+            document.getElementById('input-row').style.display = 'flex';
+        }
+
         toggleSettings();
         generate();
     }
-    
-    function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
-    function saveAndGenerate() { toggleSettings(); generate(); }
 
-    function toggleTranslator() { let d = document.getElementById('translator-modal'); d.style.display = (d.style.display === 'flex') ? 'none' : 'flex'; if(d.style.display === 'flex') document.getElementById('trans-input').focus(); }
-    function runTranslator() {
-        let n = parseInt(document.getElementById('trans-input').value);
-        if (isNaN(n)) return;
-        let txt = numToPl(n);
-        document.getElementById('trans-output').innerText = txt;
-        window.speechSynthesis.cancel();
-        let u = new SpeechSynthesisUtterance(txt); u.lang = 'pl-PL'; window.speechSynthesis.speak(u);
-    }
-
-    function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    function toggleHelp() { let d=document.getElementById('help-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    
     function speak(rate) {
         if (!state.solved && rate === 1.0) state.audioClicks++; 
         window.speechSynthesis.cancel();
-        let u = new SpeechSynthesisUtterance(state.currentPL);
+        let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
+        
+        // AUDIO FIX: Add leading silence to prevent chopping
+        let u = new SpeechSynthesisUtterance(" " + txt);
         u.lang = 'pl-PL'; u.rate = rate;
         window.speechSynthesis.speak(u);
     }
+    
+    function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
+    function toggleHelp() { 
+        let d=document.getElementById('help-modal'); 
+        if(d.style.display==='flex') { d.style.display='none'; }
+        else {
+            d.style.display='flex';
+            const c = document.getElementById('stats-container');
+            c.innerHTML = '';
+            for (const [key, val] of Object.entries(categoryStats)) {
+                let max = Math.max(300, val * 1.5); 
+                let pct = Math.min(100, (val / max) * 100);
+                c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`;
+            }
+        }
+    }
+    function toggleTranslator() { let d=document.getElementById('translator-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; if(d.style.display==='flex') document.getElementById('trans-input').focus(); }
+    function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
+    function updateRange() { 
+        let min=document.getElementById('minP').value, max=document.getElementById('maxP').value;
+        if(parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; }
+        document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString(); document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString(); 
+    }
+    function saveAndGenerate() { toggleSettings(); generate(); }
+    function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
+    function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0,dictation:0}; localStorage.clear(); location.reload(); } }
     
     function playSound(type) {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -823,6 +852,12 @@
             gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
         }
         osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    }
+    
+    function runTranslator() {
+        let n=parseInt(document.getElementById('trans-input').value); if(isNaN(n)) return;
+        let txt=numToPl(n); document.getElementById('trans-output').innerText=txt;
+        window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u);
     }
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
 </script>
