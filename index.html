@@ -177,41 +177,107 @@
 <div id="help-modal" class="modal">
     <div class="modal-box">
         <button class="close-x" onclick="toggleHelp()">×</button>
-        <h2 style="margin-top:0">Help & Stats</h2>
         
-        <div id="stats-container" style="margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid var(--border);">
+        <div class="tab-header">
+            <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
+            <button class="tab-btn" onclick="setHelpTab('modes')">Modes</button>
+            <button class="tab-btn" onclick="setHelpTab('progress')">Stats</button>
+        </div>
+
+        <div id="tab-guide" class="tab-content active">
+            <div class="help-sec">
+                <div class="help-h">🎮 How to Play</div>
+                <p class="help-p">1. Listen to the Polish number.</p>
+                <p class="help-p">2. Select the matching number/phrase.</p>
+                <p class="help-p">3. Answer quickly for bonus points!</p>
             </div>
 
-        <h3 style="color:var(--primary); font-size:1rem; margin-bottom:10px;">Game Rules</h3>
+            <div class="help-sec">
+                <div class="help-h">🏆 Scoring & XP</div>
+                <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Base Score</p>
+                <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Speed Bonus (< 3s)</p>
+                <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Blind Mode (No text)</p>
+                <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Wrong Answer</p>
+            </div>
 
-        <div class="help-sec">
-            <div class="help-h">🗣️ Speaking Mode</div>
-            <p class="help-p">Select <b>Speaking</b> from the Settings menu. The app shows you a number, but hides the text. Tap the 🎙️ Mic and say the Polish word.</p>
+            <div class="help-sec">
+                <div class="help-h">⏳ Time Penalties</div>
+                <p class="help-p"><span class="point-tag" style="background:#444; color:white;">> 10s</span> <b>-2 XP</b></p>
+                <p class="help-p"><span class="point-tag" style="background:#000; color:white;">> 20s</span> <b>-4 XP</b></p>
+                <p class="help-p" style="font-size:0.85rem; color:var(--error);"><i>*Slow correct answers are marked as "Needs Work".</i></p>
+            </div>
+            
+             <div class="help-sec">
+                <div class="help-h">🎹 Controls</div>
+                <p class="help-p"><b>PC:</b> Use keys 1-8 to select answers.</p>
+                <p class="help-p"><b>🚗 Handsfree:</b> Toggles auto-play loop (perfect for driving).</p>
+            </div>
         </div>
 
-        <div class="help-sec">
-            <div class="help-h">⏳ Time Penalties</div>
-            <p class="help-p">Speed matters! The app tracks how long you take to answer.</p>
-            <p class="help-p"><span class="point-tag" style="background:#5f6368; color:white;">> 10 sec</span> <b>-2 XP</b></p>
-            <p class="help-p"><span class="point-tag" style="background:#202124; color:white;">> 20 sec</span> <b>-4 XP</b></p>
-            <p class="help-p" style="font-size:0.85rem; color:var(--error); margin-top:5px;">
-                <i>*If you answer correctly but take >15s, the number is added to your "Needs Work" list.</i>
-            </p>
+        <div id="tab-modes" class="tab-content">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">Each mode targets a specific area of Polish grammar.</p>
+
+            <div class="set-group">
+                <div class="set-title">123 Numbers</div>
+                <p class="help-p">The core mode. Practice standard counting.</p>
+                <p class="help-p"><i>Focus: Large numbers, decimals, negatives.</i></p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">💬 Context (Sentences)</div>
+                <p class="help-p">Polish numbers change endings based on the noun.</p>
+                <p class="help-p"><b>Example:</b> "2 lata" (years) vs "5 lat".</p>
+                <p class="help-p"><i>Focus: Grammatical cases (Genitive/Nominative).</i></p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">$$ Prices</div>
+                <p class="help-p">Practice currency declensions.</p>
+                <p class="help-p"><b>Example:</b> "2 złote" vs "5 złotych" vs "1 grosz".</p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">🕒 Time</div>
+                <p class="help-p"><b>Casual:</b> "Za dziesięć druga" (10 to 2).</p>
+                <p class="help-p"><b>Formal:</b> "Trzynasta pięćdziesiąt" (13:50).</p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">📅 Dates</div>
+                <p class="help-p">Ordinal numbers (first, second) and months.</p>
+                <p class="help-p"><b>Example:</b> "Pierwszy maja" (1st of May).</p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">🚻 Gender</div>
+                <p class="help-p">Numbers 1 and 2 change based on gender.</p>
+                <p class="help-p"><b>1:</b> Jeden (m), Jedna (f), Jedno (n).</p>
+                <p class="help-p"><b>2:</b> Dwa (m/n), Dwie (f).</p>
+            </div>
+            
+            <div class="set-group">
+                <div class="set-title">🎙️ Dictation</div>
+                <p class="help-p">No buttons. Listen and type the digits exactly.</p>
+            </div>
+
+            <div class="set-group">
+                <div class="set-title">🗣️ Speaking</div>
+                <p class="help-p">Voice training. Read the number shown and speak it in Polish into your microphone.</p>
+            </div>
         </div>
 
-        <div class="help-sec">
-            <div class="help-h">🏆 Scoring</div>
-            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct Answer</p>
-            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Context Bonus</p>
-            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Wrong Answer</p>
-            <p class="help-p"><span class="point-tag pt-red">-2 XP</span> Audio Replay</p>
+        <div id="tab-progress" class="tab-content">
+            <div style="text-align:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid var(--border);">
+                <h2 id="rank-name" style="color:var(--rank-color); margin:0">Novice</h2>
+                <div style="font-size:0.9rem; color:#888">Current Rank</div>
+                <h3 style="margin:5px 0">Total XP: <span id="total-xp-modal">0</span></h3>
+                <div style="font-size:0.8rem">Next Rank in: <span id="xp-needed">500</span> XP</div>
+            </div>
+            
+            <div id="stats-container"></div>
         </div>
-
-        <button class="btn-check" style="background:#d93025; margin-top:15px; font-size:0.9rem; padding:10px" onclick="resetProgress()">Reset All Progress</button>
     </div>
 </div>
-</div>
-
 <script>
     // --- PART 2A: SETUP & DATA GENERATION ---
     
@@ -856,7 +922,8 @@
     }
     
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    // --- UPDATED STATS & HELP LOGIC ---
+
+// --- UPDATED HELP & STATS LOGIC ---
     
     function toggleHelp() {
         let d = document.getElementById('help-modal');
@@ -864,8 +931,25 @@
             d.style.display = 'none';
         } else {
             d.style.display = 'flex';
-            renderStats(); // <--- This calls the new logic
+            renderStats(); // Update stats every time we open help
         }
+    }
+
+    function setHelpTab(t) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display='none');
+        // Remove active class from buttons
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        // Show selected
+        document.getElementById('tab-'+t).style.display='block';
+        
+        // Highlight button. We find the button by the text content or onclick attribute match
+        // Simpler way: iterate buttons and check if they call this specific tab
+        const btns = document.querySelectorAll('.tab-header .tab-btn');
+        btns.forEach(btn => {
+            if(btn.getAttribute('onclick').includes(t)) btn.classList.add('active');
+        });
     }
 
     function renderStats() {
@@ -873,11 +957,10 @@
         c.innerHTML = '';
 
         // 1. STRENGTHS (Category Mastery)
-        c.innerHTML += '<h3 style="color:var(--primary); font-size:1rem; margin-top:0;">📊 Your Strengths</h3>';
+        c.innerHTML += '<h3 style="color:var(--primary); font-size:1rem; margin-top:0;">📊 Mastery Levels</h3>';
         
         let entries = Object.entries(categoryStats);
-        // Sort categories by XP (High to Low)
-        entries.sort((a,b) => b[1] - a[1]);
+        entries.sort((a,b) => b[1] - a[1]); // Sort High to Low
         
         let hasData = false;
         entries.forEach(([key, val]) => {
@@ -886,10 +969,9 @@
              let max = Math.max(300, val * 1.5); 
              let pct = Math.min(100, (val / max) * 100);
              
-             // Color coding based on mastery
              let color = 'var(--secondary)'; // Green
-             if (val < 100) color = '#fbbc04'; // Yellow (Novice)
-             if (val > 1000) color = '#a142f4'; // Purple (Master)
+             if (val < 100) color = '#fbbc04'; // Yellow
+             if (val > 1000) color = '#a142f4'; // Purple
 
              c.innerHTML += `
                 <div style="margin-bottom:8px">
@@ -903,33 +985,25 @@
                 </div>`;
         });
         
-        if (!hasData) c.innerHTML += '<p style="color:#666; font-size:0.9rem;"><i>Play more games to see your strengths!</i></p>';
+        if (!hasData) c.innerHTML += '<p style="color:#666; font-size:0.9rem;"><i>Play more to unlock stats!</i></p>';
 
-        // 2. WEAKNESSES (Mistakes Analysis)
+        // 2. WEAKNESSES
         c.innerHTML += '<h3 style="color:#d93025; font-size:1rem; margin-top:20px;">⚠️ Needs Work</h3>';
         
-        // Reload mistakes from storage to ensure it's fresh
         let localMistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
         
         if (localMistakes.length === 0) {
-            c.innerHTML += '<p style="color:var(--secondary); font-style:italic; font-size:0.9rem;">No recent mistakes recorded. Keep it up! 🎉</p>';
+            c.innerHTML += '<p style="color:var(--secondary); font-style:italic; font-size:0.9rem;">No recent mistakes. You are doing great! 🎉</p>';
         } else {
-            // Group mistakes by content to find most frequent errors
+            // Count frequency of specific mistakes
             let counts = {};
             localMistakes.forEach(m => {
-                // Handle both old string format and new object format
-                let label = m;
-                let reason = "";
-                if (typeof m === 'object' && m !== null) {
-                    label = m.en;
-                    reason = m.reason ? ` <span style='font-weight:normal; font-size:0.8em; opacity:0.7'>(${m.reason})</span>` : "";
-                }
-                
+                let label = (typeof m === 'object' && m !== null) ? m.en : m;
+                let reason = (typeof m === 'object' && m !== null && m.reason) ? ` <span style='opacity:0.6;font-size:0.8em'>(${m.reason})</span>` : "";
                 let k = `${label}${reason}`;
                 counts[k] = (counts[k] || 0) + 1;
             });
 
-            // Sort by frequency (High to Low)
             let sortedErrors = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5);
             
             let listHtml = '<ul style="padding-left:20px; margin-top:5px; color:var(--text); font-size:0.9rem;">';
@@ -939,15 +1013,15 @@
             listHtml += '</ul>';
             
             c.innerHTML += listHtml;
-            c.innerHTML += `<button class="btn-action" style="background:var(--border); color:var(--text); font-size:0.8rem; padding:6px 12px; margin-top:10px; width:auto;" onclick="clearMistakes()">Clear History</button>`;
+            c.innerHTML += `<button class="btn-action" style="background:var(--border); color:var(--text); font-size:0.8rem; padding:8px 16px; margin-top:10px; width:auto;" onclick="clearMistakes()">Clear History</button>`;
         }
     }
 
     function clearMistakes() {
         if(confirm("Clear your 'Needs Work' list?")) {
             localStorage.setItem('mistakes', "[]");
-            mistakes = []; // Update global variable
-            renderStats(); // Refresh the display immediately
+            mistakes = [];
+            renderStats();
         }
     }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
