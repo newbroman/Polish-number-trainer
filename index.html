@@ -958,10 +958,34 @@ function win(btn) {
     }
 
     function renderStats() {
+        // --- 1. UPDATE HEADER STATS (XP & RANK) ---
+        // Find current rank
+        let currentRank = RANKS[0];
+        let nextRank = RANKS[1];
+        
+        for (let i = 0; i < RANKS.length; i++) {
+            if (state.xp >= RANKS[i].limit) {
+                currentRank = RANKS[i];
+                nextRank = RANKS[i+1] || null; // null if max rank
+            }
+        }
+
+        // Update the text in the modal
+        document.getElementById('total-xp-modal').innerText = state.xp;
+        document.getElementById('rank-name').innerText = currentRank.name;
+        
+        if (nextRank) {
+            let needed = nextRank.limit - state.xp;
+            document.getElementById('xp-needed').innerText = needed;
+        } else {
+            document.getElementById('xp-needed').innerText = "0 (Max Level!)";
+        }
+
+        // --- 2. GENERATE CHARTS (Strengths & Weaknesses) ---
         const c = document.getElementById('stats-container');
         c.innerHTML = '';
 
-        // 1. STRENGTHS (Category Mastery)
+        // STRENGTHS SECTION
         c.innerHTML += '<h3 style="color:var(--primary); font-size:1rem; margin-top:0;">📊 Mastery Levels</h3>';
         
         let entries = Object.entries(categoryStats);
@@ -974,9 +998,9 @@ function win(btn) {
              let max = Math.max(300, val * 1.5); 
              let pct = Math.min(100, (val / max) * 100);
              
-             let color = 'var(--secondary)'; // Green
-             if (val < 100) color = '#fbbc04'; // Yellow
-             if (val > 1000) color = '#a142f4'; // Purple
+             let color = 'var(--secondary)'; 
+             if (val < 100) color = '#fbbc04'; 
+             if (val > 1000) color = '#a142f4'; 
 
              c.innerHTML += `
                 <div style="margin-bottom:8px">
@@ -992,7 +1016,7 @@ function win(btn) {
         
         if (!hasData) c.innerHTML += '<p style="color:#666; font-size:0.9rem;"><i>Play more to unlock stats!</i></p>';
 
-        // 2. WEAKNESSES
+        // WEAKNESSES SECTION
         c.innerHTML += '<h3 style="color:#d93025; font-size:1rem; margin-top:20px;">⚠️ Needs Work</h3>';
         
         let localMistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
@@ -1000,7 +1024,6 @@ function win(btn) {
         if (localMistakes.length === 0) {
             c.innerHTML += '<p style="color:var(--secondary); font-style:italic; font-size:0.9rem;">No recent mistakes. You are doing great! 🎉</p>';
         } else {
-            // Count frequency of specific mistakes
             let counts = {};
             localMistakes.forEach(m => {
                 let label = (typeof m === 'object' && m !== null) ? m.en : m;
@@ -1021,7 +1044,6 @@ function win(btn) {
             c.innerHTML += `<button class="btn-action" style="background:var(--border); color:var(--text); font-size:0.8rem; padding:8px 16px; margin-top:10px; width:auto;" onclick="clearMistakes()">Clear History</button>`;
         }
     }
-
     function clearMistakes() {
         if(confirm("Clear your 'Needs Work' list?")) {
             localStorage.setItem('mistakes', "[]");
