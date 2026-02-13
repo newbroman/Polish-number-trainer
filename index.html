@@ -33,6 +33,8 @@
         <div id="badge-blind" class="badge badge-blind">🙈 Audio Only</div>
         <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
         
+        <div id="voice-feedback" style="font-size:0.9rem; color:var(--error); font-weight:bold; min-height:1.2em; margin-bottom:5px;"></div>
+
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
@@ -43,13 +45,15 @@
         <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
         <button class="btn-check" id="action-btn" onclick="checkTyped()">CHECK ANSWER</button>
     </div>
+    
+    <div id="voice-controls" style="display:none; text-align:center; margin-top:-10px; color:#666;">
+        <p>Tap the mic and say the Polish word.</p>
+    </div>
 </div>
 
 <div class="footer">
     <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
-    
     <button class="btn-action" id="mic-btn" style="background:#ea4335; font-size:1.5rem;" onclick="toggleMic()">🎙️</button>
-    
     <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
@@ -69,7 +73,23 @@
                 <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
                 <button class="mode-btn" onclick="selectMode('dictation')" id="nav-dictation"><span>🎙️</span> Dictation</button>
-                <button class="mode-btn" onclick="selectMode('translator')" id="nav-translator" style="background:#1a73e8; color:white; border-color:#1a73e8"><span>🗣️</span> Translate</button>
+                <button class="mode-btn" onclick="selectMode('speech')" id="nav-speech" style="background:#ea4335; color:white; border-color:#ea4335"><span>🗣️</span> Speaking</button>
+            </div>
+        </div>
+
+        <div class="set-group" id="set-speech-opts" style="display:none; border:2px solid #ea4335;">
+            <div class="set-title" style="color:#ea4335">Speaking Topics</div>
+            <div class="set-row">
+                <span>Numbers</span> <input type="checkbox" id="speech-numbers" checked>
+            </div>
+            <div class="set-row">
+                <span>Prices</span> <input type="checkbox" id="speech-prices" checked>
+            </div>
+            <div class="set-row">
+                <span>Time</span> <input type="checkbox" id="speech-time">
+            </div>
+            <div class="set-row">
+                <span>Context</span> <input type="checkbox" id="speech-context">
             </div>
         </div>
         
@@ -168,16 +188,9 @@
         </div>
 
         <div class="help-sec">
-            <div class="help-h">🚗 Handsfree Mode</div>
-            <p class="help-p">Toggle the car icon to start a continuous loop. Great for driving or washing dishes.</p>
-            <p class="help-p" style="font-size:0.85rem; background:var(--bg); border:1px solid var(--border); padding:8px; border-radius:8px;">
-                <b>Loop Sequence:</b><br>
-                1. Polish (Normal)<br>
-                2. English Translation<br>
-                3. Polish (Slow)<br>
-                4. Polish (Normal)<br>
-                5. ...Next Number (after 3s)
-            </p>
+            <div class="help-h">🗣️ Speaking Mode</div>
+            <p class="help-p">See the number, tap the 🎙️ mic, and say it in Polish.</p>
+            <p class="help-p">If you are wrong, you can try again. The app will show you what it heard.</p>
         </div>
 
         <div class="help-sec">
@@ -186,17 +199,8 @@
             <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Context Mode Bonus</p>
             <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect Guess</p>
             <p class="help-p"><span class="point-tag pt-red">-2 XP</span> <b>Per Audio Replay</b></p>
-            <p style="font-size:0.8rem; color:#5f6368; margin-top:6px; line-height:1.4;">
-                <i>*Using the repeat button reduces points for that question. This helps the app track which categories you find difficult.</i>
-            </p>
         </div>
         
-        <div class="help-sec">
-             <div class="help-h">Game Modes</div>
-             <p class="help-p"><b>🎙️ Dictation:</b> Listen to the Polish number and type the digits (e.g., hear "sto", type 100).</p>
-             <p class="help-p"><b>💬 Context:</b> Polish sentences with numbers.</p>
-        </div>
-
         <div class="help-sec">
             <div class="help-h">📊 Your Progress</div>
             <div id="stats-container"></div>
@@ -204,35 +208,77 @@
         </div>
     </div>
 </div>
+
 <script>
-    // --- APP LOGIC ---
+    // --- PART 2A: SETUP & DATA GENERATION ---
+    
+    // Global State
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
         startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
         genderTarget: null, currentContextKey: null,
         handsfree: false
     };
+    
+    // Persistent Data
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0}');
+    
+    // Timers & Audio Contexts
     let autoNextTimer = null;
     let audioCtx = null;
     let audioKeepAliveTimer = null;
     let speakerTaps = 0;
     let speakerTapTimer = null;
     
-    // --- AUDIO GLOBALS (Firefox Fixes) ---
+    // Voice & Speech Globals
     let currentUtterance = null;
     let availableVoices = [];
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
 
+    // --- INITIALIZATION ---
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         
-        // 1. Force Voice Loading immediately
+        // 1. Setup Speech Recognition (Mic)
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'pl-PL';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('mic-btn').style.background = "#34a853";
+                document.getElementById('mic-btn').classList.add('active');
+                document.getElementById('voice-feedback').innerText = "Listening...";
+                document.getElementById('voice-feedback').style.color = "#666";
+            };
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('mic-btn').style.background = "#ea4335";
+                document.getElementById('mic-btn').classList.remove('active');
+            };
+            recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
+            recognition.onerror = function(e) { 
+                isListening = false; 
+                document.getElementById('mic-btn').style.background = "#ea4335";
+                if(e.error==='not-allowed') alert("Microphone access denied.");
+            };
+        } else {
+             document.getElementById('mic-btn').style.display='none';
+        }
+
+        // 2. Setup TTS Voices (Speaker)
         loadVoices();
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
+        // 3. Input Listeners
         document.addEventListener('keydown', (e) => {
             if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
             if (document.getElementById('input-style').value === 'type' || state.mode === 'translator' || state.mode === 'dictation') {
@@ -245,27 +291,28 @@
                 }
             }
         });
-        updateUI(); updateRange(); 
         
-        // Heartbeat to keep audio engine awake
+        updateUI(); 
+        updateRange(); 
+        
+        // Audio Heartbeat (prevents sleep on iOS)
         audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
         document.body.addEventListener('click', initAudio, { once: true });
         
         switchMode('numbers'); 
-        // Do not call cancel on init, just to be safe
     }
 
-    // Helper to load voices reliably
     function loadVoices() {
         availableVoices = window.speechSynthesis.getVoices();
-        // Log to console for debugging if needed
-        console.log("Voices loaded:", availableVoices.length);
     }
 
+    // --- MAIN GENERATOR CONTROLLER ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
+        document.getElementById('voice-feedback').innerText = ""; 
         
+        // Handle Translator Mode
         if (state.mode === 'translator') {
             document.getElementById('pl-text').innerText = "Type a number...";
             document.getElementById('display-box').classList.add('trans-active');
@@ -280,6 +327,7 @@
             document.getElementById('action-btn').innerText = "CHECK ANSWER";
         }
 
+        // Reset UI Text
         const plBox = document.getElementById('pl-text');
         const enBox = document.getElementById('en-text');
         plBox.classList.remove('visible'); enBox.classList.remove('visible');
@@ -287,7 +335,12 @@
         
         const isBlind = document.getElementById('blind-toggle').checked;
         
-        if(isBlind || state.mode === 'dictation') {
+        // Visibility Logic
+        if (state.mode === 'speech') {
+             enBox.classList.add('visible');
+             enBox.classList.remove('blind-active');
+             document.getElementById('badge-blind').style.display = 'none';
+        } else if (isBlind || state.mode === 'dictation') {
             enBox.classList.add('blind-active');
             document.getElementById('badge-blind').style.display = 'block';
         } else {
@@ -305,22 +358,40 @@
         document.getElementById('type-input').style.borderColor = "var(--border)";
         if(state.mode === 'dictation') document.getElementById('type-input').focus();
 
+        // Data Generation Loop
         const min = Math.pow(10, document.getElementById('minP').value);
         const max = Math.pow(10, document.getElementById('maxP').value);
-        
         let newVal, safety=0;
+        
+        // Handle Speaking Mode Sub-categories
+        let tempMode = state.mode;
+        if (state.mode === 'speech') {
+            let opts = [];
+            if(document.getElementById('speech-numbers').checked) opts.push('numbers');
+            if(document.getElementById('speech-prices').checked) opts.push('prices');
+            if(document.getElementById('speech-time').checked) opts.push('time');
+            if(document.getElementById('speech-context').checked) opts.push('context');
+            if(opts.length === 0) opts.push('numbers'); 
+            tempMode = opts[Math.floor(Math.random()*opts.length)];
+        }
+
         do {
-            newVal = generateRawValue(min, max);
+            newVal = generateRawValue(min, max, tempMode);
             safety++;
         } while (isRepeated(newVal) && safety < 15);
 
         addToHistory(newVal);
-        processValue(newVal);
+        processValue(newVal, tempMode);
 
-        if (state.mode === 'context') plBox.innerHTML = state.currentPL; 
+        // Render Text
+        if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
         else plBox.innerText = state.currentPL;
         
-        if (!isBlind && state.mode !== 'dictation') {
+        if (state.mode === 'speech') {
+             enBox.innerText = state.currentEN;
+             enBox.classList.add('visible');
+             plBox.classList.remove('visible');
+        } else if (!isBlind && state.mode !== 'dictation') {
             if (state.mode === 'gender') {
                 enBox.innerText = state.currentEN;
                 enBox.classList.add('visible');
@@ -336,116 +407,157 @@
         state.startTime = Date.now();
         
         if (state.handsfree) playHandsfreeSequence();
-        else setTimeout(() => { speak(1.0); }, 250);
+        else if (state.mode !== 'speech') setTimeout(() => { speak(1.0); }, 250);
     }
 
-    function generateRawValue(min, max) {
-        if (state.mode === 'numbers' || state.mode === 'context' || state.mode === 'dictation') {
-            if (state.mode === 'context') {
+    // --- RAW DATA CREATOR ---
+    function generateRawValue(min, max, activeMode) {
+        let m = activeMode || state.mode;
+        
+        if (m === 'numbers' || m === 'context' || m === 'dictation') {
+            if (m === 'context') {
                 const keys = Object.keys(GRAMMAR);
                 const k = keys[Math.floor(Math.random() * keys.length)];
                 state.currentContextKey = k;
                 let n = Math.floor(Math.random() * (max - min + 1)) + min;
                 return { val: n, key: k };
             }
-            if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+            if (m === 'numbers' && document.getElementById('decimal-toggle').checked) {
                 let places = parseInt(document.getElementById('decimal-places').value);
                 return parseFloat((Math.random() * (max - min) + min).toFixed(places));
             }
             return Math.floor(Math.random() * (max - min + 1)) + min;
         } 
-        else if (state.mode === 'prices') {
+        else if (m === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
             return n + (gr/100);
         } 
-        else if (state.mode === 'time') {
+        else if (m === 'time') {
             let h = Math.floor(Math.random() * 24);
             let m = Math.floor(Math.random() * 12) * 5;
             return {h, m};
         } 
-        else if (state.mode === 'dates') {
+        else if (m === 'dates') {
             let d = Math.floor(Math.random() * 30) + 1;
             let mIdx = Math.floor(Math.random() * 12);
             let y = Math.floor(Math.random()*25)+2000;
             let dow = Math.floor(Math.random()*7);
             return {d, m:mIdx, y, dow};
         }
-        else if (state.mode === 'gender') {
+        else if (m === 'gender') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
             return { num: n, noun };
         }
     }
+// --- PART 2B: MECHANICS & UTILITIES (Fixes ReferenceErrors) ---
 
-    function processValue(val) {
+    // --- HELPER FUNCTIONS (Moved to top to prevent "isRepeated is not defined") ---
+    function addToHistory(val) { 
+        state.history.push(val); 
+        if(state.history.length > 5) state.history.shift(); 
+    }
+
+    function isRepeated(val) { 
+        return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); 
+    }
+
+    function timeToPl(h, m, formal) { 
+        if (formal) { 
+            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h]; 
+            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m)); 
+            return `${hStr} ${mStr}`.trim(); 
+        } else { 
+            let dispH = h % 12; 
+            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
+            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1]; 
+            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)]; 
+            if (m === 30) return `wpół do ${hNext}`; 
+            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`; 
+            return `za ${numToPl(60-m)} ${hNext}`; 
+        } 
+    }
+
+    function readDecimalPart(str) { 
+        return str.split('').map(d => numToPl(parseInt(d))).join(' '); 
+    }
+    
+    function getPlural(n, s, pa, pb) { 
+        n = Math.abs(n); 
+        if (n === 1) return s; 
+        let r10 = n % 10, r100 = n % 100; 
+        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; 
+        return pb; 
+    }
+    
+    function numToPl(n) { 
+        if (isNaN(n)) return "..."; 
+        if (n === 0) return "zero"; 
+        if (n < 0) return "minus " + numToPl(Math.abs(n)); 
+        let s = ""; 
+        if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; } 
+        if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; } 
+        if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; } 
+        if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; } 
+        if (n >= 10) { s += TEENS[n-10] + " "; n = 0; } 
+        if (n > 0) s += UNITS[n]; 
+        return s.trim(); 
+    }
+
+    // --- LANGUAGE PROCESSOR ---
+    function processValue(val, activeMode) {
         state.rawData = val;
+        let m = activeMode || state.mode;
         
-        if (state.mode === 'gender') {
-            let n = val.num;
-            let nounObj = val.noun;
-            let numStr = "";
-            let nounStr = "";
-
-            if (n === 1) {
-                if (nounObj.form === 'm') numStr = 'jeden';
-                else if (nounObj.form === 'f') numStr = 'jedna';
-                else numStr = 'jedno';
-                nounStr = nounObj.word;
-            } else if (n === 2) {
-                if (nounObj.form === 'f') numStr = 'dwie';
-                else numStr = 'dwa';
-                nounStr = nounObj.pl;
-            } else {
-                numStr = numToPl(n);
-                let r10 = n % 10;
-                let r100 = n % 100;
-                if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl;
-                else nounStr = nounObj.gen;
+        if (m === 'gender') {
+            let n = val.num; let nounObj = val.noun; let numStr = ""; let nounStr = "";
+            if (n === 1) { 
+                if (nounObj.form === 'm') numStr = 'jeden'; else if (nounObj.form === 'f') numStr = 'jedna'; else numStr = 'jedno'; nounStr = nounObj.word; 
+            } else if (n === 2) { 
+                if (nounObj.form === 'f') numStr = 'dwie'; else numStr = 'dwa'; nounStr = nounObj.pl; 
+            } else { 
+                numStr = numToPl(n); 
+                let r10 = n % 10; let r100 = n % 100; 
+                if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl; else nounStr = nounObj.gen; 
             }
             state.currentEN = `${n} ${nounObj.en}`; 
-            state.currentPL = `${numStr} ${nounStr}`;
+            state.currentPL = `${numStr} ${nounStr}`; 
             state.genderTarget = numStr; 
             document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`;
             return;
         }
 
-        if (state.mode === 'context') {
-            let g = GRAMMAR[val.key];
-            let n = val.val;
-            let word = getPlural(n, g.s, g.p, g.g);
-            let numTxt = numToPl(n);
+        if (m === 'context') {
+            let g = GRAMMAR[val.key]; let n = val.val; 
+            let word = getPlural(n, g.s, g.p, g.g); let numTxt = numToPl(n); 
             let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
-            state.currentEN = g.enPhrase.replace('[N]', n);
+            state.currentEN = g.enPhrase.replace('[N]', n); 
             let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
-            state.currentPL = visualPhrase; 
-            state.speechText = fullPhrase; 
+            state.currentPL = visualPhrase; state.speechText = fullPhrase; 
             return;
         }
 
-        if (state.mode === 'numbers' || state.mode === 'dictation') {
-            if(state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
-                let s = val.toString(); if(!s.includes('.')) s += ".0";
-                let parts = s.split('.');
-                state.currentEN = s.replace('.', ',');
+        if (m === 'numbers' || m === 'dictation') {
+            if(m === 'numbers' && document.getElementById('decimal-toggle').checked) {
+                let s = val.toString(); if(!s.includes('.')) s += ".0"; let parts = s.split('.');
+                state.currentEN = s.replace('.', ','); 
                 state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
             } else {
-                state.currentEN = val.toLocaleString();
-                state.currentPL = numToPl(val);
+                state.currentEN = val.toLocaleString(); state.currentPL = numToPl(val);
             }
-        } else if (state.mode === 'prices') {
+        } else if (m === 'prices') {
             let n = Math.floor(val); let gr = Math.round((val % 1) * 100);
-            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`; 
             state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (state.mode === 'time') {
+        } else if (m === 'time') {
+            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`; 
             let style = document.getElementById('time-style-sel').value;
-            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
             state.currentPL = timeToPl(val.h, val.m, style === 'formal');
-        } else if (state.mode === 'dates') {
+        } else if (m === 'dates') {
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty druga", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            let includeYear = document.getElementById('year-toggle').checked;
-            let includeDay = document.getElementById('day-toggle').checked;
+            let includeYear = document.getElementById('year-toggle').checked; let includeDay = document.getElementById('day-toggle').checked;
             let enStr = ""; let plStr = "";
             if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
             enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`;
@@ -454,34 +566,22 @@
         }
     }
 
-    function timeToPl(h, m, formal) {
-        if (formal) {
-            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
-            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
-            return `${hStr} ${mStr}`.trim();
-        } else {
-            let dispH = h % 12;
-            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
-            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
-            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)];
-            if (m === 30) return `wpół do ${hNext}`;
-            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
-            return `za ${numToPl(60-m)} ${hNext}`;
-        }
-    }
-
-    function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
-    function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
-    function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
-
+    // --- UI & GRID GENERATION ---
     function applySettings() {
         if (state.mode === 'translator') {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').setAttribute('type', 'number'); 
-            return;
+            document.getElementById('mc-area').style.display = 'none'; document.getElementById('type-area').style.display = 'flex'; document.getElementById('type-input').setAttribute('type', 'number'); return;
         }
         
+        // Hide game areas if in Speech Mode
+        if (state.mode === 'speech') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'none';
+            document.getElementById('voice-controls').style.display = 'block';
+            return;
+        } else {
+            document.getElementById('voice-controls').style.display = 'none';
+        }
+
         let style = document.getElementById('input-style').value;
         if (style === 'type' || state.mode === 'dictation') {
             document.getElementById('mc-area').style.display = 'none';
@@ -500,90 +600,62 @@
     }
 
     function generateGrid() {
-        const container = document.getElementById('mc-area');
-        container.innerHTML = '';
-        let opts = [];
+        const container = document.getElementById('mc-area'); container.innerHTML = ''; let opts = [];
         
+        // GENDER MODE
         if (state.mode === 'gender') {
-            let noun = state.rawData.noun;
-            let correct = state.currentPL;
-            opts = [correct];
-            
-            if (state.rawData.num === 1) {
-                ['jeden', 'jedna', 'jedno'].forEach(f => {
-                    let phrase = `${f} ${noun.word}`;
-                    if (phrase !== correct) opts.push(phrase);
-                });
-            } else if (state.rawData.num === 2) {
-                ['dwa', 'dwie'].forEach(f => {
-                    let phrase = `${f} ${noun.pl}`;
-                    if (phrase !== correct) opts.push(phrase);
-                });
-            } else {
-                 const min = Math.pow(10, document.getElementById('minP').value);
-                 const max = Math.pow(10, document.getElementById('maxP').value);
+            let noun = state.rawData.noun; let correct = state.currentPL; opts = [correct];
+            if (state.rawData.num === 1) { ['jeden', 'jedna', 'jedno'].forEach(f => { let phrase = `${f} ${noun.word}`; if (phrase !== correct) opts.push(phrase); }); } 
+            else if (state.rawData.num === 2) { ['dwa', 'dwie'].forEach(f => { let phrase = `${f} ${noun.pl}`; if (phrase !== correct) opts.push(phrase); }); } 
+            else {
+                 const min = Math.pow(10, document.getElementById('minP').value); const max = Math.pow(10, document.getElementById('maxP').value);
                  let safety = 0;
                  while(opts.length < state.btnCount && safety < 100) {
                      let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
-                     let dNum = numToPl(decoy);
-                     let dNoun = noun.gen;
+                     let dNum = numToPl(decoy); let dNoun = noun.gen;
                      let r10 = decoy % 10, r100 = decoy % 100;
                      if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) dNoun = noun.pl;
                      if (decoy === 1) dNoun = noun.word;
                      let phrase = `${dNum} ${dNoun}`;
-                     if(!opts.includes(phrase)) opts.push(phrase);
-                     safety++;
+                     if(!opts.includes(phrase)) opts.push(phrase); safety++;
                  }
             }
             while (opts.length < state.btnCount) opts.push(`zły ${noun.word} ${opts.length}`); 
-            opts = opts.slice(0, state.btnCount); 
-            opts.sort(() => Math.random() - 0.5);
-            
-        } else if (state.mode === 'context') {
-            let g = GRAMMAR[state.currentContextKey];
-            let n = state.rawData.val;
-            let correct = state.speechText; 
-            opts = [correct];
-            
-            const min = Math.pow(10, document.getElementById('minP').value);
-            const max = Math.pow(10, document.getElementById('maxP').value);
+            opts = opts.slice(0, state.btnCount); opts.sort(() => Math.random() - 0.5);
+        } 
+        // CONTEXT MODE
+        else if (state.mode === 'context') {
+            let g = GRAMMAR[state.currentContextKey]; let n = state.rawData.val; let correct = state.speechText; opts = [correct];
+            const min = Math.pow(10, document.getElementById('minP').value); const max = Math.pow(10, document.getElementById('maxP').value);
             let safety = 0;
-            
             while(opts.length < state.btnCount && safety < 100) {
                 let decoyN = Math.floor(Math.random() * (max - min + 1)) + min;
                 if (decoyN !== n) {
-                     let word = getPlural(decoyN, g.s, g.p, g.g);
-                     let numTxt = numToPl(decoyN);
+                     let word = getPlural(decoyN, g.s, g.p, g.g); let numTxt = numToPl(decoyN);
                      let decoyPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
                      if (!opts.includes(decoyPhrase)) opts.push(decoyPhrase);
                 }
                 safety++;
             }
             opts.sort(() => Math.random() - 0.5);
-        } else {
+        } 
+        // STANDARD MODES
+        else {
             opts = [state.currentEN];
-            const min = Math.pow(10, document.getElementById('minP').value);
-            const max = Math.pow(10, document.getElementById('maxP').value);
+            const min = Math.pow(10, document.getElementById('minP').value); const max = Math.pow(10, document.getElementById('maxP').value);
             let safety = 0;
             while(opts.length < state.btnCount && safety < 100) {
-                let decoy = makeDecoy(min, max);
-                if(!opts.includes(decoy)) opts.push(decoy);
-                safety++;
+                let decoy = makeDecoy(min, max); if(!opts.includes(decoy)) opts.push(decoy); safety++;
             }
             opts.sort(() => Math.random() - 0.5);
         }
 
         opts.forEach((val, index) => {
-            let b = document.createElement('button');
-            b.className = 'mc-btn'; 
+            let b = document.createElement('button'); b.className = 'mc-btn'; 
             if (state.mode !== 'gender' && state.mode !== 'context') {
-                let hint = document.createElement('span');
-                hint.className = 'mc-key-hint'; hint.innerText = index + 1;
-                b.appendChild(hint);
+                let hint = document.createElement('span'); hint.className = 'mc-key-hint'; hint.innerText = index + 1; b.appendChild(hint);
             }
-            b.appendChild(document.createTextNode(val));
-            b.onclick = () => check(val, b);
-            container.appendChild(b);
+            b.appendChild(document.createTextNode(val)); b.onclick = () => check(val, b); container.appendChild(b);
         });
     }
 
@@ -591,13 +663,8 @@
         if (state.mode === 'prices') return (Math.floor(Math.random()*(max-min))+min) + ",00 zł";
         if (state.mode === 'dates') {
              let d = Math.floor(Math.random()*30)+1, m=Math.floor(Math.random()*12), y=Math.floor(Math.random()*25)+2000;
-             let includeYear = document.getElementById('year-toggle').checked;
-             let includeDay = document.getElementById('day-toggle').checked;
-             let s = "";
-             if(includeDay) s += DAYS_EN[Math.floor(Math.random()*7)] + ", ";
-             s += `${d} ${MONTHS_EN[m]}`;
-             if(includeYear) s += ` ${y}`;
-             return s;
+             let includeYear = document.getElementById('year-toggle').checked; let includeDay = document.getElementById('day-toggle').checked;
+             let s = ""; if(includeDay) s += DAYS_EN[Math.floor(Math.random()*7)] + ", "; s += `${d} ${MONTHS_EN[m]}`; if(includeYear) s += ` ${y}`; return s;
         }
         if (state.mode === 'time') {
             let h=Math.floor(Math.random()*24), m=Math.floor(Math.random()*12)*5;
@@ -607,14 +674,12 @@
         return n.toLocaleString();
     }
 
+    // --- CHECKERS & SCORING ---
     function check(val, btn) {
         if (state.solved) return;
         let isCorrect = false;
-        if (state.mode === 'gender' || state.mode === 'context') {
-             if (val === state.speechText || val === state.currentPL) isCorrect = true;
-        } else {
-             if (val == state.currentEN) isCorrect = true;
-        }
+        if (state.mode === 'gender' || state.mode === 'context') { if (val === state.speechText || val === state.currentPL) isCorrect = true; } 
+        else { if (val == state.currentEN) isCorrect = true; }
         if (isCorrect) win(btn); else lose(btn);
     }
 
@@ -623,164 +688,170 @@
         if (state.solved) return;
         let val = document.getElementById('type-input').value.trim().toLowerCase();
         let correct = (state.mode === 'dictation') ? state.rawData.toString() : state.currentEN.toString().toLowerCase();
-
-        if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null);
-        else lose(null);
+        if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null); else lose(null);
     }
 
+    function checkVoiceAnswer(spoken) {
+        if (state.solved) return;
+        let rawSpoken = spoken.toLowerCase().trim();
+        let cleanSpoken = rawSpoken.replace(/[.,!?]/g, '');
+        let target = (state.mode === 'context' || state.currentContextKey) ? state.speechText.toLowerCase() : state.currentPL.toLowerCase();
+        let numericMatch = (cleanSpoken == state.rawData);
+        let isCorrect = (cleanSpoken === target) || numericMatch;
+
+        if (isCorrect) {
+            document.getElementById('voice-feedback').innerText = "Correct! " + cleanSpoken;
+            document.getElementById('voice-feedback').style.color = "var(--secondary)";
+            win(document.getElementById('mic-btn'));
+        } else {
+            document.getElementById('voice-feedback').innerText = "Heard: " + rawSpoken;
+            document.getElementById('voice-feedback').style.color = "var(--error)";
+            document.getElementById('mic-btn').classList.add('wrong');
+            setTimeout(() => document.getElementById('mic-btn').classList.remove('wrong'), 500);
+        }
+    }
+
+    function toggleMic() {
+        if (!recognition) { alert("Voice input not supported."); return; }
+        if (isListening) recognition.stop(); else { initAudio(); recognition.start(); }
+    }
+
+    // --- WIN/LOSE LOGIC (With Time Penalty) ---
     function win(btn) {
-        playSound('correct');
+        playSound('correct'); 
         state.solved = true;
-        let score = 10; if (state.mode === 'context') score += 5;
-        let penalty = state.audioClicks * 2;
-        if (score - penalty < 2) penalty = score - 2; 
-        score -= penalty;
+        
+        // 1. Calculate Time Taken
+        let timeTaken = (Date.now() - state.startTime) / 1000;
+        
+        // 2. Base Score
+        let score = 10; 
+        if (state.mode === 'context') score += 5;
 
-        state.xp += score; state.streak++;
-        categoryStats[state.mode] += score;
-        saveAllStats();
+        // 3. Audio Penalty
+        let audioPenalty = state.audioClicks * 2;
+        
+        // 4. Time Penalty: >10s = -2pts, >20s = -4pts
+        let timePenalty = 0;
+        if (timeTaken > 20) timePenalty = 4;
+        else if (timeTaken > 10) timePenalty = 2;
+        
+        let totalPenalty = audioPenalty + timePenalty;
+        if (score - totalPenalty < 1) totalPenalty = score - 1; 
+        score -= totalPenalty;
+        
+        // 5. Track "Weak Phrases"
+        if (timeTaken > 15) {
+             let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" };
+             mistakes.push(struggleEntry);
+             if (mistakes.length > 50) mistakes.shift();
+             localStorage.setItem('mistakes', JSON.stringify(mistakes));
+        }
 
-        document.getElementById('badge-score').innerText = `+${score}`;
+        // 6. Update Stats
+        state.xp += score; state.streak++; categoryStats[state.mode] += score; saveAllStats();
+
+        // 7. Visual Feedback
+        document.getElementById('badge-score').innerText = `+${score}`; 
         document.getElementById('badge-score').style.display = 'block';
 
-        if(btn) btn.classList.add('correct');
-        else document.getElementById('type-input').style.borderColor = "var(--secondary)";
+        if(btn) btn.classList.add('correct'); 
+        else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
+        // Reveal Logic
         if (state.mode === 'context') {
-            document.getElementById('en-text').innerText = state.currentEN;
-            document.getElementById('pl-text').innerHTML = state.speechText; 
-        } else if (state.mode === 'dictation') {
+            document.getElementById('en-text').innerText = state.currentEN; document.getElementById('pl-text').innerHTML = state.speechText; 
+        } else if (state.mode === 'dictation' || state.mode === 'speech') {
             document.getElementById('pl-text').innerText = state.currentPL; 
+            document.getElementById('pl-text').classList.add('visible');
             document.getElementById('en-text').innerText = state.currentEN;
         } else {
              document.getElementById('pl-text').classList.add('visible');
         }
         
-        document.getElementById('en-text').classList.add('visible');
+        document.getElementById('en-text').classList.add('visible'); 
         document.getElementById('en-text').classList.remove('blind-active');
         
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
+        const mainBtn = document.getElementById('main-btn'); 
+        mainBtn.innerText = "NEXT >>"; 
+        mainBtn.classList.add('ready');
         
         if(!state.handsfree) autoNextTimer = setTimeout(generate, 3000);
         updateUI();
     }
 
     function lose(btn) {
-        playSound('wrong');
-        state.streak = 0; state.wrongGuesses++;
-        if(btn) btn.classList.add('wrong');
-        else document.getElementById('type-input').style.borderColor = "#d93025";
+        playSound('wrong'); state.streak = 0; state.wrongGuesses++;
         
-        document.getElementById('en-text').classList.remove('blind-active');
+        let mistakeEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Wrong" };
+        mistakes.push(mistakeEntry);
+        if (mistakes.length > 50) mistakes.shift();
+        localStorage.setItem('mistakes', JSON.stringify(mistakes));
+        
+        if(btn) btn.classList.add('wrong'); 
+        else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "#d93025";
+        
+        document.getElementById('en-text').classList.remove('blind-active'); 
         document.getElementById('en-text').classList.add('visible');
-        if (state.mode === 'context') {
-             document.getElementById('en-text').innerText = state.currentEN;
-             document.getElementById('pl-text').innerHTML = state.speechText;
-        } else if (state.mode === 'dictation') {
-             document.getElementById('pl-text').innerText = state.currentPL;
-             document.getElementById('en-text').innerText = state.currentEN;
+        
+        if (state.mode === 'context') { 
+            document.getElementById('en-text').innerText = state.currentEN; 
+            document.getElementById('pl-text').innerHTML = state.speechText; 
+        } else if (state.mode === 'dictation' || state.mode === 'speech') { 
+            document.getElementById('pl-text').innerText = state.currentPL; 
+            document.getElementById('en-text').innerText = state.currentEN; 
         }
+        
         document.getElementById('pl-text').classList.add('visible');
         if (!state.handsfree) speak(0.8);
         updateUI();
     }
     
-    function toggleHandsfree() {
-        state.handsfree = !state.handsfree;
-        let btn = document.getElementById('hf-btn');
-        if (state.handsfree) {
-            btn.classList.add('active');
-            document.getElementById('badge-handsfree').style.display = 'block';
-            initAudio(); generate(); 
-        } else {
-            btn.classList.remove('active');
-            document.getElementById('badge-handsfree').style.display = 'none';
-            window.speechSynthesis.cancel();
-            if (autoNextTimer) clearTimeout(autoNextTimer);
-        }
-    }
-
-    function playHandsfreeSequence() {
-        if (!state.handsfree) return;
-        window.speechSynthesis.cancel();
-        let plText = (state.mode === 'context') ? state.speechText : state.currentPL;
-        let enText = state.currentEN;
-        let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0;
-        let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0;
-        let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5;
-        let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0;
-        u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); };
-        window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4);
-    }
-    
-    function handleSpeakerClick() {
-        speakerTaps++;
-        if (speakerTapTimer) clearTimeout(speakerTapTimer);
-        speakerTapTimer = setTimeout(() => {
-            let rate = 1.0; if (speakerTaps === 2) rate = 0.5; if (speakerTaps >= 3) rate = 0.25;
-            speak(rate); speakerTaps = 0;
-        }, 300); 
-    }
-
+    // --- UTILITIES & SYSTEM FUNCTIONS ---
+    function toggleHandsfree() { state.handsfree = !state.handsfree; let btn = document.getElementById('hf-btn'); if (state.handsfree) { btn.classList.add('active'); document.getElementById('badge-handsfree').style.display = 'block'; initAudio(); generate(); } else { btn.classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; window.speechSynthesis.cancel(); if (autoNextTimer) clearTimeout(autoNextTimer); } }
+    function playHandsfreeSequence() { if (!state.handsfree) return; window.speechSynthesis.cancel(); let plText = (state.mode === 'context') ? state.speechText : state.currentPL; let enText = state.currentEN; let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); }; window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4); }
+    function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; if (speakerTaps === 2) rate = 0.5; if (speakerTaps >= 3) rate = 0.25; speak(rate); speakerTaps = 0; }, 300); }
     function selectMode(m) { toggleSettings(); switchMode(m); }
     function switchMode(m) {
         state.mode = m; state.history = []; state.handsfree = false;
-        document.getElementById('hf-btn').classList.remove('active');
-        document.getElementById('badge-handsfree').style.display = 'none';
-        
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+m).classList.add('active');
-        let label = m;
-        if(m==='context') label='Sentences'; if(m==='translator') label='Translator'; if(m==='dictation') label='Dictation';
+        document.getElementById('hf-btn').classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none';
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); document.getElementById('nav-'+m).classList.add('active');
+        let label = m; if(m==='context') label='Sentences'; if(m==='translator') label='Translator'; if(m==='dictation') label='Dictation'; if(m==='speech') label='Speaking';
         document.getElementById('mode-label').innerText = label;
         
-        ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
+        ['range','prices','time','dates','speech-opts'].forEach(id => document.getElementById('set-'+id).style.display='none');
         if (m==='numbers' || m==='context' || m==='gender' || m==='dictation') document.getElementById('set-range').style.display='block';
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
+        if (m==='speech') { document.getElementById('set-range').style.display='block'; document.getElementById('set-speech-opts').style.display='block'; }
         
-        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation') ? 'none' : 'flex';
+        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation' || m==='speech') ? 'none' : 'flex';
         generate();
     }
-
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    
+    function initAudio() { 
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        if (audioCtx.state === 'suspended') audioCtx.resume(); 
+    }
+    
     function keepAudioAwake() { if (!audioCtx) initAudio(); if (audioCtx.state === 'running') { const buffer = audioCtx.createBuffer(1, 1, 22050); const source = audioCtx.createBufferSource(); source.buffer = buffer; source.connect(audioCtx.destination); source.start(0); } }
     
-    // --- UPDATED FIREFOX-ROBUST SPEAK FUNCTION ---
     function speak(rate) {
         if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
-        
-        // 1. Force Cancel any existing speech
         window.speechSynthesis.cancel();
-
-        // 2. Use Timeout to prevent Firefox from eating the new utterance
         setTimeout(() => {
             let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
-            
-            // Re-use global to prevent Garbage Collection
             currentUtterance = new SpeechSynthesisUtterance(txt);
-            currentUtterance.lang = 'pl-PL'; 
-            currentUtterance.rate = rate;
-            
-            // 3. Force-Find a Voice
+            currentUtterance.lang = 'pl-PL'; currentUtterance.rate = rate;
             if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
-            
             const plVoice = availableVoices.find(v => v.lang.includes('pl'));
-            if (plVoice) {
-                currentUtterance.voice = plVoice;
-            } else {
-                console.warn("No Polish voice found. Using default.");
-            }
-
-            // Cleanup
+            if (plVoice) currentUtterance.voice = plVoice;
             currentUtterance.onend = function() { currentUtterance = null; };
-            
             window.speechSynthesis.speak(currentUtterance);
-        }, 10); // 10ms delay is enough for Firefox to reset
+        }, 10);
     }
-
+    
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); if(d.style.display==='flex') { d.style.display='none'; } else { d.style.display='flex'; const c = document.getElementById('stats-container'); c.innerHTML = ''; for (const [key, val] of Object.entries(categoryStats)) { if(val === 0) continue; let max = Math.max(300, val * 1.5); let pct = Math.min(100, (val / max) * 100); c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`; } } }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
@@ -788,130 +859,12 @@
     function saveAndGenerate() { toggleSettings(); generate(); }
     function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
     function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
-    
-    function playSound(type) {
-        initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
-        if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } 
-        else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); }
-        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-    }
-    
-    function runTranslator() {
-        let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return;
-        let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt;
-        window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10);
-    }
+    function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); } osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
+    function runTranslator() { let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return; let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt; window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10); }
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
-    function updateUI() {
-        const rankData = { current: "Nowicjusz" }; 
-        for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; }
-        document.getElementById('rank-display').innerText = rankData.current;
-        document.getElementById('xp-display').innerText = state.xp;
-        document.getElementById('streak-display').innerText = state.streak;
-    }
-    function getPlural(n, s, pa, pb) { n = Math.abs(n); if (n === 1) return s; let r10 = n % 10, r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; return pb; }
-    function numToPl(n) { if (isNaN(n)) return "..."; if (n === 0) return "zero"; if (n < 0) return "minus " + numToPl(Math.abs(n)); let s = ""; if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; } if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; } if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; } if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; } if (n >= 10) { s += TEENS[n-10] + " "; n = 0; } if (n > 0) s += UNITS[n]; return s.trim(); }
-// --- SPEECH RECOGNITION SETUP ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let isListening = false;
-
-    // Initialize if supported
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.lang = 'pl-PL';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = function() {
-            isListening = true;
-            document.getElementById('mic-btn').style.background = "#34a853"; // Green when listening
-            document.getElementById('mic-btn').classList.add('active'); // Pulse effect
-        };
-
-        recognition.onend = function() {
-            isListening = false;
-            document.getElementById('mic-btn').style.background = "#ea4335"; // Red when stopped
-            document.getElementById('mic-btn').classList.remove('active');
-        };
-
-        recognition.onresult = function(event) {
-            const spokenText = event.results[0][0].transcript.toLowerCase().trim();
-            console.log("Heard:", spokenText); // For debugging
-            checkVoiceAnswer(spokenText);
-        };
-        
-        recognition.onerror = function(event) {
-            console.error("Speech Error:", event.error);
-            isListening = false;
-            document.getElementById('mic-btn').style.background = "#ea4335";
-            if(event.error === 'not-allowed') alert("Microphone permission denied.");
-        };
-    } else {
-        // Hide button if not supported (Firefox)
-        setTimeout(() => {
-            let mb = document.getElementById('mic-btn');
-            if(mb) mb.style.display = 'none';
-        }, 500);
-    }
-
-    function toggleMic() {
-        if (!recognition) { alert("Voice input not supported in this browser (Try Chrome/Safari)."); return; }
-        if (isListening) recognition.stop();
-        else {
-            // Ensure audio context is ready (sometimes helps on mobile)
-            initAudio(); 
-            recognition.start();
-        }
-    }
-
-    function checkVoiceAnswer(spoken) {
-        if (state.solved) return;
-
-        // 1. Get the target answer
-        // Numbers mode: state.rawData (e.g., 15)
-        // Context/Gender: state.currentPL (e.g., "mam 5 lat")
-        
-        let isCorrect = false;
-
-        // Clean up punctuation from spoken text (remove dots/commas)
-        let cleanSpoken = spoken.replace(/[.,]/g, '');
-
-        // LOGIC A: Check against the raw number (e.g. user said "piętnaście", Google returned "15")
-        if (state.mode === 'numbers' || state.mode === 'dictation' || state.mode === 'prices') {
-             // Check if the spoken text implies the number
-             if (cleanSpoken == state.rawData) isCorrect = true;
-             
-             // Also check the Polish word version (currentPL)
-             if (cleanSpoken === state.currentPL.toLowerCase()) isCorrect = true;
-        } 
-        
-        // LOGIC B: Context/Gender modes (Phrase matching)
-        else {
-            // This is harder. We check if the spoken text *contains* the key number word or matches the sentence.
-            // Strict match:
-            if (cleanSpoken === state.currentPL.toLowerCase()) isCorrect = true;
-            
-            // Loose match (if they said the number correctly but missed a word)
-            // Ideally, for context, we want strict matching.
-        }
-
-        if (isCorrect) {
-            win(document.getElementById('mic-btn')); // Pass mic btn for visual feedback
-        } else {
-            // Visual feedback that it was heard but wrong
-            let micBtn = document.getElementById('mic-btn');
-            micBtn.classList.add('wrong');
-            setTimeout(() => micBtn.classList.remove('wrong'), 500);
-            
-            // Optional: Show what was heard to help the user
-            let originalText = document.getElementById('mode-label').innerText;
-            document.getElementById('mode-label').innerText = `Heard: "${spoken}"`;
-            setTimeout(() => document.getElementById('mode-label').innerText = originalText, 2000);
-        }
-    }
+    function updateUI() { const rankData = { current: "Nowicjusz" }; for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; } document.getElementById('rank-display').innerText = rankData.current; document.getElementById('xp-display').innerText = state.xp; document.getElementById('streak-display').innerText = state.streak; }
 </script>
+
 <script>
     // --- LINGUISTIC DATA ---
     const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
