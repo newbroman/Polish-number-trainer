@@ -47,6 +47,9 @@
 
 <div class="footer">
     <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
+    
+    <button class="btn-action" id="mic-btn" style="background:#ea4335; font-size:1.5rem;" onclick="toggleMic()">🎙️</button>
+    
     <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
@@ -216,9 +219,20 @@
     let audioKeepAliveTimer = null;
     let speakerTaps = 0;
     let speakerTapTimer = null;
+    
+    // --- AUDIO GLOBALS (Firefox Fixes) ---
+    let currentUtterance = null;
+    let availableVoices = [];
 
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
+        
+        // 1. Force Voice Loading immediately
+        loadVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
         document.addEventListener('keydown', (e) => {
             if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
             if (document.getElementById('input-style').value === 'type' || state.mode === 'translator' || state.mode === 'dictation') {
@@ -232,10 +246,20 @@
             }
         });
         updateUI(); updateRange(); 
+        
+        // Heartbeat to keep audio engine awake
         audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
         document.body.addEventListener('click', initAudio, { once: true });
+        
         switchMode('numbers'); 
-        window.speechSynthesis.cancel();
+        // Do not call cancel on init, just to be safe
+    }
+
+    // Helper to load voices reliably
+    function loadVoices() {
+        availableVoices = window.speechSynthesis.getVoices();
+        // Log to console for debugging if needed
+        console.log("Voices loaded:", availableVoices.length);
     }
 
     function generate() {
@@ -419,7 +443,7 @@
             state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
             state.currentPL = timeToPl(val.h, val.m, style === 'formal');
         } else if (state.mode === 'dates') {
-            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty druga", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
             let includeYear = document.getElementById('year-toggle').checked;
             let includeDay = document.getElementById('day-toggle').checked;
             let enStr = ""; let plStr = "";
@@ -723,7 +747,40 @@
 
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function keepAudioAwake() { if (!audioCtx) initAudio(); if (audioCtx.state === 'running') { const buffer = audioCtx.createBuffer(1, 1, 22050); const source = audioCtx.createBufferSource(); source.buffer = buffer; source.connect(audioCtx.destination); source.start(0); } }
-    function speak(rate) { if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; window.speechSynthesis.cancel(); let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; let u = new SpeechSynthesisUtterance(" " + txt); u.lang = 'pl-PL'; u.rate = rate; window.speechSynthesis.speak(u); }
+    
+    // --- UPDATED FIREFOX-ROBUST SPEAK FUNCTION ---
+    function speak(rate) {
+        if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
+        
+        // 1. Force Cancel any existing speech
+        window.speechSynthesis.cancel();
+
+        // 2. Use Timeout to prevent Firefox from eating the new utterance
+        setTimeout(() => {
+            let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
+            
+            // Re-use global to prevent Garbage Collection
+            currentUtterance = new SpeechSynthesisUtterance(txt);
+            currentUtterance.lang = 'pl-PL'; 
+            currentUtterance.rate = rate;
+            
+            // 3. Force-Find a Voice
+            if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+            
+            const plVoice = availableVoices.find(v => v.lang.includes('pl'));
+            if (plVoice) {
+                currentUtterance.voice = plVoice;
+            } else {
+                console.warn("No Polish voice found. Using default.");
+            }
+
+            // Cleanup
+            currentUtterance.onend = function() { currentUtterance = null; };
+            
+            window.speechSynthesis.speak(currentUtterance);
+        }, 10); // 10ms delay is enough for Firefox to reset
+    }
+
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); if(d.style.display==='flex') { d.style.display='none'; } else { d.style.display='flex'; const c = document.getElementById('stats-container'); c.innerHTML = ''; for (const [key, val] of Object.entries(categoryStats)) { if(val === 0) continue; let max = Math.max(300, val * 1.5); let pct = Math.min(100, (val / max) * 100); c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`; } } }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
@@ -742,7 +799,7 @@
     function runTranslator() {
         let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return;
         let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt;
-        window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u);
+        window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10);
     }
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
     function updateUI() {
@@ -754,6 +811,106 @@
     }
     function getPlural(n, s, pa, pb) { n = Math.abs(n); if (n === 1) return s; let r10 = n % 10, r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; return pb; }
     function numToPl(n) { if (isNaN(n)) return "..."; if (n === 0) return "zero"; if (n < 0) return "minus " + numToPl(Math.abs(n)); let s = ""; if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; } if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; } if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; } if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; } if (n >= 10) { s += TEENS[n-10] + " "; n = 0; } if (n > 0) s += UNITS[n]; return s.trim(); }
+// --- SPEECH RECOGNITION SETUP ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+
+    // Initialize if supported
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'pl-PL';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            isListening = true;
+            document.getElementById('mic-btn').style.background = "#34a853"; // Green when listening
+            document.getElementById('mic-btn').classList.add('active'); // Pulse effect
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            document.getElementById('mic-btn').style.background = "#ea4335"; // Red when stopped
+            document.getElementById('mic-btn').classList.remove('active');
+        };
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript.toLowerCase().trim();
+            console.log("Heard:", spokenText); // For debugging
+            checkVoiceAnswer(spokenText);
+        };
+        
+        recognition.onerror = function(event) {
+            console.error("Speech Error:", event.error);
+            isListening = false;
+            document.getElementById('mic-btn').style.background = "#ea4335";
+            if(event.error === 'not-allowed') alert("Microphone permission denied.");
+        };
+    } else {
+        // Hide button if not supported (Firefox)
+        setTimeout(() => {
+            let mb = document.getElementById('mic-btn');
+            if(mb) mb.style.display = 'none';
+        }, 500);
+    }
+
+    function toggleMic() {
+        if (!recognition) { alert("Voice input not supported in this browser (Try Chrome/Safari)."); return; }
+        if (isListening) recognition.stop();
+        else {
+            // Ensure audio context is ready (sometimes helps on mobile)
+            initAudio(); 
+            recognition.start();
+        }
+    }
+
+    function checkVoiceAnswer(spoken) {
+        if (state.solved) return;
+
+        // 1. Get the target answer
+        // Numbers mode: state.rawData (e.g., 15)
+        // Context/Gender: state.currentPL (e.g., "mam 5 lat")
+        
+        let isCorrect = false;
+
+        // Clean up punctuation from spoken text (remove dots/commas)
+        let cleanSpoken = spoken.replace(/[.,]/g, '');
+
+        // LOGIC A: Check against the raw number (e.g. user said "piętnaście", Google returned "15")
+        if (state.mode === 'numbers' || state.mode === 'dictation' || state.mode === 'prices') {
+             // Check if the spoken text implies the number
+             if (cleanSpoken == state.rawData) isCorrect = true;
+             
+             // Also check the Polish word version (currentPL)
+             if (cleanSpoken === state.currentPL.toLowerCase()) isCorrect = true;
+        } 
+        
+        // LOGIC B: Context/Gender modes (Phrase matching)
+        else {
+            // This is harder. We check if the spoken text *contains* the key number word or matches the sentence.
+            // Strict match:
+            if (cleanSpoken === state.currentPL.toLowerCase()) isCorrect = true;
+            
+            // Loose match (if they said the number correctly but missed a word)
+            // Ideally, for context, we want strict matching.
+        }
+
+        if (isCorrect) {
+            win(document.getElementById('mic-btn')); // Pass mic btn for visual feedback
+        } else {
+            // Visual feedback that it was heard but wrong
+            let micBtn = document.getElementById('mic-btn');
+            micBtn.classList.add('wrong');
+            setTimeout(() => micBtn.classList.remove('wrong'), 500);
+            
+            // Optional: Show what was heard to help the user
+            let originalText = document.getElementById('mode-label').innerText;
+            document.getElementById('mode-label').innerText = `Heard: "${spoken}"`;
+            setTimeout(() => document.getElementById('mode-label').innerText = originalText, 2000);
+        }
+    }
 </script>
 <script>
     // --- LINGUISTIC DATA ---
@@ -914,7 +1071,7 @@
         .footer { 
             position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 15px; 
             border-top: 1px solid var(--border); display: grid; gap: 12px; z-index: 100; height: 85px; 
-            grid-template-columns: 1fr 1fr 2fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
+            grid-template-columns: 1fr 1fr 1fr 2fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
         }
         .btn-action { 
             border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; 
