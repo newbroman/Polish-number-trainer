@@ -786,7 +786,7 @@
     }
 
     // --- WIN/LOSE LOGIC (With Time Penalty) ---
-    function win(btn) {
+function win(btn) {
         playSound('correct'); 
         state.solved = true;
         
@@ -845,7 +845,12 @@
         mainBtn.innerText = "NEXT >>"; 
         mainBtn.classList.add('ready');
         
-        if(!state.handsfree) autoNextTimer = setTimeout(generate, 3000);
+        // NEW: Speak the answer (with a slight delay to let the 'Ding' finish)
+        if (!state.handsfree) {
+            setTimeout(() => speak(1.0), 400);
+            autoNextTimer = setTimeout(generate, 3000); // 3 seconds before next
+        }
+        
         updateUI();
     }
 
