@@ -795,21 +795,40 @@ function win(btn) {
         
         // 2. Base Score
         let score = 10; 
+        
+        // --- COMPLEXITY BONUSES ---
+        // Check if rawData is a direct number (Numbers, Prices, Dictation)
+        if (typeof state.rawData === 'number') {
+            let val = state.rawData;
+            
+            // Decimal Bonus (+3 XP)
+            if (!Number.isInteger(val)) {
+                score += 3;
+            }
+            
+            // Magnitude Bonuses
+            if (val >= 1000) score += 2;      // Thousands
+            if (val >= 1000000) score += 3;   // Millions (Stacks with thousands for +5 total)
+        }
+        
+        // Mode Bonus
         if (state.mode === 'context') score += 5;
 
-        // 3. Audio Penalty
+        // 3. Calculate Penalties
         let audioPenalty = state.audioClicks * 2;
-        
-        // 4. Time Penalty: >10s = -2pts, >20s = -4pts
         let timePenalty = 0;
+        
+        // Time: >10s = -2pts, >20s = -4pts
         if (timeTaken > 20) timePenalty = 4;
         else if (timeTaken > 10) timePenalty = 2;
         
         let totalPenalty = audioPenalty + timePenalty;
+        
+        // Ensure score doesn't drop below 1
         if (score - totalPenalty < 1) totalPenalty = score - 1; 
         score -= totalPenalty;
         
-        // 5. Track "Weak Phrases"
+        // 4. Track "Weak Phrases" (Slow Correct Answers)
         if (timeTaken > 15) {
              let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" };
              mistakes.push(struggleEntry);
@@ -817,19 +836,23 @@ function win(btn) {
              localStorage.setItem('mistakes', JSON.stringify(mistakes));
         }
 
-        // 6. Update Stats
-        state.xp += score; state.streak++; categoryStats[state.mode] += score; saveAllStats();
+        // 5. Update Stats
+        state.xp += score; 
+        state.streak++; 
+        categoryStats[state.mode] += score; 
+        saveAllStats();
 
-        // 7. Visual Feedback
+        // 6. Visual Feedback (Show Score)
         document.getElementById('badge-score').innerText = `+${score}`; 
         document.getElementById('badge-score').style.display = 'block';
 
         if(btn) btn.classList.add('correct'); 
         else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
-        // Reveal Logic
+        // 7. Reveal Answer
         if (state.mode === 'context') {
-            document.getElementById('en-text').innerText = state.currentEN; document.getElementById('pl-text').innerHTML = state.speechText; 
+            document.getElementById('en-text').innerText = state.currentEN; 
+            document.getElementById('pl-text').innerHTML = state.speechText; 
         } else if (state.mode === 'dictation' || state.mode === 'speech') {
             document.getElementById('pl-text').innerText = state.currentPL; 
             document.getElementById('pl-text').classList.add('visible');
@@ -845,15 +868,14 @@ function win(btn) {
         mainBtn.innerText = "NEXT >>"; 
         mainBtn.classList.add('ready');
         
-        // NEW: Speak the answer (with a slight delay to let the 'Ding' finish)
+        // 8. Speak Answer (Reinforcement)
         if (!state.handsfree) {
-            setTimeout(() => speak(1.0), 400);
-            autoNextTimer = setTimeout(generate, 3000); // 3 seconds before next
+            setTimeout(() => speak(1.0), 400); // 400ms delay so it doesn't overlap "Ding"
+            autoNextTimer = setTimeout(generate, 3000);
         }
         
         updateUI();
     }
-
     function lose(btn) {
         playSound('wrong'); state.streak = 0; state.wrongGuesses++;
         
