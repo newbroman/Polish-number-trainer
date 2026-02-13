@@ -6,8 +6,790 @@
     <title>Polski Trener Liczb</title>
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
+</head>
+<body onload="init()">
 
-    <style>
+<div class="brand-header">
+    <div class="brand-title">Polski Trener Liczb</div>
+</div>
+
+<div class="status-bar">
+    <div class="stats-group">
+        <div class="stat-item" title="XP">⭐ <span id="xp-display">0</span></div>
+        <div class="stat-item" title="Streak">🔥 <span id="streak-display">0</span></div>
+        <div class="stat-item" title="Rank">🏆 <span id="rank-display">Nowicjusz</span></div>
+    </div>
+    <div class="stats-group">
+        <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
+        <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
+    </div>
+</div>
+
+<div class="game-area">
+    <div id="display-box" class="display-box">
+        <div id="mode-label" class="mode-label">Numbers</div>
+        <div id="badge-review" class="badge badge-review">Review</div>
+        <div id="badge-score" class="badge badge-score">+10</div>
+        <div id="badge-blind" class="badge badge-blind">🙈 Audio Only</div>
+        <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
+        
+        <div id="pl-text" class="pl-text">---</div>
+        <div id="en-text" class="en-text">---</div>
+    </div>
+
+    <div id="mc-area" class="mc-grid cols-2"></div>
+    
+    <div id="type-area" class="type-container">
+        <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
+        <button class="btn-check" id="action-btn" onclick="checkTyped()">CHECK ANSWER</button>
+    </div>
+</div>
+
+<div class="footer">
+    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
+    <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
+    <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
+</div>
+
+<div id="settings-modal" class="modal">
+    <div class="modal-box">
+        <button class="close-x" onclick="toggleSettings()">×</button>
+        <h2 style="margin-top:0">Settings</h2>
+
+        <div class="set-group">
+            <div class="set-title">Game Mode</div>
+            <div class="mode-grid">
+                <button class="mode-btn active" onclick="selectMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
+                <button class="mode-btn" onclick="selectMode('context')" id="nav-context"><span>💬</span> Context</button>
+                <button class="mode-btn" onclick="selectMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
+                <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
+                <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
+                <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="selectMode('dictation')" id="nav-dictation"><span>🎙️</span> Dictation</button>
+                <button class="mode-btn" onclick="selectMode('translator')" id="nav-translator" style="background:#1a73e8; color:white; border-color:#1a73e8"><span>🗣️</span> Translate</button>
+            </div>
+        </div>
+        
+        <div class="set-group" id="set-gameplay">
+            <div class="set-title">Gameplay</div>
+            <div class="set-row">
+                <span>Blind Mode (Audio Only)</span>
+                <input type="checkbox" id="blind-toggle">
+            </div>
+             <div class="set-row">
+                <span>Theme</span>
+                <select id="theme-select" onchange="applyTheme()">
+                    <option value="auto">Auto</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+            <div class="set-row" id="input-row">
+                <span>Input Style</span>
+                <select id="input-style" onchange="applySettings()">
+                    <option value="4">4 Buttons</option>
+                    <option value="8" selected>8 Buttons</option>
+                    <option value="12">12 Buttons</option>
+                    <option value="type">Typing</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="set-group" id="set-range">
+            <div class="set-title">Range Options</div>
+            <div class="set-row">
+                <span>Min: <span id="lbl-min">1</span></span>
+                <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
+            </div>
+            <div class="set-row">
+                <span>Max: <span id="lbl-max">100</span></span>
+                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
+            </div>
+            <div class="set-row" id="decimal-row">
+                <span>Decimals</span>
+                <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()">
+            </div>
+            <div class="set-row" id="decimal-opts" style="display:none">
+                <span>Precision</span>
+                <input type="range" id="decimal-places" min="1" max="3" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value">
+                <span id="lbl-dp" style="font-weight:bold; margin-left:10px">2</span>
+            </div>
+        </div>
+
+        <div class="set-group" id="set-prices" style="display:none">
+            <div class="set-title">Price Options</div>
+            <div class="set-row">
+                <span>Include Grosze</span>
+                <input type="checkbox" id="grosze-toggle" checked>
+            </div>
+        </div>
+
+        <div class="set-group" id="set-dates" style="display:none">
+            <div class="set-title">Date Options</div>
+            <div class="set-row">
+                <span>Include Year</span>
+                <input type="checkbox" id="year-toggle" checked>
+            </div>
+            <div class="set-row">
+                <span>Include Day of Week</span>
+                <input type="checkbox" id="day-toggle">
+            </div>
+        </div>
+
+        <div class="set-group" id="set-time" style="display:none">
+            <div class="set-title">Time Options</div>
+            <div class="set-row">
+                <span>Style</span>
+                <select id="time-style-sel">
+                    <option value="casual" selected>Casual</option>
+                    <option value="formal">Formal</option>
+                </select>
+            </div>
+        </div>
+        
+        <button class="btn-check" onclick="saveAndGenerate()">Save & Restart</button>
+    </div>
+</div>
+
+<div id="help-modal" class="modal">
+    <div class="modal-box">
+        <button class="close-x" onclick="toggleHelp()">×</button>
+        <h2 style="margin-top:0">Help & Rules</h2>
+        
+        <div class="help-sec">
+            <div class="help-h">🔊 Audio Controls</div>
+            <p class="help-p">Tap the speaker icon to hear the number.</p>
+            <p class="help-p"><b>1 Tap:</b> Normal Speed (1.0x)</p>
+            <p class="help-p"><b>2 Taps:</b> Slow Speed (0.5x)</p>
+            <p class="help-p"><b>3 Taps:</b> Very Slow Speed (0.25x)</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">🚗 Handsfree Mode</div>
+            <p class="help-p">Toggle the car icon to start a continuous loop. Great for driving or washing dishes.</p>
+            <p class="help-p" style="font-size:0.85rem; background:var(--bg); border:1px solid var(--border); padding:8px; border-radius:8px;">
+                <b>Loop Sequence:</b><br>
+                1. Polish (Normal)<br>
+                2. English Translation<br>
+                3. Polish (Slow)<br>
+                4. Polish (Normal)<br>
+                5. ...Next Number (after 3s)
+            </p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">🏆 Scoring System</div>
+            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct Answer</p>
+            <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Context Mode Bonus</p>
+            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect Guess</p>
+            <p class="help-p"><span class="point-tag pt-red">-2 XP</span> <b>Per Audio Replay</b></p>
+            <p style="font-size:0.8rem; color:#5f6368; margin-top:6px; line-height:1.4;">
+                <i>*Using the repeat button reduces points for that question. This helps the app track which categories you find difficult.</i>
+            </p>
+        </div>
+        
+        <div class="help-sec">
+             <div class="help-h">Game Modes</div>
+             <p class="help-p"><b>🎙️ Dictation:</b> Listen to the Polish number and type the digits (e.g., hear "sto", type 100).</p>
+             <p class="help-p"><b>💬 Context:</b> Polish sentences with numbers.</p>
+        </div>
+
+        <div class="help-sec">
+            <div class="help-h">📊 Your Progress</div>
+            <div id="stats-container"></div>
+            <button class="btn-check" style="background:#d93025; margin-top:15px; font-size:0.9rem; padding:10px" onclick="resetProgress()">Reset All Progress</button>
+        </div>
+    </div>
+</div>
+<script>
+    // --- APP LOGIC ---
+    let state = { 
+        mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
+        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
+        genderTarget: null, currentContextKey: null,
+        handsfree: false
+    };
+    let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
+    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0}');
+    let autoNextTimer = null;
+    let audioCtx = null;
+    let audioKeepAliveTimer = null;
+    let speakerTaps = 0;
+    let speakerTapTimer = null;
+
+    function init() {
+        state.xp = parseInt(localStorage.getItem('xp') || 0);
+        document.addEventListener('keydown', (e) => {
+            if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
+            if (document.getElementById('input-style').value === 'type' || state.mode === 'translator' || state.mode === 'dictation') {
+                if (e.key === 'Enter') checkTyped();
+            } else {
+                if (!isNaN(parseInt(e.key)) && e.key !== '0') {
+                    const idx = parseInt(e.key) - 1;
+                    const buttons = document.querySelectorAll('.mc-btn');
+                    if (buttons[idx]) buttons[idx].click();
+                }
+            }
+        });
+        updateUI(); updateRange(); 
+        audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
+        document.body.addEventListener('click', initAudio, { once: true });
+        switchMode('numbers'); 
+        window.speechSynthesis.cancel();
+    }
+
+    function generate() {
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
+        
+        if (state.mode === 'translator') {
+            document.getElementById('pl-text').innerText = "Type a number...";
+            document.getElementById('display-box').classList.add('trans-active');
+            document.getElementById('type-input').value = "";
+            document.getElementById('type-input').focus();
+            document.getElementById('main-btn').style.display = 'none'; 
+            document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
+            return;
+        } else {
+            document.getElementById('display-box').classList.remove('trans-active');
+            document.getElementById('main-btn').style.display = 'flex';
+            document.getElementById('action-btn').innerText = "CHECK ANSWER";
+        }
+
+        const plBox = document.getElementById('pl-text');
+        const enBox = document.getElementById('en-text');
+        plBox.classList.remove('visible'); enBox.classList.remove('visible');
+        plBox.innerHTML = '---'; enBox.innerText = '???';
+        
+        const isBlind = document.getElementById('blind-toggle').checked;
+        
+        if(isBlind || state.mode === 'dictation') {
+            enBox.classList.add('blind-active');
+            document.getElementById('badge-blind').style.display = 'block';
+        } else {
+            enBox.classList.remove('blind-active');
+            document.getElementById('badge-blind').style.display = 'none';
+        }
+
+        document.getElementById('badge-review').style.display = 'none';
+        document.getElementById('badge-score').style.display = 'none';
+        
+        const mainBtn = document.getElementById('main-btn');
+        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
+        
+        document.getElementById('type-input').value = "";
+        document.getElementById('type-input').style.borderColor = "var(--border)";
+        if(state.mode === 'dictation') document.getElementById('type-input').focus();
+
+        const min = Math.pow(10, document.getElementById('minP').value);
+        const max = Math.pow(10, document.getElementById('maxP').value);
+        
+        let newVal, safety=0;
+        do {
+            newVal = generateRawValue(min, max);
+            safety++;
+        } while (isRepeated(newVal) && safety < 15);
+
+        addToHistory(newVal);
+        processValue(newVal);
+
+        if (state.mode === 'context') plBox.innerHTML = state.currentPL; 
+        else plBox.innerText = state.currentPL;
+        
+        if (!isBlind && state.mode !== 'dictation') {
+            if (state.mode === 'gender') {
+                enBox.innerText = state.currentEN;
+                enBox.classList.add('visible');
+            } else if (state.mode === 'context') {
+                enBox.innerText = "???"; 
+                enBox.classList.remove('visible');
+            } else {
+                enBox.innerText = state.currentEN;
+            }
+        }
+        
+        applySettings();
+        state.startTime = Date.now();
+        
+        if (state.handsfree) playHandsfreeSequence();
+        else setTimeout(() => { speak(1.0); }, 250);
+    }
+
+    function generateRawValue(min, max) {
+        if (state.mode === 'numbers' || state.mode === 'context' || state.mode === 'dictation') {
+            if (state.mode === 'context') {
+                const keys = Object.keys(GRAMMAR);
+                const k = keys[Math.floor(Math.random() * keys.length)];
+                state.currentContextKey = k;
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                return { val: n, key: k };
+            }
+            if (state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+                let places = parseInt(document.getElementById('decimal-places').value);
+                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
+            }
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        } 
+        else if (state.mode === 'prices') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+            return n + (gr/100);
+        } 
+        else if (state.mode === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            return {h, m};
+        } 
+        else if (state.mode === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let mIdx = Math.floor(Math.random() * 12);
+            let y = Math.floor(Math.random()*25)+2000;
+            let dow = Math.floor(Math.random()*7);
+            return {d, m:mIdx, y, dow};
+        }
+        else if (state.mode === 'gender') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
+            let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
+            return { num: n, noun };
+        }
+    }
+
+    function processValue(val) {
+        state.rawData = val;
+        
+        if (state.mode === 'gender') {
+            let n = val.num;
+            let nounObj = val.noun;
+            let numStr = "";
+            let nounStr = "";
+
+            if (n === 1) {
+                if (nounObj.form === 'm') numStr = 'jeden';
+                else if (nounObj.form === 'f') numStr = 'jedna';
+                else numStr = 'jedno';
+                nounStr = nounObj.word;
+            } else if (n === 2) {
+                if (nounObj.form === 'f') numStr = 'dwie';
+                else numStr = 'dwa';
+                nounStr = nounObj.pl;
+            } else {
+                numStr = numToPl(n);
+                let r10 = n % 10;
+                let r100 = n % 100;
+                if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl;
+                else nounStr = nounObj.gen;
+            }
+            state.currentEN = `${n} ${nounObj.en}`; 
+            state.currentPL = `${numStr} ${nounStr}`;
+            state.genderTarget = numStr; 
+            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`;
+            return;
+        }
+
+        if (state.mode === 'context') {
+            let g = GRAMMAR[val.key];
+            let n = val.val;
+            let word = getPlural(n, g.s, g.p, g.g);
+            let numTxt = numToPl(n);
+            let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
+            state.currentEN = g.enPhrase.replace('[N]', n);
+            let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
+            state.currentPL = visualPhrase; 
+            state.speechText = fullPhrase; 
+            return;
+        }
+
+        if (state.mode === 'numbers' || state.mode === 'dictation') {
+            if(state.mode === 'numbers' && document.getElementById('decimal-toggle').checked) {
+                let s = val.toString(); if(!s.includes('.')) s += ".0";
+                let parts = s.split('.');
+                state.currentEN = s.replace('.', ',');
+                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+            } else {
+                state.currentEN = val.toLocaleString();
+                state.currentPL = numToPl(val);
+            }
+        } else if (state.mode === 'prices') {
+            let n = Math.floor(val); let gr = Math.round((val % 1) * 100);
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
+        } else if (state.mode === 'time') {
+            let style = document.getElementById('time-style-sel').value;
+            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
+            state.currentPL = timeToPl(val.h, val.m, style === 'formal');
+        } else if (state.mode === 'dates') {
+            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
+            let includeYear = document.getElementById('year-toggle').checked;
+            let includeDay = document.getElementById('day-toggle').checked;
+            let enStr = ""; let plStr = "";
+            if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
+            enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`;
+            if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
+            state.currentEN = enStr; state.currentPL = plStr;
+        }
+    }
+
+    function timeToPl(h, m, formal) {
+        if (formal) {
+            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
+            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
+            return `${hStr} ${mStr}`.trim();
+        } else {
+            let dispH = h % 12;
+            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
+            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
+            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)];
+            if (m === 30) return `wpół do ${hNext}`;
+            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
+            return `za ${numToPl(60-m)} ${hNext}`;
+        }
+    }
+
+    function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
+    function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
+    function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
+
+    function applySettings() {
+        if (state.mode === 'translator') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+            document.getElementById('type-input').setAttribute('type', 'number'); 
+            return;
+        }
+        
+        let style = document.getElementById('input-style').value;
+        if (style === 'type' || state.mode === 'dictation') {
+            document.getElementById('mc-area').style.display = 'none';
+            document.getElementById('type-area').style.display = 'flex';
+            document.getElementById('type-input').setAttribute('type', 'number');
+            document.getElementById('type-input').focus();
+        } else {
+            state.btnCount = parseInt(style);
+            document.getElementById('mc-area').style.display = 'grid';
+            document.getElementById('type-area').style.display = 'none';
+            let grid = document.getElementById('mc-area');
+            grid.className = 'mc-grid'; 
+            if (state.btnCount === 12) grid.classList.add('cols-3'); else grid.classList.add('cols-2');
+            generateGrid();
+        }
+    }
+
+    function generateGrid() {
+        const container = document.getElementById('mc-area');
+        container.innerHTML = '';
+        let opts = [];
+        
+        if (state.mode === 'gender') {
+            let noun = state.rawData.noun;
+            let correct = state.currentPL;
+            opts = [correct];
+            
+            if (state.rawData.num === 1) {
+                ['jeden', 'jedna', 'jedno'].forEach(f => {
+                    let phrase = `${f} ${noun.word}`;
+                    if (phrase !== correct) opts.push(phrase);
+                });
+            } else if (state.rawData.num === 2) {
+                ['dwa', 'dwie'].forEach(f => {
+                    let phrase = `${f} ${noun.pl}`;
+                    if (phrase !== correct) opts.push(phrase);
+                });
+            } else {
+                 const min = Math.pow(10, document.getElementById('minP').value);
+                 const max = Math.pow(10, document.getElementById('maxP').value);
+                 let safety = 0;
+                 while(opts.length < state.btnCount && safety < 100) {
+                     let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
+                     let dNum = numToPl(decoy);
+                     let dNoun = noun.gen;
+                     let r10 = decoy % 10, r100 = decoy % 100;
+                     if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) dNoun = noun.pl;
+                     if (decoy === 1) dNoun = noun.word;
+                     let phrase = `${dNum} ${dNoun}`;
+                     if(!opts.includes(phrase)) opts.push(phrase);
+                     safety++;
+                 }
+            }
+            while (opts.length < state.btnCount) opts.push(`zły ${noun.word} ${opts.length}`); 
+            opts = opts.slice(0, state.btnCount); 
+            opts.sort(() => Math.random() - 0.5);
+            
+        } else if (state.mode === 'context') {
+            let g = GRAMMAR[state.currentContextKey];
+            let n = state.rawData.val;
+            let correct = state.speechText; 
+            opts = [correct];
+            
+            const min = Math.pow(10, document.getElementById('minP').value);
+            const max = Math.pow(10, document.getElementById('maxP').value);
+            let safety = 0;
+            
+            while(opts.length < state.btnCount && safety < 100) {
+                let decoyN = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (decoyN !== n) {
+                     let word = getPlural(decoyN, g.s, g.p, g.g);
+                     let numTxt = numToPl(decoyN);
+                     let decoyPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
+                     if (!opts.includes(decoyPhrase)) opts.push(decoyPhrase);
+                }
+                safety++;
+            }
+            opts.sort(() => Math.random() - 0.5);
+        } else {
+            opts = [state.currentEN];
+            const min = Math.pow(10, document.getElementById('minP').value);
+            const max = Math.pow(10, document.getElementById('maxP').value);
+            let safety = 0;
+            while(opts.length < state.btnCount && safety < 100) {
+                let decoy = makeDecoy(min, max);
+                if(!opts.includes(decoy)) opts.push(decoy);
+                safety++;
+            }
+            opts.sort(() => Math.random() - 0.5);
+        }
+
+        opts.forEach((val, index) => {
+            let b = document.createElement('button');
+            b.className = 'mc-btn'; 
+            if (state.mode !== 'gender' && state.mode !== 'context') {
+                let hint = document.createElement('span');
+                hint.className = 'mc-key-hint'; hint.innerText = index + 1;
+                b.appendChild(hint);
+            }
+            b.appendChild(document.createTextNode(val));
+            b.onclick = () => check(val, b);
+            container.appendChild(b);
+        });
+    }
+
+    function makeDecoy(min, max) {
+        if (state.mode === 'prices') return (Math.floor(Math.random()*(max-min))+min) + ",00 zł";
+        if (state.mode === 'dates') {
+             let d = Math.floor(Math.random()*30)+1, m=Math.floor(Math.random()*12), y=Math.floor(Math.random()*25)+2000;
+             let includeYear = document.getElementById('year-toggle').checked;
+             let includeDay = document.getElementById('day-toggle').checked;
+             let s = "";
+             if(includeDay) s += DAYS_EN[Math.floor(Math.random()*7)] + ", ";
+             s += `${d} ${MONTHS_EN[m]}`;
+             if(includeYear) s += ` ${y}`;
+             return s;
+        }
+        if (state.mode === 'time') {
+            let h=Math.floor(Math.random()*24), m=Math.floor(Math.random()*12)*5;
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+        }
+        let n = Math.floor(Math.random() * (max - min + 1)) + min;
+        return n.toLocaleString();
+    }
+
+    function check(val, btn) {
+        if (state.solved) return;
+        let isCorrect = false;
+        if (state.mode === 'gender' || state.mode === 'context') {
+             if (val === state.speechText || val === state.currentPL) isCorrect = true;
+        } else {
+             if (val == state.currentEN) isCorrect = true;
+        }
+        if (isCorrect) win(btn); else lose(btn);
+    }
+
+    function checkTyped() {
+        if (state.mode === 'translator') { runTranslator(); return; }
+        if (state.solved) return;
+        let val = document.getElementById('type-input').value.trim().toLowerCase();
+        let correct = (state.mode === 'dictation') ? state.rawData.toString() : state.currentEN.toString().toLowerCase();
+
+        if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null);
+        else lose(null);
+    }
+
+    function win(btn) {
+        playSound('correct');
+        state.solved = true;
+        let score = 10; if (state.mode === 'context') score += 5;
+        let penalty = state.audioClicks * 2;
+        if (score - penalty < 2) penalty = score - 2; 
+        score -= penalty;
+
+        state.xp += score; state.streak++;
+        categoryStats[state.mode] += score;
+        saveAllStats();
+
+        document.getElementById('badge-score').innerText = `+${score}`;
+        document.getElementById('badge-score').style.display = 'block';
+
+        if(btn) btn.classList.add('correct');
+        else document.getElementById('type-input').style.borderColor = "var(--secondary)";
+        
+        if (state.mode === 'context') {
+            document.getElementById('en-text').innerText = state.currentEN;
+            document.getElementById('pl-text').innerHTML = state.speechText; 
+        } else if (state.mode === 'dictation') {
+            document.getElementById('pl-text').innerText = state.currentPL; 
+            document.getElementById('en-text').innerText = state.currentEN;
+        } else {
+             document.getElementById('pl-text').classList.add('visible');
+        }
+        
+        document.getElementById('en-text').classList.add('visible');
+        document.getElementById('en-text').classList.remove('blind-active');
+        
+        const mainBtn = document.getElementById('main-btn');
+        mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
+        
+        if(!state.handsfree) autoNextTimer = setTimeout(generate, 3000);
+        updateUI();
+    }
+
+    function lose(btn) {
+        playSound('wrong');
+        state.streak = 0; state.wrongGuesses++;
+        if(btn) btn.classList.add('wrong');
+        else document.getElementById('type-input').style.borderColor = "#d93025";
+        
+        document.getElementById('en-text').classList.remove('blind-active');
+        document.getElementById('en-text').classList.add('visible');
+        if (state.mode === 'context') {
+             document.getElementById('en-text').innerText = state.currentEN;
+             document.getElementById('pl-text').innerHTML = state.speechText;
+        } else if (state.mode === 'dictation') {
+             document.getElementById('pl-text').innerText = state.currentPL;
+             document.getElementById('en-text').innerText = state.currentEN;
+        }
+        document.getElementById('pl-text').classList.add('visible');
+        if (!state.handsfree) speak(0.8);
+        updateUI();
+    }
+    
+    function toggleHandsfree() {
+        state.handsfree = !state.handsfree;
+        let btn = document.getElementById('hf-btn');
+        if (state.handsfree) {
+            btn.classList.add('active');
+            document.getElementById('badge-handsfree').style.display = 'block';
+            initAudio(); generate(); 
+        } else {
+            btn.classList.remove('active');
+            document.getElementById('badge-handsfree').style.display = 'none';
+            window.speechSynthesis.cancel();
+            if (autoNextTimer) clearTimeout(autoNextTimer);
+        }
+    }
+
+    function playHandsfreeSequence() {
+        if (!state.handsfree) return;
+        window.speechSynthesis.cancel();
+        let plText = (state.mode === 'context') ? state.speechText : state.currentPL;
+        let enText = state.currentEN;
+        let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0;
+        let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0;
+        let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5;
+        let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0;
+        u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); };
+        window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4);
+    }
+    
+    function handleSpeakerClick() {
+        speakerTaps++;
+        if (speakerTapTimer) clearTimeout(speakerTapTimer);
+        speakerTapTimer = setTimeout(() => {
+            let rate = 1.0; if (speakerTaps === 2) rate = 0.5; if (speakerTaps >= 3) rate = 0.25;
+            speak(rate); speakerTaps = 0;
+        }, 300); 
+    }
+
+    function selectMode(m) { toggleSettings(); switchMode(m); }
+    function switchMode(m) {
+        state.mode = m; state.history = []; state.handsfree = false;
+        document.getElementById('hf-btn').classList.remove('active');
+        document.getElementById('badge-handsfree').style.display = 'none';
+        
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('nav-'+m).classList.add('active');
+        let label = m;
+        if(m==='context') label='Sentences'; if(m==='translator') label='Translator'; if(m==='dictation') label='Dictation';
+        document.getElementById('mode-label').innerText = label;
+        
+        ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
+        if (m==='numbers' || m==='context' || m==='gender' || m==='dictation') document.getElementById('set-range').style.display='block';
+        if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
+        if (m==='time') document.getElementById('set-time').style.display='block';
+        if (m==='dates') document.getElementById('set-dates').style.display='block';
+        
+        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation') ? 'none' : 'flex';
+        generate();
+    }
+
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    function keepAudioAwake() { if (!audioCtx) initAudio(); if (audioCtx.state === 'running') { const buffer = audioCtx.createBuffer(1, 1, 22050); const source = audioCtx.createBufferSource(); source.buffer = buffer; source.connect(audioCtx.destination); source.start(0); } }
+    function speak(rate) { if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; window.speechSynthesis.cancel(); let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; let u = new SpeechSynthesisUtterance(" " + txt); u.lang = 'pl-PL'; u.rate = rate; window.speechSynthesis.speak(u); }
+    function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
+    function toggleHelp() { let d=document.getElementById('help-modal'); if(d.style.display==='flex') { d.style.display='none'; } else { d.style.display='flex'; const c = document.getElementById('stats-container'); c.innerHTML = ''; for (const [key, val] of Object.entries(categoryStats)) { if(val === 0) continue; let max = Math.max(300, val * 1.5); let pct = Math.min(100, (val / max) * 100); c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`; } } }
+    function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
+    function updateRange() { let min=document.getElementById('minP').value, max=document.getElementById('maxP').value; if(parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; } document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString(); document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString(); }
+    function saveAndGenerate() { toggleSettings(); generate(); }
+    function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
+    function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
+    
+    function playSound(type) {
+        initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } 
+        else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); }
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    }
+    
+    function runTranslator() {
+        let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return;
+        let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt;
+        window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u);
+    }
+    function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
+    function updateUI() {
+        const rankData = { current: "Nowicjusz" }; 
+        for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; }
+        document.getElementById('rank-display').innerText = rankData.current;
+        document.getElementById('xp-display').innerText = state.xp;
+        document.getElementById('streak-display').innerText = state.streak;
+    }
+    function getPlural(n, s, pa, pb) { n = Math.abs(n); if (n === 1) return s; let r10 = n % 10, r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; return pb; }
+    function numToPl(n) { if (isNaN(n)) return "..."; if (n === 0) return "zero"; if (n < 0) return "minus " + numToPl(Math.abs(n)); let s = ""; if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; } if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; } if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; } if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; } if (n >= 10) { s += TEENS[n-10] + " "; n = 0; } if (n > 0) s += UNITS[n]; return s.trim(); }
+</script>
+<script>
+    // --- LINGUISTIC DATA ---
+    const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+    const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+    const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
+    const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const DAYS_PL = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+    const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
+    const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
+    
+    // Noun Grammar
+    const GRAMMAR = {
+        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]', enPhrase: 'I am [N] years old' }, 
+        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]', enPhrase: 'It costs [N] PLN' }, 
+        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]', enPhrase: 'I see [N] people' }, 
+        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]', enPhrase: '[N] days left' } 
+    };
+
+    const GENDER_NOUNS = [
+        { word: 'pies', form: 'm', pl: 'psy', gen: 'psów', en: 'dogs' }, 
+        { word: 'kot', form: 'm', pl: 'koty', gen: 'kotów', en: 'cats' },
+        { word: 'kura', form: 'f', pl: 'kury', gen: 'kur', en: 'hens' }, 
+        { word: 'kobieta', form: 'f', pl: 'kobiety', gen: 'kobiet', en: 'women' },
+        { word: 'okno', form: 'n', pl: 'okna', gen: 'okien', en: 'windows' }, 
+        { word: 'dziecko', form: 'n', pl: 'dzieci', gen: 'dzieci', en: 'children' },
+        { word: 'dom', form: 'm', pl: 'domy', gen: 'domów', en: 'houses' },
+        { word: 'książka', form: 'f', pl: 'książki', gen: 'książek', en: 'books' }
+    ];
+
+    const RANKS = [ { name: "Nowicjusz", limit: 0 }, { name: "Uczeń", limit: 500 }, { name: "Średni", limit: 1500 }, { name: "Zaawansowany", limit: 3000 }, { name: "Mistrz", limit: 10000 } ];
+</script>
+<style>
         /* Theme Variables */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; }
         @media (prefers-color-scheme: dark) {
@@ -188,849 +970,5 @@
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
-</head>
-<body onload="init()">
-
-<div class="brand-header">
-    <div class="brand-title">Polski Trener Liczb</div>
-</div>
-
-<div class="status-bar">
-    <div class="stats-group">
-        <div class="stat-item" title="XP">⭐ <span id="xp-display">0</span></div>
-        <div class="stat-item" title="Streak">🔥 <span id="streak-display">0</span></div>
-        <div class="stat-item" title="Rank">🏆 <span id="rank-display">Nowicjusz</span></div>
-    </div>
-    <div class="stats-group">
-        <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
-        <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
-    </div>
-</div>
-
-<div class="game-area">
-    <div id="display-box" class="display-box">
-        <div id="mode-label" class="mode-label">Numbers</div>
-        <div id="badge-review" class="badge badge-review">Review</div>
-        <div id="badge-score" class="badge badge-score">+10</div>
-        <div id="badge-blind" class="badge badge-blind">🙈 Audio Only</div>
-        <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
-        
-        <div id="pl-text" class="pl-text">---</div>
-        <div id="en-text" class="en-text">---</div>
-    </div>
-
-    <div id="mc-area" class="mc-grid cols-2"></div>
-    
-    <div id="type-area" class="type-container">
-        <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
-        <button class="btn-check" id="action-btn" onclick="checkTyped()">CHECK ANSWER</button>
-    </div>
-</div>
-
-<div class="footer">
-    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
-    <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
-    <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
-</div>
-
-<div id="settings-modal" class="modal">
-    <div class="modal-box">
-        <button class="close-x" onclick="toggleSettings()">×</button>
-        <h2 style="margin-top:0">Settings</h2>
-
-        <div class="set-group">
-            <div class="set-title">Game Mode</div>
-            <div class="mode-grid">
-                <button class="mode-btn active" onclick="selectMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
-                <button class="mode-btn" onclick="selectMode('context')" id="nav-context"><span>💬</span> Context</button>
-                <button class="mode-btn" onclick="selectMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
-                <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
-                <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
-                <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
-                <button class="mode-btn" onclick="selectMode('translator')" id="nav-translator" style="background:#1a73e8; color:white; border-color:#1a73e8"><span>🗣️</span> Translate</button>
-            </div>
-        </div>
-        
-        <div class="set-group" id="set-gameplay">
-            <div class="set-title">Gameplay</div>
-            <div class="set-row">
-                <span>Blind Mode (Audio Only)</span>
-                <input type="checkbox" id="blind-toggle">
-            </div>
-             <div class="set-row">
-                <span>Theme</span>
-                <select id="theme-select" onchange="applyTheme()">
-                    <option value="auto">Auto</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-            </div>
-            <div class="set-row" id="input-row">
-                <span>Input Style</span>
-                <select id="input-style" onchange="applySettings()">
-                    <option value="4">4 Buttons</option>
-                    <option value="8" selected>8 Buttons</option>
-                    <option value="12">12 Buttons</option>
-                    <option value="type">Typing</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="set-group" id="set-range">
-            <div class="set-title">Range Options</div>
-            <div class="set-row">
-                <span>Min: <span id="lbl-min">1</span></span>
-                <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
-            </div>
-            <div class="set-row">
-                <span>Max: <span id="lbl-max">100</span></span>
-                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
-            </div>
-            <div class="set-row" id="decimal-row">
-                <span>Decimals</span>
-                <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()">
-            </div>
-            <div class="set-row" id="decimal-opts" style="display:none">
-                <span>Precision</span>
-                <input type="range" id="decimal-places" min="1" max="3" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value">
-                <span id="lbl-dp" style="font-weight:bold; margin-left:10px">2</span>
-            </div>
-        </div>
-
-        <div class="set-group" id="set-prices" style="display:none">
-            <div class="set-title">Price Options</div>
-            <div class="set-row">
-                <span>Include Grosze</span>
-                <input type="checkbox" id="grosze-toggle" checked>
-            </div>
-        </div>
-
-        <div class="set-group" id="set-dates" style="display:none">
-            <div class="set-title">Date Options</div>
-            <div class="set-row">
-                <span>Include Year</span>
-                <input type="checkbox" id="year-toggle" checked>
-            </div>
-            <div class="set-row">
-                <span>Include Day of Week</span>
-                <input type="checkbox" id="day-toggle">
-            </div>
-        </div>
-
-        <div class="set-group" id="set-time" style="display:none">
-            <div class="set-title">Time Options</div>
-            <div class="set-row">
-                <span>Style</span>
-                <select id="time-style-sel">
-                    <option value="casual" selected>Casual</option>
-                    <option value="formal">Formal</option>
-                </select>
-            </div>
-        </div>
-        
-        <button class="btn-check" onclick="saveAndGenerate()">Save & Restart</button>
-    </div>
-</div>
-
-<div id="help-modal" class="modal">
-    <div class="modal-box">
-        <button class="close-x" onclick="toggleHelp()">×</button>
-        <h2 style="margin-top:0">Help & Stats</h2>
-        
-        <div class="help-sec">
-            <div class="help-h">Audio Controls (Tap the Speaker 🔊)</div>
-            <p class="help-p"><b>1 Tap:</b> Normal Speed</p>
-            <p class="help-p"><b>2 Taps:</b> Slow Speed (0.5x)</p>
-            <p class="help-p"><b>3 Taps:</b> Very Slow Speed (0.25x)</p>
-        </div>
-
-        <div class="help-sec">
-            <div class="help-h">Handsfree Mode 🚗</div>
-            <p class="help-p">Loop: Polish (Normal) → English → Polish (Slow) → Polish (Normal). Good for driving!</p>
-        </div>
-
-        <div class="help-sec">
-            <div class="help-h">Game Modes</div>
-            <p class="help-p"><b>123 Numbers:</b> Basic integer practice.</p>
-            <p class="help-p"><b>💬 Context:</b> Numbers in sentences.</p>
-            <p class="help-p"><b>$$ Prices:</b> Polish currency format.</p>
-            <p class="help-p"><b>🕒 Time:</b> Telling time.</p>
-            <p class="help-p"><b>📅 Dates:</b> Day, Month, Year.</p>
-            <p class="help-p"><b>🚻 Gender:</b> Match forms (e.g. dwa psy vs dwie kury).</p>
-        </div>
-
-        <div class="help-sec">
-            <div class="help-h">Scoring</div>
-            <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Correct</p>
-            <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Incorrect</p>
-        </div>
-        
-        <div class="help-sec">
-            <div class="help-h">Statistics</div>
-            <div id="stats-container"></div>
-            <button class="btn-check" style="background:#d93025; margin-top:15px; font-size:0.9rem; padding:10px" onclick="resetProgress()">Reset All Progress</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- LINGUISTIC DATA ---
-    const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
-    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
-    const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
-    const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
-    const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const DAYS_PL = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
-    const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
-    const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
-    
-    // Noun Grammar
-    const GRAMMAR = {
-        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]', enPhrase: 'I am [N] years old' }, 
-        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]', enPhrase: 'It costs [N] PLN' }, 
-        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]', enPhrase: 'I see [N] people' }, 
-        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]', enPhrase: '[N] days left' } 
-    };
-
-    const GENDER_NOUNS = [
-        { word: 'pies', form: 'm', pl: 'psy', gen: 'psów', en: 'dogs' }, 
-        { word: 'kot', form: 'm', pl: 'koty', gen: 'kotów', en: 'cats' },
-        { word: 'kura', form: 'f', pl: 'kury', gen: 'kur', en: 'hens' }, 
-        { word: 'kobieta', form: 'f', pl: 'kobiety', gen: 'kobiet', en: 'women' },
-        { word: 'okno', form: 'n', pl: 'okna', gen: 'okien', en: 'windows' }, 
-        { word: 'dziecko', form: 'n', pl: 'dzieci', gen: 'dzieci', en: 'children' },
-        { word: 'dom', form: 'm', pl: 'domy', gen: 'domów', en: 'houses' },
-        { word: 'książka', form: 'f', pl: 'książki', gen: 'książek', en: 'books' }
-    ];
-
-    // Updated Polish Ranks
-    const RANKS = [ { name: "Nowicjusz", limit: 0 }, { name: "Uczeń", limit: 500 }, { name: "Średni", limit: 1500 }, { name: "Zaawansowany", limit: 3000 }, { name: "Mistrz", limit: 10000 } ];
-
-    let state = { 
-        mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
-        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
-        genderTarget: null, currentContextKey: null,
-        handsfree: false
-    };
-    let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
-    let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0}');
-    let autoNextTimer = null;
-    let audioCtx = null;
-    let audioKeepAliveTimer = null;
-    let speakerTaps = 0;
-    let speakerTapTimer = null;
-
-    function init() {
-        state.xp = parseInt(localStorage.getItem('xp') || 0);
-        document.addEventListener('keydown', (e) => {
-            if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
-            if (document.getElementById('input-style').value === 'type' || state.mode === 'translator') {
-                if (e.key === 'Enter') checkTyped();
-            } else {
-                if (!isNaN(parseInt(e.key)) && e.key !== '0') {
-                    const idx = parseInt(e.key) - 1;
-                    const buttons = document.querySelectorAll('.mc-btn');
-                    if (buttons[idx]) buttons[idx].click();
-                }
-            }
-        });
-        updateUI(); updateRange(); 
-        audioKeepAliveTimer = setInterval(keepAudioAwake, 8000);
-        document.body.addEventListener('click', initAudio, { once: true });
-        switchMode('numbers'); 
-        window.speechSynthesis.cancel();
-    }
-
-    // --- LOGIC ---
-    function getPlural(n, s, pa, pb) {
-        n = Math.abs(n);
-        if (n === 1) return s;
-        let r10 = n % 10, r100 = n % 100;
-        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa;
-        return pb;
-    }
-
-    function numToPl(n) {
-        if (isNaN(n)) return "...";
-        if (n === 0) return "zero";
-        if (n < 0) return "minus " + numToPl(Math.abs(n));
-        let s = "";
-        if (n >= 1000000) { let m = Math.floor(n/1000000); s += (m===1?"":numToPl(m)+" ") + getPlural(m,"milion","miliony","milionów") + " "; n %= 1000000; }
-        if (n >= 1000) { let t = Math.floor(n/1000); s += (t===1?"tysiąc":numToPl(t)+" "+getPlural(t,"tysiąc","tysiące","tysięcy")) + " "; n %= 1000; }
-        if (n >= 100) { s += HUNDREDS[Math.floor(n/100)] + " "; n %= 100; }
-        if (n >= 20) { s += TENS[Math.floor(n/10)] + " "; n %= 10; }
-        if (n >= 10) { s += TEENS[n-10] + " "; n = 0; }
-        if (n > 0) s += UNITS[n];
-        return s.trim();
-    }
-
-    function generate() {
-        if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
-        
-        if (state.mode === 'translator') {
-            document.getElementById('pl-text').innerText = "Type a number...";
-            document.getElementById('display-box').classList.add('trans-active');
-            document.getElementById('type-input').value = "";
-            document.getElementById('type-input').focus();
-            document.getElementById('main-btn').style.display = 'none'; 
-            document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
-            return;
-        } else {
-            document.getElementById('display-box').classList.remove('trans-active');
-            document.getElementById('main-btn').style.display = 'flex';
-            document.getElementById('action-btn').innerText = "CHECK ANSWER";
-        }
-
-        const plBox = document.getElementById('pl-text');
-        const enBox = document.getElementById('en-text');
-        plBox.classList.remove('visible'); enBox.classList.remove('visible');
-        plBox.innerHTML = '---'; enBox.innerText = '???';
-        
-        const isBlind = document.getElementById('blind-toggle').checked;
-        if(isBlind) {
-            enBox.classList.add('blind-active');
-            document.getElementById('badge-blind').style.display = 'block';
-        } else {
-            enBox.classList.remove('blind-active');
-            document.getElementById('badge-blind').style.display = 'none';
-        }
-
-        document.getElementById('badge-review').style.display = 'none';
-        document.getElementById('badge-score').style.display = 'none';
-        
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
-        
-        document.getElementById('type-input').value = "";
-        document.getElementById('type-input').style.borderColor = "var(--border)";
-
-        const min = Math.pow(10, document.getElementById('minP').value);
-        const max = Math.pow(10, document.getElementById('maxP').value);
-        
-        let newVal, safety=0;
-        do {
-            newVal = generateRawValue(min, max);
-            safety++;
-        } while (isRepeated(newVal) && safety < 15);
-
-        addToHistory(newVal);
-        processValue(newVal);
-
-        if (state.mode === 'context') plBox.innerHTML = state.currentPL; 
-        else plBox.innerText = state.currentPL;
-        
-        if (!isBlind) {
-            if (state.mode === 'gender') {
-                enBox.innerText = state.currentEN;
-                enBox.classList.add('visible');
-            } else if (state.mode === 'context') {
-                enBox.innerText = "???"; 
-                enBox.classList.remove('visible');
-            } else {
-                enBox.innerText = state.currentEN;
-            }
-        }
-        
-        applySettings();
-        state.startTime = Date.now();
-        
-        if (state.handsfree) playHandsfreeSequence();
-        else setTimeout(() => { speak(1.0); }, 250);
-    }
-
-    function generateRawValue(min, max) {
-        if (state.mode === 'numbers' || state.mode === 'context') {
-            if (state.mode === 'context') {
-                const keys = Object.keys(GRAMMAR);
-                const k = keys[Math.floor(Math.random() * keys.length)];
-                state.currentContextKey = k;
-                let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                return { val: n, key: k };
-            }
-            if (document.getElementById('decimal-toggle').checked) {
-                let places = parseInt(document.getElementById('decimal-places').value);
-                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
-            }
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        } 
-        else if (state.mode === 'prices') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
-            return n + (gr/100);
-        } 
-        else if (state.mode === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            return {h, m};
-        } 
-        else if (state.mode === 'dates') {
-            let d = Math.floor(Math.random() * 30) + 1;
-            let mIdx = Math.floor(Math.random() * 12);
-            let y = Math.floor(Math.random()*25)+2000;
-            let dow = Math.floor(Math.random()*7);
-            return {d, m:mIdx, y, dow};
-        }
-        else if (state.mode === 'gender') {
-            let n = Math.floor(Math.random() * (max - min + 1)) + min;
-            if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
-            let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
-            return { num: n, noun };
-        }
-    }
-
-    function processValue(val) {
-        state.rawData = val;
-        
-        if (state.mode === 'gender') {
-            let n = val.num;
-            let nounObj = val.noun;
-            let numStr = "";
-            let nounStr = "";
-
-            if (n === 1) {
-                if (nounObj.form === 'm') numStr = 'jeden';
-                else if (nounObj.form === 'f') numStr = 'jedna';
-                else numStr = 'jedno';
-                nounStr = nounObj.word;
-            } else if (n === 2) {
-                if (nounObj.form === 'f') numStr = 'dwie';
-                else numStr = 'dwa';
-                nounStr = nounObj.pl;
-            } else {
-                numStr = numToPl(n);
-                let r10 = n % 10;
-                let r100 = n % 100;
-                if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl;
-                else nounStr = nounObj.gen;
-            }
-            state.currentEN = `${n} ${nounObj.en}`; 
-            state.currentPL = `${numStr} ${nounStr}`;
-            state.genderTarget = numStr; 
-            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`;
-            return;
-        }
-
-        if (state.mode === 'context') {
-            let g = GRAMMAR[val.key];
-            let n = val.val;
-            let word = getPlural(n, g.s, g.p, g.g);
-            let numTxt = numToPl(n);
-            let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
-            state.currentEN = g.enPhrase.replace('[N]', n);
-            let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
-            state.currentPL = visualPhrase; 
-            state.speechText = fullPhrase; 
-            return;
-        }
-
-        if (state.mode === 'numbers') {
-            if(document.getElementById('decimal-toggle').checked) {
-                let s = val.toString(); if(!s.includes('.')) s += ".0";
-                let parts = s.split('.');
-                state.currentEN = s.replace('.', ',');
-                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
-            } else {
-                state.currentEN = val.toLocaleString();
-                state.currentPL = numToPl(val);
-            }
-        } else if (state.mode === 'prices') {
-            let n = Math.floor(val); let gr = Math.round((val % 1) * 100);
-            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (state.mode === 'time') {
-            let style = document.getElementById('time-style-sel').value;
-            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
-            state.currentPL = timeToPl(val.h, val.m, style === 'formal');
-        } else if (state.mode === 'dates') {
-            let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            let includeYear = document.getElementById('year-toggle').checked;
-            let includeDay = document.getElementById('day-toggle').checked;
-            let enStr = ""; let plStr = "";
-            if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
-            enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`;
-            if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
-            state.currentEN = enStr; state.currentPL = plStr;
-        }
-    }
-
-    function timeToPl(h, m, formal) {
-        if (formal) {
-            let hStr = (h===0) ? "zero zero" : HOURS_ORD_FEM[h];
-            let mStr = (m===0) ? "" : (m<10 ? "zero "+UNITS[m] : numToPl(m));
-            return `${hStr} ${mStr}`.trim();
-        } else {
-            let dispH = h % 12;
-            let hNext = HOURS_ORD_GEN[(dispH===0?0:dispH) + 1]; 
-            if((dispH===0?0:dispH) + 1 >= HOURS_ORD_GEN.length) hNext = HOURS_ORD_GEN[1];
-            if (m === 0) return HOURS_ORD_FEM[(dispH===0?12:dispH)];
-            if (m === 30) return `wpół do ${hNext}`;
-            if (m < 30) return `${numToPl(m)} po ${HOURS_ORD_GEN[dispH===0?12:dispH]}`;
-            return `za ${numToPl(60-m)} ${hNext}`;
-        }
-    }
-
-    function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
-    function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
-    function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
-
-    function applySettings() {
-        if (state.mode === 'translator') {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').setAttribute('type', 'number'); 
-            return;
-        }
-        let style = document.getElementById('input-style').value;
-        if (style === 'type') {
-            document.getElementById('mc-area').style.display = 'none';
-            document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').setAttribute('type', 'text');
-            document.getElementById('type-input').focus();
-        } else {
-            state.btnCount = parseInt(style);
-            document.getElementById('mc-area').style.display = 'grid';
-            document.getElementById('type-area').style.display = 'none';
-            let grid = document.getElementById('mc-area');
-            grid.className = 'mc-grid'; 
-            if (state.btnCount === 12) grid.classList.add('cols-3'); else grid.classList.add('cols-2');
-            generateGrid();
-        }
-    }
-
-    function generateGrid() {
-        const container = document.getElementById('mc-area');
-        container.innerHTML = '';
-        let opts = [];
-        
-        if (state.mode === 'gender') {
-            let noun = state.rawData.noun;
-            let correct = state.currentPL;
-            opts = [correct];
-            
-            if (state.rawData.num === 1) {
-                ['jeden', 'jedna', 'jedno'].forEach(f => {
-                    let phrase = `${f} ${noun.word}`;
-                    if (phrase !== correct) opts.push(phrase);
-                });
-            } else if (state.rawData.num === 2) {
-                ['dwa', 'dwie'].forEach(f => {
-                    let phrase = `${f} ${noun.pl}`;
-                    if (phrase !== correct) opts.push(phrase);
-                });
-            } else {
-                 const min = Math.pow(10, document.getElementById('minP').value);
-                 const max = Math.pow(10, document.getElementById('maxP').value);
-                 let safety = 0;
-                 while(opts.length < state.btnCount && safety < 100) {
-                     let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
-                     let dNum = numToPl(decoy);
-                     let dNoun = noun.gen;
-                     let r10 = decoy % 10, r100 = decoy % 100;
-                     if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) dNoun = noun.pl;
-                     if (decoy === 1) dNoun = noun.word;
-                     let phrase = `${dNum} ${dNoun}`;
-                     if(!opts.includes(phrase)) opts.push(phrase);
-                     safety++;
-                 }
-            }
-            while (opts.length < state.btnCount) opts.push(`zły ${noun.word} ${opts.length}`); 
-            opts = opts.slice(0, state.btnCount); 
-            opts.sort(() => Math.random() - 0.5);
-            
-        } else if (state.mode === 'context') {
-            // CONTEXT TILES ARE NOW IN POLISH
-            let g = GRAMMAR[state.currentContextKey];
-            let n = state.rawData.val;
-            
-            // Correct Answer (Full Polish Phrase)
-            let correct = state.speechText; 
-            opts = [correct];
-            
-            const min = Math.pow(10, document.getElementById('minP').value);
-            const max = Math.pow(10, document.getElementById('maxP').value);
-            let safety = 0;
-            
-            while(opts.length < state.btnCount && safety < 100) {
-                let decoyN = Math.floor(Math.random() * (max - min + 1)) + min;
-                if (decoyN !== n) {
-                     let word = getPlural(decoyN, g.s, g.p, g.g);
-                     let numTxt = numToPl(decoyN);
-                     let decoyPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
-                     if (!opts.includes(decoyPhrase)) opts.push(decoyPhrase);
-                }
-                safety++;
-            }
-            opts.sort(() => Math.random() - 0.5);
-        } else {
-            opts = [state.currentEN];
-            const min = Math.pow(10, document.getElementById('minP').value);
-            const max = Math.pow(10, document.getElementById('maxP').value);
-            let safety = 0;
-            while(opts.length < state.btnCount && safety < 100) {
-                let decoy = makeDecoy(min, max);
-                if(!opts.includes(decoy)) opts.push(decoy);
-                safety++;
-            }
-            opts.sort(() => Math.random() - 0.5);
-        }
-
-        opts.forEach((val, index) => {
-            let b = document.createElement('button');
-            b.className = 'mc-btn'; 
-            if (state.mode !== 'gender' && state.mode !== 'context') {
-                let hint = document.createElement('span');
-                hint.className = 'mc-key-hint'; hint.innerText = index + 1;
-                b.appendChild(hint);
-            }
-            b.appendChild(document.createTextNode(val));
-            b.onclick = () => check(val, b);
-            container.appendChild(b);
-        });
-    }
-
-    function makeDecoy(min, max) {
-        if (state.mode === 'prices') return (Math.floor(Math.random()*(max-min))+min) + ",00 zł";
-        if (state.mode === 'dates') {
-             let d = Math.floor(Math.random()*30)+1, m=Math.floor(Math.random()*12), y=Math.floor(Math.random()*25)+2000;
-             let includeYear = document.getElementById('year-toggle').checked;
-             let includeDay = document.getElementById('day-toggle').checked;
-             let s = "";
-             if(includeDay) s += DAYS_EN[Math.floor(Math.random()*7)] + ", ";
-             s += `${d} ${MONTHS_EN[m]}`;
-             if(includeYear) s += ` ${y}`;
-             return s;
-        }
-        if (state.mode === 'time') {
-            let h=Math.floor(Math.random()*24), m=Math.floor(Math.random()*12)*5;
-            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-        }
-        let n = Math.floor(Math.random() * (max - min + 1)) + min;
-        return n.toLocaleString();
-    }
-
-    function check(val, btn) {
-        if (state.solved) return;
-        let isCorrect = false;
-        if (state.mode === 'gender' || state.mode === 'context') {
-             if (val === state.speechText || val === state.currentPL) isCorrect = true;
-        } else {
-             if (val == state.currentEN) isCorrect = true;
-        }
-        if (isCorrect) win(btn); else lose(btn);
-    }
-
-    function checkTyped() {
-        if (state.mode === 'translator') { runTranslator(); return; }
-        if (state.solved) return;
-        let val = document.getElementById('type-input').value.trim().toLowerCase();
-        let correct = state.currentEN.toString().toLowerCase();
-        if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g, '')) win(null);
-        else lose(null);
-    }
-
-    function win(btn) {
-        playSound('correct');
-        state.solved = true;
-        let score = 10; if (state.mode === 'context') score += 5;
-        state.xp += score; state.streak++;
-        categoryStats[state.mode] += score;
-        saveAllStats();
-
-        document.getElementById('badge-score').innerText = `+${score}`;
-        document.getElementById('badge-score').style.display = 'block';
-
-        if(btn) btn.classList.add('correct');
-        else document.getElementById('type-input').style.borderColor = "var(--secondary)";
-        
-        if (state.mode === 'context') {
-            document.getElementById('en-text').innerText = state.currentEN;
-            document.getElementById('pl-text').innerHTML = state.speechText; 
-        } else {
-             document.getElementById('pl-text').classList.add('visible');
-        }
-        
-        document.getElementById('en-text').classList.add('visible');
-        document.getElementById('en-text').classList.remove('blind-active');
-        
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "NEXT >>"; mainBtn.classList.add('ready');
-        
-        if(!state.handsfree) autoNextTimer = setTimeout(generate, 3000);
-        updateUI();
-    }
-
-    function lose(btn) {
-        playSound('wrong');
-        state.streak = 0; state.wrongGuesses++;
-        
-        if(btn) btn.classList.add('wrong');
-        else document.getElementById('type-input').style.borderColor = "#d93025";
-        
-        document.getElementById('en-text').classList.remove('blind-active');
-        document.getElementById('en-text').classList.add('visible');
-        if (state.mode === 'context') {
-             document.getElementById('en-text').innerText = state.currentEN;
-             document.getElementById('pl-text').innerHTML = state.speechText;
-        }
-        document.getElementById('pl-text').classList.add('visible');
-        
-        if (!state.handsfree) speak(0.8);
-        updateUI();
-    }
-    
-    // --- HANDSFREE & AUDIO ---
-    function toggleHandsfree() {
-        state.handsfree = !state.handsfree;
-        let btn = document.getElementById('hf-btn');
-        if (state.handsfree) {
-            btn.classList.add('active');
-            document.getElementById('badge-handsfree').style.display = 'block';
-            initAudio(); generate(); 
-        } else {
-            btn.classList.remove('active');
-            document.getElementById('badge-handsfree').style.display = 'none';
-            window.speechSynthesis.cancel();
-            if (autoNextTimer) clearTimeout(autoNextTimer);
-        }
-    }
-
-    function playHandsfreeSequence() {
-        if (!state.handsfree) return;
-        window.speechSynthesis.cancel();
-        
-        let plText = (state.mode === 'context') ? state.speechText : state.currentPL;
-        let enText = state.currentEN;
-        
-        let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0;
-        let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0;
-        let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5;
-        let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0;
-
-        u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); };
-        window.speechSynthesis.speak(u1);
-        window.speechSynthesis.speak(u2);
-        window.speechSynthesis.speak(u3);
-        window.speechSynthesis.speak(u4);
-    }
-    
-    function handleSpeakerClick() {
-        speakerTaps++;
-        if (speakerTapTimer) clearTimeout(speakerTapTimer);
-        speakerTapTimer = setTimeout(() => {
-            let rate = 1.0;
-            if (speakerTaps === 2) rate = 0.5;
-            if (speakerTaps >= 3) rate = 0.25;
-            speak(rate);
-            speakerTaps = 0;
-        }, 300); 
-    }
-
-    // --- UTILS ---
-    function selectMode(m) { toggleSettings(); switchMode(m); }
-    function switchMode(m) {
-        state.mode = m; state.history = []; state.handsfree = false;
-        document.getElementById('hf-btn').classList.remove('active');
-        document.getElementById('badge-handsfree').style.display = 'none';
-        
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+m).classList.add('active');
-        document.getElementById('mode-label').innerText = m === 'context' ? "Sentences" : (m === 'translator' ? "Translator" : m);
-        
-        ['range','prices','time','dates'].forEach(id => document.getElementById('set-'+id).style.display='none');
-        if (m==='numbers' || m==='context' || m==='gender') document.getElementById('set-range').style.display='block';
-        if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
-        if (m==='time') document.getElementById('set-time').style.display='block';
-        if (m==='dates') document.getElementById('set-dates').style.display='block';
-        
-        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context') ? 'none' : 'flex';
-        generate();
-    }
-
-    function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-    function keepAudioAwake() {
-        if (!audioCtx) initAudio();
-        if (audioCtx.state === 'running') {
-            const buffer = audioCtx.createBuffer(1, 1, 22050);
-            const source = audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-        }
-    }
-    function speak(rate) {
-        if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
-        window.speechSynthesis.cancel();
-        let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
-        let u = new SpeechSynthesisUtterance(" " + txt);
-        u.lang = 'pl-PL'; u.rate = rate;
-        window.speechSynthesis.speak(u);
-    }
-    
-    function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
-    function toggleHelp() { 
-        let d=document.getElementById('help-modal'); 
-        if(d.style.display==='flex') { d.style.display='none'; }
-        else {
-            d.style.display='flex';
-            const c = document.getElementById('stats-container');
-            c.innerHTML = '';
-            for (const [key, val] of Object.entries(categoryStats)) {
-                if(val === 0) continue;
-                let max = Math.max(300, val * 1.5); 
-                let pct = Math.min(100, (val / max) * 100);
-                c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${key.toUpperCase()}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--secondary);width:${pct}%;height:100%"></div></div></div>`;
-            }
-        }
-    }
-    function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
-    function updateRange() { 
-        let min=document.getElementById('minP').value, max=document.getElementById('maxP').value;
-        if(parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; }
-        document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString(); document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString(); 
-    }
-    function saveAndGenerate() { toggleSettings(); generate(); }
-    function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
-    function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
-    
-    function playSound(type) {
-        initAudio();
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        if (type === 'correct') {
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-        } else {
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-        }
-        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-    }
-    
-    function runTranslator() {
-        let n=parseInt(document.getElementById('type-input').value); 
-        if(isNaN(n)) return;
-        let txt=numToPl(n); 
-        state.currentPL = txt; 
-        document.getElementById('pl-text').innerText = txt;
-        window.speechSynthesis.cancel(); 
-        let u=new SpeechSynthesisUtterance(" "+txt); 
-        u.lang='pl-PL'; 
-        window.speechSynthesis.speak(u);
-    }
-    function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
-    function updateUI() {
-        const rankData = { current: "Nowicjusz" }; 
-        for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; }
-        document.getElementById('rank-display').innerText = rankData.current;
-        document.getElementById('xp-display').innerText = state.xp;
-        document.getElementById('streak-display').innerText = state.streak;
-    }
-</script>
 </body>
 </html>
