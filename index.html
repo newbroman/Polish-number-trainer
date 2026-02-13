@@ -34,7 +34,7 @@
         <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
         
         <div id="voice-feedback" style="font-size:0.9rem; color:var(--error); font-weight:bold; min-height:1.2em; margin-bottom:5px;"></div>
-
+<button class="btn-action btn-listen"
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
@@ -52,7 +52,11 @@
 </div>
 
 <div class="footer">
-    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">🔊</button>
+    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()">
+        <span style="font-size:1.4rem">🔊</span>
+        <span style="font-size:0.6rem; font-weight:normal; opacity:0.9; margin-top:-2px;">Tap x2 Slow</span>
+    </button>
+    
     <button class="btn-action" id="mic-btn" style="background:#ea4335; font-size:1.5rem;" onclick="toggleMic()">🎙️</button>
     <button class="btn-action btn-hf" id="hf-btn" onclick="toggleHandsfree()">🚗</button>
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
@@ -906,7 +910,37 @@ function win(btn) {
     // --- UTILITIES & SYSTEM FUNCTIONS ---
     function toggleHandsfree() { state.handsfree = !state.handsfree; let btn = document.getElementById('hf-btn'); if (state.handsfree) { btn.classList.add('active'); document.getElementById('badge-handsfree').style.display = 'block'; initAudio(); generate(); } else { btn.classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; window.speechSynthesis.cancel(); if (autoNextTimer) clearTimeout(autoNextTimer); } }
     function playHandsfreeSequence() { if (!state.handsfree) return; window.speechSynthesis.cancel(); let plText = (state.mode === 'context') ? state.speechText : state.currentPL; let enText = state.currentEN; let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); }; window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4); }
-    function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; if (speakerTaps === 2) rate = 0.5; if (speakerTaps >= 3) rate = 0.25; speak(rate); speakerTaps = 0; }, 300); }
+    function handleSpeakerClick() {
+        speakerTaps++;
+        if (speakerTapTimer) clearTimeout(speakerTapTimer);
+        
+        speakerTapTimer = setTimeout(() => {
+            let rate = 1.0;
+            let msg = "";
+            
+            if (speakerTaps === 1) {
+                 rate = 1.0; 
+            } else if (speakerTaps === 2) {
+                 rate = 0.5;
+                 msg = "🐢 Slow Speed (0.5x)";
+            } else {
+                 rate = 0.25; 
+                 msg = "🐢🐢 Super Slow (0.25x)";
+            }
+            
+            // Show visual confirmation
+            if (msg) {
+                let fb = document.getElementById('voice-feedback');
+                fb.innerText = msg;
+                fb.style.color = "var(--primary)";
+                // Clear message after 1.5 seconds
+                setTimeout(() => { if(fb.innerText === msg) fb.innerText = ""; }, 1500);
+            }
+            
+            speak(rate);
+            speakerTaps = 0;
+        }, 300); // 300ms wait to detect double taps
+    }
     function selectMode(m) { toggleSettings(); switchMode(m); }
     function switchMode(m) {
         state.mode = m; state.history = []; state.handsfree = false;
