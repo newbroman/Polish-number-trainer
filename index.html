@@ -113,6 +113,16 @@
                 </select>
             </div>
         </div>
+        <div class="set-group" style="border: 2px solid var(--secondary); background: rgba(52, 168, 83, 0.05);">
+            <div class="set-title" style="color:var(--secondary)">🚀 Campaign Mode</div>
+            <div class="set-row">
+                <span>Auto-Difficulty</span>
+                <input type="checkbox" id="campaign-toggle" onchange="toggleCampaign()">
+            </div>
+            <p style="font-size:0.8rem; margin:5px 0 0; color:#666;">
+                Automatically increases difficulty as your streak grows. (Disables manual range sliders).
+            </p>
+        </div>
 
         <div class="set-group" id="set-range">
             <div class="set-title">Range Options</div>
@@ -273,9 +283,57 @@
     </div>
 </div>
 <script>
-    // --- PART 2A: SETUP & DATA GENERATION ---
+    // --- PART 1: EXPANDED DATA DICTIONARY ---
+    const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+    const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+    const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewięćset"];
     
-    // Global State
+    const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const DAYS_PL = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+    const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta"];
+    const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej"];
+
+    const RANKS = [
+        { limit: 0, name: "Nowicjusz (Novice)" },
+        { limit: 500, name: "Uczeń (Apprentice)" },
+        { limit: 1500, name: "Czeladnik (Journeyman)" },
+        { limit: 3000, name: "Ekspert (Expert)" },
+        { limit: 5000, name: "Mistrz (Master)" }
+    ];
+
+    // --- EXPANDED NOUNS ---
+    const GENDER_NOUNS = [
+        { word: "stół", pl: "stoły", gen: "stołów", form: "m", en: "table" },
+        { word: "lampa", pl: "lampy", gen: "lamp", form: "f", en: "lamp" },
+        { word: "okno", pl: "okna", gen: "okien", form: "n", en: "window" },
+        { word: "telefon", pl: "telefony", gen: "telefonów", form: "m", en: "phone" },
+        { word: "książka", pl: "książki", gen: "książek", form: "f", en: "book" },
+        { word: "pies", pl: "psy", gen: "psów", form: "m", en: "dog" },
+        { word: "kot", pl: "koty", gen: "kotów", form: "m", en: "cat" },
+        { word: "piwo", pl: "piwa", gen: "piw", form: "n", en: "beer" },
+        { word: "samochód", pl: "samochody", gen: "samochodów", form: "m", en: "car" },
+        { word: "kobieta", pl: "kobiety", gen: "kobiet", form: "f", en: "woman" }
+    ];
+
+    // --- EXPANDED GRAMMAR CONTEXTS ---
+    const GRAMMAR = {
+        "years": { s: "rok", p: "lata", g: "lat", phrase: "[N] [W] temu", enPhrase: "[N] years ago" },
+        "cost": { s: "złoty", p: "złote", g: "złotych", phrase: "To kosztuje [N] [W]", enPhrase: "It costs [N] PLN" },
+        "hours": { s: "godzina", p: "godziny", g: "godzin", phrase: "Czekam [N] [W]", enPhrase: "I wait [N] hours" },
+        "people": { s: "osoba", p: "osoby", g: "osób", phrase: "Jest tu [N] [W]", enPhrase: "Here are [N] people" },
+        "weight": { s: "kilogram", p: "kilogramy", g: "kilogramów", phrase: "Ważę [N] [W]", enPhrase: "I weigh [N] kg" },
+        "distance": { s: "kilometr", p: "kilometry", g: "kilometrów", phrase: "Biegłem [N] [W]", enPhrase: "I ran [N] km" },
+        "age": { s: "rok", p: "lata", g: "lat", phrase: "Mam [N] [W]", enPhrase: "I am [N] years old" }
+    };
+
+    
+    // --- COMPLETE GAME LOGIC (MERGED) ---
+
+    // --- GLOBAL STATE ---
     let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
         startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
@@ -283,11 +341,11 @@
         handsfree: false
     };
     
-    // Persistent Data
+    // --- PERSISTENT DATA ---
     let mistakes = JSON.parse(localStorage.getItem('mistakes') || "[]");
     let categoryStats = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0}');
     
-    // Timers & Audio
+    // --- AUDIO & TIMERS ---
     let autoNextTimer = null;
     let audioCtx = null;
     let audioKeepAliveTimer = null;
@@ -296,6 +354,7 @@
     let currentUtterance = null;
     let availableVoices = [];
     
+    // --- SPEECH RECOGNITION ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let isListening = false;
@@ -304,20 +363,34 @@
     function init() {
         state.xp = parseInt(localStorage.getItem('xp') || 0);
         
+        // Setup Mic
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = false;
             recognition.lang = 'pl-PL';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-            recognition.onstart = function() { isListening = true; document.getElementById('mic-btn').style.background = "#34a853"; document.getElementById('voice-feedback').innerText = "Listening..."; };
-            recognition.onend = function() { isListening = false; document.getElementById('mic-btn').style.background = "#ea4335"; };
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('mic-btn').style.background = "#34a853";
+                document.getElementById('voice-feedback').innerText = "Listening...";
+            };
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('mic-btn').style.background = "#ea4335";
+            };
             recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
-        } else { document.getElementById('mic-btn').style.display='none'; }
+        } else {
+             document.getElementById('mic-btn').style.display='none';
+        }
 
+        // Setup Voices
         loadVoices();
-        if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoices;
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
 
+        // Input Listeners
         document.addEventListener('keydown', (e) => {
             if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
             if (document.getElementById('input-style').value === 'type' || state.mode === 'translator' || state.mode === 'dictation') {
@@ -331,24 +404,79 @@
             }
         });
         
-        updateUI(); updateRange(); 
+        // Audio Heartbeat
         audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
         document.body.addEventListener('click', initAudio, { once: true });
+        
+        // Load UI
+        updateUI(); 
+        updateRange(); 
         switchMode('numbers'); 
     }
 
-    function loadVoices() { availableVoices = window.speechSynthesis.getVoices(); }
+    function loadVoices() {
+        availableVoices = window.speechSynthesis.getVoices();
+    }
 
-    // --- MAIN GENERATOR ---
+    // --- MAIN GAME GENER    // --- NEW HELPER: TOGGLE CAMPAIGN VISUALS ---
+    function toggleCampaign() {
+        const isCamp = document.getElementById('campaign-toggle').checked;
+        const rangeDiv = document.getElementById('set-range');
+        
+        // Disable/Fade the manual sliders if Campaign is ON
+        if (isCamp) {
+            rangeDiv.style.opacity = '0.5';
+            rangeDiv.style.pointerEvents = 'none';
+        } else {
+            rangeDiv.style.opacity = '1';
+            rangeDiv.style.pointerEvents = 'auto';
+        }
+        saveAndGenerate();
+    }
+
+    // --- UPDATED GENERATOR WITH CAMPAIGN LOGIC ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; state.isReview = false; state.audioClicks = 0; state.wrongGuesses = 0;
+        state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
         document.getElementById('voice-feedback').innerText = ""; 
         
+        // 1. UI RESET
+        const plBox = document.getElementById('pl-text');
+        const enBox = document.getElementById('en-text');
+        plBox.classList.remove('visible'); 
+        enBox.classList.remove('visible');
+        plBox.innerHTML = '---'; 
+        enBox.innerText = '???';
+        
+        // 2. CHECK REVIEW MODE
+        if (state.isReview) {
+            if (mistakes.length === 0) { 
+                state.isReview = false; 
+                alert("Review Complete! Returning to normal mode."); 
+            } else {
+                document.getElementById('badge-review').style.display = 'block';
+                let m = mistakes[0]; 
+                state.currentPL = m.val; 
+                state.currentEN = m.en; 
+                state.mode = m.mode || 'numbers';
+                
+                plBox.innerText = state.currentPL; 
+                enBox.innerText = state.currentEN;
+                
+                applySettings(); 
+                state.startTime = Date.now();
+                if (!state.handsfree) setTimeout(() => { speak(1.0); }, 250);
+                return; 
+            }
+        }
+        document.getElementById('badge-review').style.display = 'none';
+        
+        // Handle Translator
         if (state.mode === 'translator') {
             document.getElementById('pl-text').innerText = "Type a number...";
             document.getElementById('display-box').classList.add('trans-active');
-            document.getElementById('type-input').value = ""; document.getElementById('type-input').focus();
+            document.getElementById('type-input').value = "";
+            document.getElementById('type-input').focus();
             document.getElementById('main-btn').style.display = 'none'; 
             document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
             return;
@@ -358,35 +486,37 @@
             document.getElementById('action-btn').innerText = "CHECK ANSWER";
         }
 
-        const plBox = document.getElementById('pl-text');
-        const enBox = document.getElementById('en-text');
-        
-        // RESET: Hide boxes (don't force style.visibility, just remove class)
-        plBox.classList.remove('visible'); 
-        enBox.classList.remove('visible');
-        plBox.innerHTML = '---'; 
-        enBox.innerText = '???';
-        
-        const isBlind = document.getElementById('blind-toggle').checked;
-        if (isBlind || state.mode === 'dictation') {
-            enBox.classList.add('blind-active'); document.getElementById('badge-blind').style.display = 'block';
-        } else {
-            enBox.classList.remove('blind-active'); document.getElementById('badge-blind').style.display = 'none';
-        }
-
-        document.getElementById('badge-review').style.display = 'none';
-        document.getElementById('badge-score').style.display = 'none';
-        
+        // Standard UI Setup
         const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
-        
+        mainBtn.innerText = "SKIP ➡️"; 
+        mainBtn.classList.remove('ready'); 
         document.getElementById('type-input').value = "";
         document.getElementById('type-input').style.borderColor = "var(--border)";
         if(state.mode === 'dictation') document.getElementById('type-input').focus();
+        
+        // --- CAMPAIGN MODE LOGIC ---
+        let min = 0, max = 0;
+        // Safe check in case the toggle isn't in HTML yet
+        const toggleEl = document.getElementById('campaign-toggle');
+        const isCampaign = toggleEl ? toggleEl.checked : false;
 
-        // Data Generation
-        const min = Math.pow(10, document.getElementById('minP').value);
-        const max = Math.pow(10, document.getElementById('maxP').value);
+        if (isCampaign) {
+            // Auto-scale based on Streak
+            if (state.streak < 5) { min = 1; max = 10; }
+            else if (state.streak < 15) { min = 1; max = 100; }
+            else if (state.streak < 30) { min = 1; max = 1000; }
+            else { min = 1; max = 100000; }
+            
+            // Visual feedback for Campaign Level
+            document.getElementById('lbl-min').innerText = min.toLocaleString();
+            document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Auto)";
+        } else {
+            // Manual Sliders
+            min = Math.pow(10, document.getElementById('minP').value);
+            max = Math.pow(10, document.getElementById('maxP').value);
+        }
+
+        // Generate
         let newVal, safety=0;
         let tempMode = state.mode;
         
@@ -400,73 +530,89 @@
             tempMode = opts[Math.floor(Math.random()*opts.length)];
         }
 
-        do { newVal = generateRawValue(min, max, tempMode); safety++; } while (isRepeated(newVal) && safety < 15);
+        do { 
+            newVal = generateRawValue(min, max, tempMode); 
+            safety++; 
+        } while (isRepeated(newVal) && safety < 15);
+        
         addToHistory(newVal);
         processValue(newVal, tempMode);
 
-        // --- CONTENT RENDERING ---
+        // Render (Hidden)
         if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
         else plBox.innerText = state.currentPL;
-        enBox.innerText = state.currentEN; // Set content, but wait for visibility
+        enBox.innerText = state.currentEN;
 
-        // --- VISIBILITY LOGIC (The Fix) ---
-        // For Standard Modes: We DO NOT add .visible yet.
-        
+        // Visibility Overrides
         if (state.mode === 'speech') {
-             enBox.classList.add('visible'); // Speech: Show prompt immediately
-             plBox.classList.remove('visible');
+             enBox.classList.add('visible'); 
         } 
-        else if (state.mode === 'context') {
-             enBox.innerText = "???"; // Prompt is Polish text
+        else if (state.mode === 'context') { 
+             enBox.innerText = "???"; 
              plBox.classList.add('visible'); 
         }
-        else if (state.mode === 'gender') {
-             enBox.classList.add('visible'); // Show digit
-             plBox.classList.add('visible'); // Show basic noun info
+        else if (state.mode === 'gender') { 
+             enBox.classList.add('visible'); 
+             plBox.classList.add('visible'); 
         }
         else if (state.mode === 'dictation') {
-             enBox.classList.add('visible');
-        }
-        else {
-             // STANDARD MODES (Numbers, Prices, Time)
-             // Check Toggle Setting: "digits" (Easy) or "words" (Hard)
-             let btnStyle = document.getElementById('btn-style-sel').value;
-             
-             if (!isBlind) {
-                 if (btnStyle === 'words') {
-                    // HARD MODE: Buttons are Polish Words.
-                    // We want the Box to show DIGITS, but you said "box blank until answer".
-                    // So we do NOTHING here. Content is set, but invisible.
-                 } else {
-                    // EASY MODE: Buttons are Digits.
-                    // We want the Box to show POLISH, but "box blank until answer".
-                    // So we do NOTHING here.
-                 }
-                 // If you change your mind and want the prompt visible:
-                 // if(btnStyle==='words') enBox.classList.add('visible'); else plBox.classList.add('visible');
-             }
+             enBox.classList.add('visible'); 
         }
         
+        // Blind Mode Badge
+        if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
+        else document.getElementById('badge-blind').style.display = 'none';
+
+        document.getElementById('badge-score').style.display = 'none';
+
         applySettings();
         state.startTime = Date.now();
         if (state.handsfree) playHandsfreeSequence();
         else if (state.mode !== 'speech') setTimeout(() => { speak(1.0); }, 250);
     }
-    
+
+    // --- DATA GENERATORS ---
     function generateRawValue(min, max, activeMode) {
         let m = activeMode || state.mode;
+        
         if (m === 'numbers' || m === 'context' || m === 'dictation') {
-            if (m === 'context') { const keys = Object.keys(GRAMMAR); const k = keys[Math.floor(Math.random() * keys.length)]; state.currentContextKey = k; let n = Math.floor(Math.random() * (max - min + 1)) + min; return { val: n, key: k }; }
-            if (m === 'numbers' && document.getElementById('decimal-toggle').checked) { let places = parseInt(document.getElementById('decimal-places').value); return parseFloat((Math.random() * (max - min) + min).toFixed(places)); }
+            if (m === 'context') {
+                const keys = Object.keys(GRAMMAR);
+                const k = keys[Math.floor(Math.random() * keys.length)];
+                state.currentContextKey = k;
+                let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                return { val: n, key: k };
+            }
+            if (m === 'numbers' && document.getElementById('decimal-toggle').checked) {
+                let places = parseInt(document.getElementById('decimal-places').value);
+                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
+            }
             return Math.floor(Math.random() * (max - min + 1)) + min;
         } 
-        else if (m === 'prices') { let n = Math.floor(Math.random() * (max - min + 1)) + min; let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0; return n + (gr/100); } 
-        else if (m === 'time') { let h = Math.floor(Math.random() * 24); let m = Math.floor(Math.random() * 12) * 5; return {h, m}; } 
-        else if (m === 'dates') { let d = Math.floor(Math.random() * 30) + 1; let mIdx = Math.floor(Math.random() * 12); let y = Math.floor(Math.random()*25)+2000; let dow = Math.floor(Math.random()*7); return {d, m:mIdx, y, dow}; }
-        else if (m === 'gender') { let n = Math.floor(Math.random() * (max - min + 1)) + min; if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2); let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)]; return { num: n, noun }; }
+        else if (m === 'prices') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
+            return n + (gr/100);
+        } 
+        else if (m === 'time') {
+            let h = Math.floor(Math.random() * 24);
+            let m = Math.floor(Math.random() * 12) * 5;
+            return {h, m};
+        } 
+        else if (m === 'dates') {
+            let d = Math.floor(Math.random() * 30) + 1;
+            let mIdx = Math.floor(Math.random() * 12);
+            let y = Math.floor(Math.random()*25)+2000;
+            let dow = Math.floor(Math.random()*7);
+            return {d, m:mIdx, y, dow};
+        }
+        else if (m === 'gender') {
+            let n = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
+            let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
+            return { num: n, noun };
+        }
     }
-
-// --- PART 2B: MECHANICS & UTILITIES ---
 
     // --- HELPER FUNCTIONS ---
     function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
@@ -669,26 +815,45 @@
         playSound('correct'); state.solved = true;
         let timeTaken = (Date.now() - state.startTime) / 1000;
         let score = 10; 
-        if (typeof state.rawData === 'number') { let val = state.rawData; if (!Number.isInteger(val)) score += 3; if (val >= 1000) score += 2; if (val >= 1000000) score += 3; }
-        if (state.mode === 'context') score += 5;
-        let audioPenalty = state.audioClicks * 2; let timePenalty = 0; if (timeTaken > 20) timePenalty = 4; else if (timeTaken > 10) timePenalty = 2;
-        let totalPenalty = audioPenalty + timePenalty; if (score - totalPenalty < 1) totalPenalty = score - 1; score -= totalPenalty;
         
-        // --- POINT 3: WEAK PHRASE LOGIC ---
-        if (timeTaken > 15) { let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" }; mistakes.push(struggleEntry); if (mistakes.length > 50) mistakes.shift(); localStorage.setItem('mistakes', JSON.stringify(mistakes)); }
+        // --- REVIEW MODE LOGIC ---
+        if (state.isReview) {
+            // Remove the mistake we just solved
+            mistakes.shift();
+            localStorage.setItem('mistakes', JSON.stringify(mistakes));
+            score = 5; 
+        } else {
+            // Normal Scoring
+            if (typeof state.rawData === 'number') { let val = state.rawData; if (!Number.isInteger(val)) score += 3; if (val >= 1000) score += 2; }
+            if (state.mode === 'context') score += 5;
 
+            // Weak Phrase Logic (Point 3)
+            if (timeTaken > 15) { 
+                let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" }; 
+                mistakes.push(struggleEntry); 
+                if (mistakes.length > 50) mistakes.shift(); 
+                localStorage.setItem('mistakes', JSON.stringify(mistakes)); 
+            }
+        }
+
+        let audioPenalty = state.audioClicks * 2;
+        let timePenalty = 0;
+        if (timeTaken > 20) timePenalty = 4; else if (timeTaken > 10) timePenalty = 2;
+        let totalPenalty = audioPenalty + timePenalty; 
+        if (score - totalPenalty < 1) totalPenalty = score - 1; 
+        score -= totalPenalty;
+        
         state.xp += score; state.streak++; categoryStats[state.mode] += score; saveAllStats();
         document.getElementById('badge-score').innerText = `+${score}`; document.getElementById('badge-score').style.display = 'block';
 
+        // --- NEW: CONFETTI TRIGGER ---
+        if (state.streak % 10 === 0 || state.streak === 5) fireConfetti();
+
         if(btn) btn.classList.add('correct'); else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
-        // --- REVEAL ALL (Standard Modes) ---
+        // REVEAL ANSWER ON WIN
         const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
-        
-        // Force visible on win
-        plBox.classList.add('visible');
-        enBox.classList.add('visible');
-        
+        plBox.classList.add('visible'); enBox.classList.add('visible');
         if (state.mode === 'context') { enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText; } 
         else { plBox.innerText = state.currentPL; enBox.innerText = state.currentEN; }
         
@@ -702,10 +867,11 @@
         let mistakeEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Wrong" }; mistakes.push(mistakeEntry); if (mistakes.length > 50) mistakes.shift(); localStorage.setItem('mistakes', JSON.stringify(mistakes));
         if(btn) btn.classList.add('wrong'); else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "#d93025";
         
+        // REVEAL ANSWER ON LOSS
         const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
         plBox.classList.add('visible'); enBox.classList.add('visible');
-        
         if (state.mode === 'context') { enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText; } else { plBox.innerText = state.currentPL; enBox.innerText = state.currentEN; }
+        
         if (!state.handsfree) speak(0.8); updateUI();
     }
 
@@ -731,13 +897,48 @@
         
         const c = document.getElementById('stats-container'); 
         c.innerHTML = ''; 
+        
+        // MISTAKES SECTION (Smart Review)
+        let localMistakes = JSON.parse(localStorage.getItem('mistakes') || "[]"); 
+        if (localMistakes.length > 0) {
+            c.innerHTML += `<div style="background:#fce8e6; padding:15px; border-radius:12px; border:1px solid #fad2cf; margin-bottom:20px;">
+                <h3 style="color:#d93025; margin:0 0 10px 0;">⚠️ Needs Work (${localMistakes.length})</h3>
+                <p style="font-size:0.9rem; margin-bottom:10px;">You have ${localMistakes.length} items to practice.</p>
+                <button class="btn-review" onclick="startReview()">▶️ Start Smart Review</button>
+                <button style="background:none; border:none; text-decoration:underline; color:#666; font-size:0.8rem; margin-top:10px; cursor:pointer" onclick="clearMistakes()">Clear List</button>
+            </div>`;
+        } else {
+             c.innerHTML += `<div style="background:#e6f4ea; padding:15px; border-radius:12px; border:1px solid #ceead6; margin-bottom:20px;">
+                <h3 style="color:#34a853; margin:0;">🎉 All Caught Up!</h3>
+                <p style="font-size:0.9rem; margin:5px 0 0;">No mistakes to review.</p>
+            </div>`;
+        }
+
         c.innerHTML += '<h3 style="color:var(--primary); font-size:1rem; margin-top:0;">📊 Mastery Levels</h3>'; 
         let entries = Object.entries(categoryStats); entries.sort((a,b) => b[1] - a[1]); let hasData = false; 
         entries.forEach(([key, val]) => { if(val <= 0) return; hasData = true; let max = Math.max(300, val * 1.5); let pct = Math.min(100, (val / max) * 100); let color = 'var(--secondary)'; if (val < 100) color = '#fbbc04'; if (val > 1000) color = '#a142f4'; c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px; font-weight:bold; color:var(--text)"><span style="text-transform:capitalize">${key}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:${color};width:${pct}%;height:100%"></div></div></div>`; }); 
         if (!hasData) c.innerHTML += '<p style="color:#666; font-size:0.9rem;"><i>Play more to unlock stats!</i></p>'; 
-        c.innerHTML += '<h3 style="color:#d93025; font-size:1rem; margin-top:20px;">⚠️ Needs Work</h3>'; 
-        let localMistakes = JSON.parse(localStorage.getItem('mistakes') || "[]"); 
-        if (localMistakes.length === 0) { c.innerHTML += '<p style="color:var(--secondary); font-style:italic; font-size:0.9rem;">No recent mistakes. You are doing great! 🎉</p>'; } else { let counts = {}; localMistakes.forEach(m => { let label = (typeof m === 'object' && m !== null) ? m.en : m; let reason = (typeof m === 'object' && m !== null && m.reason) ? ` <span style='opacity:0.6;font-size:0.8em'>(${m.reason})</span>` : ""; let k = `${label}${reason}`; counts[k] = (counts[k] || 0) + 1; }); let sortedErrors = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); let listHtml = '<ul style="padding-left:20px; margin-top:5px; color:var(--text); font-size:0.9rem;">'; sortedErrors.forEach(([name, count]) => { listHtml += `<li style="margin-bottom:4px;"><b>${name}</b> ${count > 1 ? '<span style="color:#d93025; font-weight:bold; font-size:0.8em">x'+count+'</span>' : ''}</li>`; }); listHtml += '</ul>'; c.innerHTML += listHtml; c.innerHTML += `<button class="btn-action" style="background:var(--border); color:var(--text); font-size:0.8rem; padding:8px 16px; margin-top:10px; width:auto;" onclick="clearMistakes()">Clear History</button>`; } 
+    }
+    
+    function startReview() {
+        if (mistakes.length === 0) { alert("Great job! No mistakes to review."); return; }
+        state.isReview = true;
+        toggleHelp(); 
+        generate();   
+    }
+
+    function fireConfetti() {
+        const colors = ['#fbbc04', '#ea4335', '#34a853', '#4285f4'];
+        for (let i = 0; i < 40; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            c.style.opacity = Math.random();
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 5000);
+        }
     }
     
     function clearMistakes() { if(confirm("Clear your 'Needs Work' list?")) { localStorage.setItem('mistakes', "[]"); mistakes = []; renderStats(); } }
@@ -758,41 +959,7 @@
         document.getElementById('streak-display').innerText = state.streak; 
     }
 </script>
-
-<script>
-    // --- LINGUISTIC DATA ---
-    const UNITS = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
-    const TEENS = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
-    const TENS = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
-    const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewiętset"];
-    const MONTHS_PL = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
-    const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const DAYS_PL = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
-    const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta", "trzynasta", "czternasta", "piętnasta", "szesnasta", "siedemnasta", "osiemnasta", "dziewiętnasta", "dwudziesta", "dwudziesta pierwsza", "dwudziesta druga", "dwudziesta trzecia"];
-    const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej", "pierwszej"];
-    
-    // Noun Grammar
-    const GRAMMAR = {
-        'lat': { s: 'rok', p: 'lata', g: 'lat', phrase: 'Mam [N] [W]', enPhrase: 'I am [N] years old' }, 
-        'zł': { s: 'złoty', p: 'złote', g: 'złotych', phrase: 'To kosztuje [N] [W]', enPhrase: 'It costs [N] PLN' }, 
-        'osoby': { s: 'osoba', p: 'osoby', g: 'osób', phrase: 'Widzę [N] [W]', enPhrase: 'I see [N] people' }, 
-        'dni': { s: 'dzień', p: 'dni', g: 'dni', phrase: 'Zostało [N] [W]', enPhrase: '[N] days left' } 
-    };
-
-    const GENDER_NOUNS = [
-        { word: 'pies', form: 'm', pl: 'psy', gen: 'psów', en: 'dogs' }, 
-        { word: 'kot', form: 'm', pl: 'koty', gen: 'kotów', en: 'cats' },
-        { word: 'kura', form: 'f', pl: 'kury', gen: 'kur', en: 'hens' }, 
-        { word: 'kobieta', form: 'f', pl: 'kobiety', gen: 'kobiet', en: 'women' },
-        { word: 'okno', form: 'n', pl: 'okna', gen: 'okien', en: 'windows' }, 
-        { word: 'dziecko', form: 'n', pl: 'dzieci', gen: 'dzieci', en: 'children' },
-        { word: 'dom', form: 'm', pl: 'domy', gen: 'domów', en: 'houses' },
-        { word: 'książka', form: 'f', pl: 'książki', gen: 'książek', en: 'books' }
-    ];
-
-    const RANKS = [ { name: "Nowicjusz", limit: 0 }, { name: "Uczeń", limit: 500 }, { name: "Średni", limit: 1500 }, { name: "Zaawansowany", limit: 3000 }, { name: "Mistrz", limit: 10000 } ];
-</script>
+>
 <style>
         /* Theme Variables */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; }
@@ -973,6 +1140,11 @@
             100% { opacity: 0; transform: translate(-50%, -80%) scale(0.8); } 
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        /* CONFETTI ANIMATION */
+.confetti { position: fixed; top: -10px; width: 10px; height: 10px; border-radius: 50%; animation: fall linear forwards; z-index: 9999; pointer-events: none; }
+@keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
+.btn-review { width:100%; padding:10px; margin-top:10px; background:var(--text); color:var(--bg); border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+
     </style>
 </body>
 </html>
