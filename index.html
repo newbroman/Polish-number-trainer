@@ -620,18 +620,13 @@
     function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
     function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
     function getPlural(n, s, pa, pb) { n = Math.abs(n); if (n === 1) return s; let r10 = n % 10, r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; return pb; }
-        function getPolishForm(n, nounObj) {
-        // Rule 1: Number 1 (Singular)
+    
+    // NEW: Helper for Pierogi/Grosze Declensions
+    function getPolishForm(n, nounObj) {
         if (n === 1) return nounObj.word;
-
-        // Rule 2: 2, 3, 4 (excluding 12, 13, 14) -> Nominative Plural
         let r10 = n % 10;
         let r100 = n % 100;
-        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) {
-            return nounObj.pl;
-        }
-
-        // Rule 3: Everything else (0, 5-21, 25-30, etc.) -> Genitive Plural
+        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return nounObj.pl;
         return nounObj.gen;
     }
 
@@ -670,51 +665,96 @@
         state.rawData = val;
         let m = activeMode || state.mode;
         
-                if (m === 'gender') {
+        // 1. GENDER MODE (Pierogi Logic)
+        if (m === 'gender') {
             let n = val.num;
             let nounObj = val.noun;
             let numStr = ""; 
             
-            // 1. Handle the Number text (e.g., "dwa" vs "dwie")
-            // Masculine uses "dwa", Feminine uses "dwie", Neuter uses "dwa" (simplified)
+            // Handle 1/2 gender exceptions
             if (n === 2 && nounObj.form === 'f') numStr = "dwie";
             else if (n === 1 && nounObj.form === 'f') numStr = "jedna";
             else if (n === 1 && nounObj.form === 'n') numStr = "jedno";
             else numStr = numToPl(n);
 
-            // 2. USE THE NEW FUNCTION to get the correct noun form
             let nounStr = getPolishForm(n, nounObj);
-
-            // 3. Set the display text
+            
             state.currentEN = `${n} ${nounObj.en}`; 
             state.currentPL = `${numStr} ${nounStr}`; 
             
-            // Display: Show the English noun in the box (e.g., "... dumplings")
-            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounObj.pl}</span>`; 
-            
-            // Update the English box to show just the digit
+            // Hint Logic (Polish Box shows "... dumplings", English hidden)
             state.genderTarget = numStr; 
+            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounObj.pl}</span>`; 
             return;
         }
 
+        // 2. CONTEXT MODE
         if (m === 'context') {
-            let g = GRAMMAR[val.key]; let n = val.val; let word = getPlural(n, g.s, g.p, g.g); let numTxt = numToPl(n); let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
-            state.currentEN = g.enPhrase.replace('[N]', n); let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
-            state.currentPL = visualPhrase; state.speechText = fullPhrase; return;
+            let g = GRAMMAR[val.key]; 
+            let n = val.val; 
+            let word = getPlural(n, g.s, g.p, g.g); 
+            let numTxt = numToPl(n); 
+            let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
+            
+            state.currentEN = g.enPhrase.replace('[N]', n); 
+            let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
+            state.currentPL = visualPhrase; 
+            state.speechText = fullPhrase; 
+            return;
         }
+
+        // 3. NUMBERS & DICTATION
         if (m === 'numbers' || m === 'dictation') {
-            if(m === 'numbers' && document.getElementById('decimal-toggle').checked) { let s = val.toString(); if(!s.includes('.')) s += ".0"; let parts = s.split('.'); state.currentEN = s.replace('.', ','); state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`; } else { state.currentEN = val.toLocaleString(); state.currentPL = numToPl(val); }
-        } else if (m === 'prices') {
-            let n = Math.floor(val); let gr = Math.round((val % 1) * 100); state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`; state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}` + (gr>0 ? ` i ${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}` : "");
-        } else if (m === 'time') {
-            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`; let style = document.getElementById('time-style-sel').value; state.currentPL = timeToPl(val.h, val.m, style === 'formal');
-        } else if (m === 'dates') {
+            if(m === 'numbers' && document.getElementById('decimal-toggle').checked) { 
+                let s = val.toString(); 
+                if(!s.includes('.')) s += ".0"; 
+                let parts = s.split('.'); 
+                state.currentEN = s.replace('.', ','); 
+                state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`; 
+            } else { 
+                state.currentEN = val.toLocaleString(); 
+                state.currentPL = numToPl(val); 
+            }
+        } 
+        // 4. PRICES (Street Smart Logic)
+        else if (m === 'prices') {
+            let n = Math.floor(val); 
+            let gr = Math.round((val % 1) * 100);
+            
+            state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
+            
+            if (n === 0) {
+                // "50 groszy"
+                state.currentPL = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
+            } else if (gr === 0) {
+                // "5 złotych"
+                state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
+            } else {
+                // "Pięć pięćdziesiąt"
+                let grText = numToPl(gr);
+                if (gr < 10) grText = "zero " + grText;
+                state.currentPL = `${numToPl(n)} ${grText}`;
+            }
+        } 
+        // 5. TIME
+        else if (m === 'time') {
+            state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`; 
+            let style = document.getElementById('time-style-sel').value; 
+            state.currentPL = timeToPl(val.h, val.m, style === 'formal');
+        } 
+        // 6. DATES
+        else if (m === 'dates') {
             let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty druga", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-            let includeYear = document.getElementById('year-toggle').checked; let includeDay = document.getElementById('day-toggle').checked;
-            let enStr = ""; let plStr = ""; if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; } enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`; if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
+            let includeYear = document.getElementById('year-toggle').checked; 
+            let includeDay = document.getElementById('day-toggle').checked;
+            let enStr = ""; let plStr = ""; 
+            if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; } 
+            enStr += `${val.d} ${MONTHS_EN[val.m]}`; plStr += `${ord[val.d]} ${MONTHS_PL[val.m]}`; 
+            if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
             state.currentEN = enStr; state.currentPL = plStr;
         }
     }
+
 
     // --- UI & GRID GENERATION ---
     function applySettings() {
