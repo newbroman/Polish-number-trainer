@@ -316,7 +316,11 @@
         { word: "kot", pl: "koty", gen: "kotów", form: "m", en: "cat" },
         { word: "piwo", pl: "piwa", gen: "piw", form: "n", en: "beer" },
         { word: "samochód", pl: "samochody", gen: "samochodów", form: "m", en: "car" },
-        { word: "kobieta", pl: "kobiety", gen: "kobiet", form: "f", en: "woman" }
+        { word: "kobieta", pl: "kobiety", gen: "kobiet", form: "f", en: "woman" },
+            // Add these lines inside your GENDER_NOUNS array:
+    { word: "pieróg", pl: "pierogi", gen: "pierogów", form: "m", en: "dumpling" },
+    { word: "grosz", pl: "grosze", gen: "groszy", form: "m", en: "penny" },
+
     ];
 
     // --- EXPANDED GRAMMAR CONTEXTS ---
@@ -434,7 +438,7 @@
         saveAndGenerate();
     }
 
-    // --- UPDATED GENERATOR WITH CAMPAIGN LOGIC ---
+    // --- UPDATED GENERATOR (Fixes Gender Hint Overwrite) ---
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
@@ -496,22 +500,17 @@
         
         // --- CAMPAIGN MODE LOGIC ---
         let min = 0, max = 0;
-        // Safe check in case the toggle isn't in HTML yet
         const toggleEl = document.getElementById('campaign-toggle');
         const isCampaign = toggleEl ? toggleEl.checked : false;
 
         if (isCampaign) {
-            // Auto-scale based on Streak
             if (state.streak < 5) { min = 1; max = 10; }
             else if (state.streak < 15) { min = 1; max = 100; }
             else if (state.streak < 30) { min = 1; max = 1000; }
             else { min = 1; max = 100000; }
-            
-            // Visual feedback for Campaign Level
             document.getElementById('lbl-min').innerText = min.toLocaleString();
             document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Auto)";
         } else {
-            // Manual Sliders
             min = Math.pow(10, document.getElementById('minP').value);
             max = Math.pow(10, document.getElementById('maxP').value);
         }
@@ -538,28 +537,30 @@
         addToHistory(newVal);
         processValue(newVal, tempMode);
 
-        // Render (Hidden)
-        if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
-        else plBox.innerText = state.currentPL;
+        // --- RENDER LOGIC (FIXED) ---
+        // Only overwrite Polish box if we are NOT in gender mode.
+        // (Gender mode already set the hint inside processValue)
+        if (state.mode !== 'gender') {
+             if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
+             else plBox.innerText = state.currentPL;
+        }
         enBox.innerText = state.currentEN;
 
-        // Visibility Overrides
+        // --- VISIBILITY OVERRIDES ---
         if (state.mode === 'speech') {
              enBox.classList.add('visible'); 
         } 
         else if (state.mode === 'context') { 
              enBox.innerText = "???"; 
-             plBox.classList.add('visible'); 
         }
         else if (state.mode === 'gender') { 
-             enBox.classList.add('visible'); 
+             // Shows the Hint (e.g., "... pierogi") created by processValue
              plBox.classList.add('visible'); 
         }
         else if (state.mode === 'dictation') {
              enBox.classList.add('visible'); 
         }
         
-        // Blind Mode Badge
         if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
         else document.getElementById('badge-blind').style.display = 'none';
 
@@ -619,7 +620,21 @@
     function isRepeated(val) { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
     function readDecimalPart(str) { return str.split('').map(d => numToPl(parseInt(d))).join(' '); }
     function getPlural(n, s, pa, pb) { n = Math.abs(n); if (n === 1) return s; let r10 = n % 10, r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa; return pb; }
-    
+        function getPolishForm(n, nounObj) {
+        // Rule 1: Number 1 (Singular)
+        if (n === 1) return nounObj.word;
+
+        // Rule 2: 2, 3, 4 (excluding 12, 13, 14) -> Nominative Plural
+        let r10 = n % 10;
+        let r100 = n % 100;
+        if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) {
+            return nounObj.pl;
+        }
+
+        // Rule 3: Everything else (0, 5-21, 25-30, etc.) -> Genitive Plural
+        return nounObj.gen;
+    }
+
     function numToPl(n) { 
         if (isNaN(n)) return "..."; 
         if (n === 0) return "zero"; 
@@ -655,11 +670,33 @@
         state.rawData = val;
         let m = activeMode || state.mode;
         
-        if (m === 'gender') {
-            let n = val.num; let nounObj = val.noun; let numStr = ""; let nounStr = "";
-            if (n === 1) { if (nounObj.form === 'm') numStr = 'jeden'; else if (nounObj.form === 'f') numStr = 'jedna'; else numStr = 'jedno'; nounStr = nounObj.word; } else if (n === 2) { if (nounObj.form === 'f') numStr = 'dwie'; else numStr = 'dwa'; nounStr = nounObj.pl; } else { numStr = numToPl(n); let r10 = n % 10; let r100 = n % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = nounObj.pl; else nounStr = nounObj.gen; }
-            state.currentEN = `${n} ${nounObj.en}`; state.currentPL = `${numStr} ${nounStr}`; state.genderTarget = numStr; document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`; return;
+                if (m === 'gender') {
+            let n = val.num;
+            let nounObj = val.noun;
+            let numStr = ""; 
+            
+            // 1. Handle the Number text (e.g., "dwa" vs "dwie")
+            // Masculine uses "dwa", Feminine uses "dwie", Neuter uses "dwa" (simplified)
+            if (n === 2 && nounObj.form === 'f') numStr = "dwie";
+            else if (n === 1 && nounObj.form === 'f') numStr = "jedna";
+            else if (n === 1 && nounObj.form === 'n') numStr = "jedno";
+            else numStr = numToPl(n);
+
+            // 2. USE THE NEW FUNCTION to get the correct noun form
+            let nounStr = getPolishForm(n, nounObj);
+
+            // 3. Set the display text
+            state.currentEN = `${n} ${nounObj.en}`; 
+            state.currentPL = `${numStr} ${nounStr}`; 
+            
+            // Display: Show the English noun in the box (e.g., "... dumplings")
+            document.getElementById('pl-text').innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounObj.pl}</span>`; 
+            
+            // Update the English box to show just the digit
+            state.genderTarget = numStr; 
+            return;
         }
+
         if (m === 'context') {
             let g = GRAMMAR[val.key]; let n = val.val; let word = getPlural(n, g.s, g.p, g.g); let numTxt = numToPl(n); let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
             state.currentEN = g.enPhrase.replace('[N]', n); let visualPhrase = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
@@ -959,7 +996,7 @@
         document.getElementById('streak-display').innerText = state.streak; 
     }
 </script>
->
+
 <style>
         /* Theme Variables */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; }
