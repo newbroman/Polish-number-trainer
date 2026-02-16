@@ -70,7 +70,7 @@
 
 <div id="settings-modal" class="modal">
     <div class="modal-box">
-        <button class="close-x" onclick="toggleSettings()">×</button>
+        <button class="close-x" onclick="saveAndGenerate()">×</button>
         <h2 style="margin-top:0">Settings</h2>
 
         <div class="set-group">
@@ -87,77 +87,54 @@
             </div>
         </div>
 
-        <div class="set-group" id="set-gameplay">
-            <div class="set-title">Gameplay</div>
-            <div class="set-row">
-                <span>Button Text</span>
-                <select id="btn-style-sel" onchange="saveAndGenerate()">
-                    <option value="digits">Digits (Easy)</option>
-                    <option value="words">Polish Words (Hard)</option>
-                </select>
-            </div>
-            <div class="set-row">
-                <span>Blind Mode (Audio Only)</span>
-                <input type="checkbox" id="blind-toggle">
-            </div>
-             <div class="set-row">
-                <span>Theme</span>
-                <select id="theme-select" onchange="applyTheme()">
-                    <option value="auto">Auto</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-            </div>
-            <div class="set-row" id="input-row">
-                <span>Input Style</span>
-                <select id="input-style" onchange="applySettings()">
-                    <option value="4">4 Buttons</option>
-                    <option value="8" selected>8 Buttons</option>
-                    <option value="12">12 Buttons</option>
-                    <option value="type">Typing</option>
-                </select>
-            </div>
-        </div>
         <div class="set-group" style="border: 2px solid var(--secondary); background: rgba(52, 168, 83, 0.05);">
             <div class="set-title" style="color:var(--secondary)">🚀 Campaign Mode</div>
+            
             <div class="set-row">
-                <span>Auto-Difficulty</span>
+                <span>Enable Auto-Difficulty</span>
                 <input type="checkbox" id="campaign-toggle" onchange="toggleCampaign()">
             </div>
-            <p style="font-size:0.8rem; margin:5px 0 0; color:#666;">
-                Automatically increases difficulty as your streak grows. (Disables manual range sliders).
-            </p>
+
+            <div id="campaign-controls" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--secondary);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <button class="icon-btn" onclick="adjustLevel(-1)" style="background:white; width:32px; height:32px; box-shadow:0 1px 3px rgba(0,0,0,0.1)">➖</button>
+                    <div style="text-align:center;">
+                        <div style="font-weight:bold; color:var(--text); font-size:1.1rem;">LEVEL <span id="lvl-num">1</span></div>
+                        <div id="lvl-desc" style="font-size:0.8rem; color:var(--secondary); font-weight:bold;">Novice (1-10)</div>
+                    </div>
+                    <button class="icon-btn" onclick="adjustLevel(1)" style="background:white; width:32px; height:32px; box-shadow:0 1px 3px rgba(0,0,0,0.1)">➕</button>
+                </div>
+            </div>
         </div>
 
         <div class="set-group" id="set-range">
-            <div class="set-title">Range Options</div>
-            <div class="set-row">
-                <span>Min: <span id="lbl-min">1</span></span>
-                <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
+            <div class="set-title">Manual Options</div>
+
+            <div id="manual-sliders">
+                <div class="set-row">
+                    <span>Min: <span id="lbl-min">1</span></span>
+                    <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="saveAndGenerate()"></div>
+                </div>
+                <div class="set-row">
+                    <span>Max: <span id="lbl-max">100</span></span>
+                    <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="saveAndGenerate()"></div>
+                </div>
             </div>
-            <div class="set-row">
-                <span>Max: <span id="lbl-max">100</span></span>
-                <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
-            </div>
-            <div class="set-row" id="decimal-row">
-                <span>Decimals</span>
-                <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()">
-            </div>
-            <div class="set-row" id="decimal-opts" style="display:none">
-                <span>Precision</span>
-                <input type="range" id="decimal-places" min="1" max="3" value="2" oninput="document.getElementById('lbl-dp').innerText=this.value">
-                <span id="lbl-dp" style="font-weight:bold; margin-left:10px">2</span>
+
+            <div id="modifiers-box" style="margin-top:15px; padding-top:10px; border-top:1px solid var(--border);">
+                <div class="set-title" style="color:#666; margin-bottom:8px;">Challenges</div>
+                
+                <div class="set-row"><span>➖ Negative Numbers</span> <input type="checkbox" id="negatives-toggle"></div>
+                <div class="set-row"><span>⅒ Fractions</span> <input type="checkbox" id="fractions-toggle"></div>
+                <div class="set-row"><span>.00 Decimals</span> <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()"></div>
+                
+                <div class="set-row" id="decimal-opts" style="display:none; background:rgba(0,0,0,0.03); padding:5px 10px; border-radius:8px;">
+                    <span style="font-size:0.8rem">Precision: <span id="lbl-dp">2</span></span>
+                    <input type="range" id="decimal-places" min="1" max="3" value="2" style="width:60px" oninput="document.getElementById('lbl-dp').innerText=this.value">
+                </div>
             </div>
         </div>
         
-        <div class="set-group" id="set-speech-opts" style="display:none; border:2px solid #ea4335;">
-            <div class="set-title" style="color:#ea4335">Speaking Topics</div>
-            <div class="set-row"><span>Numbers</span> <input type="checkbox" id="speech-numbers" checked></div>
-            <div class="set-row"><span>Prices</span> <input type="checkbox" id="speech-prices" checked></div>
-            <div class="set-row"><span>Time</span> <input type="checkbox" id="speech-time"></div>
-            <div class="set-row"><span>Context</span> <input type="checkbox" id="speech-context"></div>
-        </div>
-
         <div class="set-group" id="set-prices" style="display:none">
             <div class="set-title">Price Options</div>
             <div class="set-row"><span>Include Grosze</span><input type="checkbox" id="grosze-toggle" checked></div>
@@ -174,13 +151,42 @@
             <div class="set-row">
                 <span>Style</span>
                 <select id="time-style-sel">
-                    <option value="casual" selected>Casual</option>
-                    <option value="formal">Formal</option>
+                    <option value="casual" selected>Casual (Za dziesięć druga)</option>
+                    <option value="formal">Formal (Trzynasta pięćdziesiąt)</option>
                 </select>
             </div>
         </div>
         
+        <div class="set-group" id="set-gameplay">
+            <div class="set-title">Display</div>
+             <div class="set-row">
+                <span>Theme</span>
+                <select id="theme-select" onchange="applyTheme()">
+                    <option value="auto">Auto</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+            <div class="set-row">
+                <span>Button Text</span>
+                <select id="btn-style-sel" onchange="saveAndGenerate()">
+                    <option value="digits">Digits (Easy)</option>
+                    <option value="words">Polish Words (Hard)</option>
+                </select>
+            </div>
+            <div class="set-row" id="input-row">
+                <span>Input Style</span>
+                <select id="input-style" onchange="applySettings()">
+                    <option value="4">4 Buttons</option>
+                    <option value="8" selected>8 Buttons</option>
+                    <option value="12">12 Buttons</option>
+                    <option value="type">Typing</option>
+                </select>
+            </div>
+        </div>
+
         <button class="btn-check" onclick="saveAndGenerate()">Save & Restart</button>
+
     </div>
 </div>
 <div id="help-modal" class="modal">
@@ -300,6 +306,22 @@
     const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta"];
+    // --- NEW: FRACTION GRAMMAR ---
+    // Denominators (2-10, 100). 
+    // Format: [Nominative Sg (1), Nominative Pl (2-4), Genitive Pl (5+)]
+    const FRACTIONS = {
+        2:  ["druga", "drugie", "drugich"],
+        3:  ["trzecia", "trzecie", "trzecich"],
+        4:  ["czwarta", "czwarte", "czwartych"],
+        5:  ["piąta", "piąte", "piątych"],
+        6:  ["szósta", "szóste", "szóstych"],
+        7:  ["siódma", "siódme", "siódmych"],
+        8:  ["ósma", "ósme", "ósmych"],
+        9:  ["dziewiąta", "dziewiąte", "dziewiątych"],
+        10: ["dziesiąta", "dziesiąte", "dziesiątych"],
+        100: ["setna", "setne", "setnych"]
+    };
+
     const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej"];
 
     const RANKS = [
@@ -452,29 +474,81 @@
         availableVoices = window.speechSynthesis.getVoices();
     }
 
-    // --- MAIN GAME GENER    // --- NEW HELPER: TOGGLE CAMPAIGN VISUALS ---
+    // --- MAIN GAME GENERATOR & CAMPAIGN HELPERS ---
+
+    // Initialize default level if not present
+    if (!state.campLevel) state.campLevel = 1;
+
+    // 1. HELPERS FOR MANUAL CAMPAIGN
     function toggleCampaign() {
         const isCamp = document.getElementById('campaign-toggle').checked;
-        const rangeDiv = document.getElementById('set-range');
+        const controls = document.getElementById('campaign-controls');
+        const sliders = document.getElementById('manual-sliders');
         
-        // Disable/Fade the manual sliders if Campaign is ON
+        // Show/Hide the correct controls
         if (isCamp) {
-            rangeDiv.style.opacity = '0.5';
-            rangeDiv.style.pointerEvents = 'none';
+            if(controls) controls.style.display = 'block';
+            if(sliders) sliders.style.display = 'none';
+            updateLevelDisplay(); 
         } else {
-            rangeDiv.style.opacity = '1';
-            rangeDiv.style.pointerEvents = 'auto';
+            if(controls) controls.style.display = 'none';
+            if(sliders) sliders.style.display = 'block';
         }
         saveAndGenerate();
     }
 
-    // --- UPDATED GENERATOR (Fixes Gender Hint Overwrite) ---
+    function adjustLevel(dir) {
+        state.campLevel += dir;
+        // Clamp between Level 1 and 5
+        if (state.campLevel < 1) state.campLevel = 1;
+        if (state.campLevel > 5) state.campLevel = 5;
+        
+        updateLevelDisplay();
+        generate(); // Regenerate immediately
+    }
+
+    function updateLevelDisplay() {
+        const numEl = document.getElementById('lvl-num');
+        const descEl = document.getElementById('lvl-desc');
+        if(!numEl || !descEl) return;
+
+        numEl.innerText = state.campLevel;
+        
+        const desc = [
+            "Novice (1-10)",              // Lvl 1
+            "Apprentice (1-100)",         // Lvl 2
+            "Journeyman (1-1,000)",       // Lvl 3
+            "Expert (1-10,000)",          // Lvl 4
+            "Master (1-100,000)"          // Lvl 5
+        ];
+        
+        descEl.innerText = desc[state.campLevel - 1];
+    }
+
+    function saveAndGenerate() {
+        // 1. Save Manual Sliders (if they exist)
+        const minP = document.getElementById('minP');
+        const maxP = document.getElementById('maxP');
+        if (minP) localStorage.setItem('minP', minP.value);
+        if (maxP) localStorage.setItem('maxP', maxP.value);
+
+        // 2. Save Button Style Preference
+        const btnStyle = document.getElementById('btn-style-sel');
+        if (btnStyle) localStorage.setItem('btnStyle', btnStyle.value);
+
+        // 3. Close Settings & Restart
+        toggleSettings(); 
+        generate();
+    }
+    
+
+    // 2. UPDATED GENERATOR (Respects Manual Levels)
     function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
         document.getElementById('voice-feedback').innerText = ""; 
         
-        // 1. UI RESET
+        // UI RESET
         const plBox = document.getElementById('pl-text');
         const enBox = document.getElementById('en-text');
         plBox.classList.remove('visible'); 
@@ -482,7 +556,7 @@
         plBox.innerHTML = '---'; 
         enBox.innerText = '???';
         
-        // 2. CHECK REVIEW MODE
+        // CHECK REVIEW MODE
         if (state.isReview) {
             if (mistakes.length === 0) { 
                 state.isReview = false; 
@@ -490,14 +564,9 @@
             } else {
                 document.getElementById('badge-review').style.display = 'block';
                 let m = mistakes[0]; 
-                state.currentPL = m.val; 
-                state.currentEN = m.en; 
-                state.mode = m.mode || 'numbers';
-                
-                plBox.innerText = state.currentPL; 
-                enBox.innerText = state.currentEN;
-                
-                applySettings(); 
+                state.currentPL = m.val; state.currentEN = m.en; state.mode = m.mode || 'numbers';
+                plBox.innerText = state.currentPL; enBox.innerText = state.currentEN;
+                updateModeUI(state.mode); applySettings(); 
                 state.startTime = Date.now();
                 if (!state.handsfree) setTimeout(() => { speak(1.0); }, 250);
                 return; 
@@ -520,32 +589,66 @@
             document.getElementById('action-btn').innerText = "CHECK ANSWER";
         }
 
-        // Standard UI Setup
         const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; 
-        mainBtn.classList.remove('ready'); 
+        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
         document.getElementById('type-input').value = "";
         document.getElementById('type-input').style.borderColor = "var(--border)";
         if(state.mode === 'dictation') document.getElementById('type-input').focus();
         
-        // --- CAMPAIGN MODE LOGIC ---
+        // --- CAMPAIGN MODE LOGIC (MANUAL LEVELS) ---
         let min = 0, max = 0;
         const toggleEl = document.getElementById('campaign-toggle');
         const isCampaign = toggleEl ? toggleEl.checked : false;
 
         if (isCampaign) {
-            if (state.streak < 5) { min = 1; max = 10; }
-            else if (state.streak < 15) { min = 1; max = 100; }
-            else if (state.streak < 30) { min = 1; max = 1000; }
-            else { min = 1; max = 100000; }
+            // Use the manually selected level (Default to 1 if undefined)
+            const lvl = state.campLevel || 1;
+            let allowedModes = ['numbers'];
+
+            if (lvl === 1) {
+                // Novice: 1-10
+                min = 1; max = 10;
+                allowedModes = ['numbers'];
+            } else if (lvl === 2) {
+                // Apprentice: 1-100 (+ Gender)
+                min = 1; max = 100;
+                allowedModes = ['numbers', 'gender'];
+            } else if (lvl === 3) {
+                // Journeyman: 1-1,000 (+ Prices)
+                min = 1; max = 1000;
+                allowedModes = ['numbers', 'gender', 'prices'];
+            } else if (lvl === 4) {
+                // Expert: 1-10,000 (+ Time, Dates)
+                min = 1; max = 10000;
+                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates'];
+            } else {
+                // Master: 1-100,000 (+ Context, Dictation)
+                min = 1; max = 100000;
+                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context', 'dictation'];
+            }
+
+            // Update Label for debug/visual
             document.getElementById('lbl-min').innerText = min.toLocaleString();
-            document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Auto)";
+            document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Lvl " + lvl + ")";
+
+            // Logic: 70% chance to play hard mode, 30% chance to review easy mode
+            let targetMode = allowedModes[allowedModes.length - 1]; 
+            if (allowedModes.length > 1 && Math.random() < 0.3) {
+                targetMode = allowedModes[Math.floor(Math.random() * (allowedModes.length - 1))];
+            }
+
+            if (state.mode !== targetMode) {
+                state.mode = targetMode;
+                updateModeUI(targetMode); 
+            }
+
         } else {
+            // Manual Sliders
             min = Math.pow(10, document.getElementById('minP').value);
             max = Math.pow(10, document.getElementById('maxP').value);
         }
 
-        // Generate
+        // Generate Data
         let newVal, safety=0;
         let tempMode = state.mode;
         
@@ -567,9 +670,7 @@
         addToHistory(newVal);
         processValue(newVal, tempMode);
 
-        // --- RENDER LOGIC (FIXED) ---
-        // Only overwrite Polish box if we are NOT in gender mode.
-        // (Gender mode already set the hint inside processValue)
+        // --- RENDER LOGIC ---
         if (state.mode !== 'gender') {
              if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
              else plBox.innerText = state.currentPL;
@@ -578,32 +679,16 @@
 
         // --- VISIBILITY OVERRIDES ---
         const badge = document.getElementById('grammar-badge');
-        if (badge) badge.classList.remove('visible'); // Reset badge
+        if (badge) badge.classList.remove('visible'); 
 
-        if (state.mode === 'speech') {
-             enBox.classList.add('visible'); 
-        } 
-        else if (state.mode === 'context') { 
-             enBox.innerText = "???"; 
-             if (badge) badge.classList.add('visible'); // Show Badge
-        }
-        else if (state.mode === 'gender') { 
-             plBox.classList.add('visible'); // Show Polish Hint (... pierogi)
-             if (badge) badge.classList.add('visible'); // Show Badge
-        }
-        else if (state.mode === 'dictation') {
-             enBox.classList.add('visible'); 
-        }
-                else if (state.mode === 'dates') {
-             enBox.classList.add('visible');
-             if (badge) badge.classList.add('visible'); // Allow badge for dates
-        }
-
+        if (state.mode === 'speech') { enBox.classList.add('visible'); } 
+        else if (state.mode === 'context') { enBox.innerText = "???"; if (badge) badge.classList.add('visible'); }
+        else if (state.mode === 'gender') { plBox.classList.add('visible'); if (badge) badge.classList.add('visible'); }
+        else if (state.mode === 'dates') { enBox.classList.add('visible'); if (badge) badge.classList.add('visible'); }
         
-        // Blind Mode Badge
+        // Blind Mode & Score Badge
         if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
         else document.getElementById('badge-blind').style.display = 'none';
-
         document.getElementById('badge-score').style.display = 'none';
 
         applySettings();
@@ -611,43 +696,61 @@
         if (state.handsfree) playHandsfreeSequence();
         else if (state.mode !== 'speech') setTimeout(() => { speak(1.0); }, 250);
     }
-
     // --- DATA GENERATORS ---
-
-    // --- UPDATED DATA GENERATOR (Realism Logic) ---
+    // --- UPDATED DATA GENERATOR (Negatives & Fractions) ---
     function generateRawValue(min, max, activeMode) {
         let m = activeMode || state.mode;
         
+        // --- 1. CONTEXT MODE ---
         if (m === 'context') {
             const keys = Object.keys(GRAMMAR);
             const k = keys[Math.floor(Math.random() * keys.length)];
             state.currentContextKey = k;
-            
-            // Context Realism: Use the 'max' defined in GRAMMAR if it exists
             let localMax = GRAMMAR[k].max || max;
-            if (localMax < min) min = 1; // Safety check
-            
+            if (localMax < min) min = 1; 
             let n = Math.floor(Math.random() * (localMax - min + 1)) + min;
             return { val: n, key: k };
         }
         
+        // --- 2. NUMBERS / DICTATION ---
         if (m === 'numbers' || m === 'dictation') {
+            // A. Check for Fraction (20% chance if enabled)
+            if (m === 'numbers' && document.getElementById('fractions-toggle').checked && Math.random() < 0.25) {
+                // Denominators: 2, 3, 4, 5, 6, 8, 10
+                const denoms = [2, 3, 4, 5, 6, 8, 10];
+                let d = denoms[Math.floor(Math.random() * denoms.length)];
+                let n = Math.floor(Math.random() * (d - 1)) + 1; // Numerator < Denominator
+                return { n: n, d: d, type: 'fraction' };
+            }
+
+            // B. Handle Negatives (If enabled, Min becomes negative Max)
+            if (document.getElementById('negatives-toggle').checked) {
+                min = -max;
+            }
+
+            // C. Handle Decimals
             if (m === 'numbers' && document.getElementById('decimal-toggle').checked) {
                 let places = parseInt(document.getElementById('decimal-places').value);
-                return parseFloat((Math.random() * (max - min) + min).toFixed(places));
+                let range = max - min;
+                let raw = (Math.random() * range) + min;
+                return parseFloat(raw.toFixed(places));
             }
+            
+            // D. Standard Integers
             return Math.floor(Math.random() * (max - min + 1)) + min;
         } 
+        
+        // --- 3. PRICES ---
         else if (m === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
             let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random()*99)+1 : 0;
             return n + (gr/100);
         } 
+        // --- 4. TIME ---
         else if (m === 'time') {
-            let h = Math.floor(Math.random() * 24);
-            let m = Math.floor(Math.random() * 12) * 5;
-            return {h, m};
+            return { h: Math.floor(Math.random() * 24), m: Math.floor(Math.random() * 12) * 5 };
         } 
+        // --- 5. DATES ---
         else if (m === 'dates') {
             let d = Math.floor(Math.random() * 30) + 1;
             let mIdx = Math.floor(Math.random() * 12);
@@ -655,37 +758,24 @@
             let dow = Math.floor(Math.random()*7);
             return {d, m:mIdx, y, dow};
         }
+        // --- 6. GENDER ---
         else if (m === 'gender') {
-            // 1. Pick Noun First
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
             let n = 0;
-
-            // 2. Determine Number based on Noun Logic
-            if (noun.logic === 'living') {
-                // Cats/Dogs: 1 - 20
-                n = Math.floor(Math.random() * 20) + 1;
-            } 
+            if (noun.logic === 'living') n = Math.floor(Math.random() * 20) + 1;
             else if (noun.logic === 'bulk') {
-                // Nails/Screws: 1-50, then 50s, then 1000s
                 let roll = Math.random();
-                if (roll < 0.4) {
-                    n = Math.floor(Math.random() * 50) + 1; // 1-50
-                } else if (roll < 0.8) {
-                    n = (Math.floor(Math.random() * 9) + 1) * 50; // 50, 100... 450
-                } else {
-                    n = (Math.floor(Math.random() * 5) + 1) * 1000; // 1000, 2000...
-                }
-            } 
-            else {
-                // Standard Objects (use slider settings)
+                if (roll < 0.4) n = Math.floor(Math.random() * 50) + 1; 
+                else if (roll < 0.8) n = (Math.floor(Math.random() * 9) + 1) * 50; 
+                else n = (Math.floor(Math.random() * 5) + 1) * 1000; 
+            } else {
                 n = Math.floor(Math.random() * (max - min + 1)) + min;
-                // Still favor small numbers for grammar practice
                 if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
             }
-            
             return { num: n, noun };
         }
     }
+
     
     // --- HELPER FUNCTIONS ---
     function addToHistory(val) { state.history.push(val); if(state.history.length > 5) state.history.shift(); }
@@ -797,6 +887,34 @@
             state.speechText = fullPhrase; 
             return;
         }
+        // 2b. FRACTIONS (New)
+        if (val && val.type === 'fraction') {
+            state.currentEN = `${val.n}/${val.d}`;
+            
+            // Grammar Logic:
+            // Numerator: 1 = "jedna" (fem), 2 = "dwie" (fem), rest = standard.
+            let numText = "";
+            if (val.n === 1) numText = "jedna";
+            else if (val.n === 2) numText = "dwie";
+            else numText = numToPl(val.n);
+            
+            // Denominator: 
+            // 1 -> (Nom Sg) "druga"
+            // 2-4 -> (Nom Pl) "drugie"
+            // 5+ -> (Gen Pl) "drugich"
+            let denArray = FRACTIONS[val.d];
+            let denText = getPlural(val.n, denArray[0], denArray[1], denArray[2]);
+            
+            state.currentPL = `${numText} ${denText}`;
+            
+            // Show Grammar Badge for Fractions
+            const badge = document.getElementById('grammar-badge');
+            if(badge) {
+                badge.innerText = "FRACTION (Żeński)";
+                badge.classList.add('visible');
+            }
+            return;
+        }
 
         // 3. NUMBERS & DICTATION
         if (m === 'numbers' || m === 'dictation') {
@@ -898,7 +1016,7 @@
                 badge.classList.add('visible');
             }
         }
-     }
+     
 
 
     // --- UI & GRID GENERATION ---
@@ -1160,8 +1278,60 @@
     function toggleHandsfree() { state.handsfree = !state.handsfree; let btn = document.getElementById('hf-btn'); if (state.handsfree) { btn.classList.add('active'); document.getElementById('badge-handsfree').style.display = 'block'; initAudio(); generate(); } else { btn.classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; window.speechSynthesis.cancel(); if (autoNextTimer) clearTimeout(autoNextTimer); } }
     function playHandsfreeSequence() { if (!state.handsfree) return; window.speechSynthesis.cancel(); let plText = (state.mode === 'context') ? state.speechText : state.currentPL; let enText = state.currentEN; let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); }; window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4); }
     function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; let msg = ""; if (speakerTaps === 1) { rate = 1.0; } else if (speakerTaps === 2) { rate = 0.5; msg = "🐢 Slow Speed (0.5x)"; } else { rate = 0.25; msg = "🐢🐢 Super Slow (0.25x)"; } if (msg) { let fb = document.getElementById('voice-feedback'); fb.innerText = msg; fb.style.color = "var(--primary)"; setTimeout(() => { if(fb.innerText === msg) fb.innerText = ""; }, 1500); } speak(rate); speakerTaps = 0; }, 300); }
+        // --- NEW HELPER: UPDATE UI TABS (Visuals Only) ---
+    function updateModeUI(m) {
+        // 1. Highlight the correct button
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('nav-'+m);
+        if(btn) btn.classList.add('active');
+
+        // 2. Update Label
+        let label = m;
+        if(m==='context') label='Sentences';
+        if(m==='translator') label='Translator';
+        if(m==='dictation') label='Dictation';
+        if(m==='speech') label='Speaking';
+        document.getElementById('mode-label').innerText = label;
+
+               // 3. Show/Hide Settings Panels
+        ['range','prices','time','dates','speech-opts'].forEach(id => {
+            const el = document.getElementById('set-'+id);
+            if(el) el.style.display='none';
+        });
+        
+        // Show "Range" (Min/Max/Campaign) for most numeric modes
+        if (m==='numbers' || m==='context' || m==='gender' || m==='dictation') document.getElementById('set-range').style.display='block';
+        
+        // Specific Mode Settings
+        if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
+        if (m==='time') document.getElementById('set-time').style.display='block';
+        if (m==='dates') document.getElementById('set-dates').style.display='block';
+        if (m==='speech') { document.getElementById('set-range').style.display='block'; document.getElementById('set-speech-opts').style.display='block'; }
+
+        // --- NEW: Toggle Modifiers (Negatives/Fractions) ---
+        // Only show these extra challenges in "Numbers" mode
+        const modBox = document.getElementById('modifiers-box');
+        if (modBox) {
+            modBox.style.display = (m === 'numbers') ? 'block' : 'none';
+        }
+
+        // 4. Input Field vs Buttons
+        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation' || m==='speech') ? 'none' : 'flex';
+    }
+
     function selectMode(m) { toggleSettings(); switchMode(m); }
-    function switchMode(m) { state.mode = m; state.history = []; state.handsfree = false; document.getElementById('hf-btn').classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); document.getElementById('nav-'+m).classList.add('active'); let label = m; if(m==='context') label='Sentences'; if(m==='translator') label='Translator'; if(m==='dictation') label='Dictation'; if(m==='speech') label='Speaking'; document.getElementById('mode-label').innerText = label; ['range','prices','time','dates','speech-opts'].forEach(id => document.getElementById('set-'+id).style.display='none'); if (m==='numbers' || m==='context' || m==='gender' || m==='dictation') document.getElementById('set-range').style.display='block'; if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; } if (m==='time') document.getElementById('set-time').style.display='block'; if (m==='dates') document.getElementById('set-dates').style.display='block'; if (m==='speech') { document.getElementById('set-range').style.display='block'; document.getElementById('set-speech-opts').style.display='block'; } document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation' || m==='speech') ? 'none' : 'flex'; generate(); }
+        function switchMode(m) { 
+        state.mode = m; 
+        state.history = []; 
+        state.handsfree = false; 
+        document.getElementById('hf-btn').classList.remove('active'); 
+        document.getElementById('badge-handsfree').style.display = 'none'; 
+        
+        updateModeUI(m); // Use the new helper
+        
+        generate(); 
+    }
+
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function keepAudioAwake() { if (!audioCtx) initAudio(); if (audioCtx.state === 'running') { const buffer = audioCtx.createBuffer(1, 1, 22050); const source = audioCtx.createBufferSource(); source.buffer = buffer; source.connect(audioCtx.destination); source.start(0); } }
     function speak(rate) { if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; window.speechSynthesis.cancel(); setTimeout(() => { let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; currentUtterance = new SpeechSynthesisUtterance(txt); currentUtterance.lang = 'pl-PL'; currentUtterance.rate = rate; if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices(); const plVoice = availableVoices.find(v => v.lang.includes('pl')); if (plVoice) currentUtterance.voice = plVoice; currentUtterance.onend = function() { currentUtterance = null; }; window.speechSynthesis.speak(currentUtterance); }, 10); }
@@ -1225,7 +1395,7 @@
     function clearMistakes() { if(confirm("Clear your 'Needs Work' list?")) { localStorage.setItem('mistakes', "[]"); mistakes = []; renderStats(); } }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
     function updateRange() { let min=document.getElementById('minP').value, max=document.getElementById('maxP').value; if(parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; } document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString(); document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString(); }
-    function saveAndGenerate() { toggleSettings(); generate(); }
+
     function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
     function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
     function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); } osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
