@@ -594,6 +594,11 @@
         else if (state.mode === 'dictation') {
              enBox.classList.add('visible'); 
         }
+                else if (state.mode === 'dates') {
+             enBox.classList.add('visible');
+             if (badge) badge.classList.add('visible'); // Allow badge for dates
+        }
+
         
         // Blind Mode Badge
         if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
@@ -833,32 +838,67 @@
             state.currentPL = timeToPl(val.h, val.m, style === 'formal');
         } 
         // 6. DATES
-         else if (m === 'dates') {
-            // --- FIX: Added missing 'dziewiętnasty' and fixed 'dwudziesty drugi' ---
-            let ord = [
+                 else if (m === 'dates') {
+            // 1. Nominative (Dzisiaj jest...) - "Piąty"
+            let ordNom = [
                 "", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", 
-                "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty", // Added 19
-                "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", // Fixed 22
+                "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty",
+                "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty",
                 "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"
             ];
+
+            // 2. Genitive (Spotkanie jest...) - "Piątego"
+            let ordGen = [
+                "", "pierwszego", "drugiego", "trzeciego", "czwartego", "piątego", "szóstego", "siódmego", "ósmego", "dziewiątego", "dziesiątego",
+                "jedenastego", "dwunastego", "trzynastego", "czternastego", "piętnastego", "szesnastego", "siedemnastego", "osiemnastego", "dziewiętnastego",
+                "dwudziestego", "dwudziestego pierwszego", "dwudziestego drugiego", "dwudziestego trzeciego", "dwudziestego czwartego", "dwudziestego piątego",
+                "dwudziestego szóstego", "dwudziestego siódmego", "dwudziestego ósmego", "dwudziestego dziewiątego", "trzydziestego", "trzydziestego pierwszego"
+            ];
+
+            // Randomly choose context: 0 = Naming (Today is...), 1 = Event (On...)
+            // Default to Naming (0) if not specified
+            let contextType = Math.random() < 0.5 ? 0 : 1;
             
             let includeYear = document.getElementById('year-toggle').checked; 
             let includeDay = document.getElementById('day-toggle').checked;
-            let enStr = ""; let plStr = ""; 
             
-            if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; } 
+            let enStr = ""; 
+            let plStr = ""; 
             
-            enStr += `${val.d} ${MONTHS_EN[val.m]}`; 
-            // Safety check to prevent crash if random day is out of bounds (e.g. 31st)
-            let dayText = ord[val.d] || val.d.toString(); 
+            // --- ENGLISH DISPLAY ---
+            if (contextType === 1) enStr += "On "; // Add "On" prefix for events
+            
+            if (includeDay) { 
+                enStr += `${DAYS_EN[val.dow]}, `; 
+                plStr += `${DAYS_PL[val.dow]}, `; 
+            } 
+            
+            enStr += `${MONTHS_EN[val.m]} ${val.d}`; 
+            
+            // --- POLISH LOGIC ---
+            // Choose the correct list based on context
+            let activeList = (contextType === 1) ? ordGen : ordNom;
+            let dayText = activeList[val.d] || val.d.toString(); 
+            
             plStr += `${dayText} ${MONTHS_PL[val.m]}`; 
             
-            if (includeYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
+            if (includeYear) { 
+                enStr += ` ${val.y}`; 
+                // Year is always Genitive ("roku")
+                plStr += ` ${numToPl(val.y)} roku`; 
+            }
             
-            state.currentEN = enStr; state.currentPL = plStr;
-        }
+            state.currentEN = enStr; 
+            state.currentPL = plStr;
 
-    }
+            // Optional: Update Badge to show grammar rule
+            const badge = document.getElementById('grammar-badge');
+            if (badge) {
+                badge.innerText = (contextType === 1) ? "Event (Kiedy? Genitive)" : "Date (Jaki dzień? Nominative)";
+                badge.classList.add('visible');
+            }
+        }
+     }
 
 
     // --- UI & GRID GENERATION ---
