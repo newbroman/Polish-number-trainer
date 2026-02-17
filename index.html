@@ -156,8 +156,19 @@
                 </select>
             </div>
         </div>
+        <div class="set-group" id="set-speech-opts" style="display:none">
+            <div class="set-title">Speaking Topics</div>
+            <div class="set-row"><span>Numbers</span><input type="checkbox" id="speech-numbers" checked></div>
+            <div class="set-row"><span>Prices</span><input type="checkbox" id="speech-prices" checked></div>
+            <div class="set-row"><span>Time</span><input type="checkbox" id="speech-time" checked></div>
+            <div class="set-row"><span>Context</span><input type="checkbox" id="speech-context" checked></div>
+        </div>
         
         <div class="set-group" id="set-gameplay">
+            <div class="set-row">
+                <span>Blind Mode (No Text)</span>
+                <input type="checkbox" id="blind-toggle">
+            </div>
             <div class="set-title">Display</div>
              <div class="set-row">
                 <span>Theme</span>
@@ -1010,13 +1021,15 @@
             state.currentPL = plStr;
 
             // Optional: Update Badge to show grammar rule
+                        // Optional: Update Badge to show grammar rule
             const badge = document.getElementById('grammar-badge');
             if (badge) {
                 badge.innerText = (contextType === 1) ? "Event (Kiedy? Genitive)" : "Date (Jaki dzień? Nominative)";
                 badge.classList.add('visible');
             }
-        }
-     
+        }   // <--- Closes 'else if (dates)'
+    }       // <--- ADD THIS ONE (Closes 'function processValue')
+
 
 
     // --- UI & GRID GENERATION ---
@@ -1333,7 +1346,16 @@
     }
 
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
-    function keepAudioAwake() { if (!audioCtx) initAudio(); if (audioCtx.state === 'running') { const buffer = audioCtx.createBuffer(1, 1, 22050); const source = audioCtx.createBufferSource(); source.buffer = buffer; source.connect(audioCtx.destination); source.start(0); } }
+  function keepAudioAwake() { 
+        // FIX: Only try to keep audio awake if the user has already started it
+        if (!audioCtx || audioCtx.state !== 'running') return; 
+        
+        const buffer = audioCtx.createBuffer(1, 1, 22050); 
+        const source = audioCtx.createBufferSource(); 
+        source.buffer = buffer; 
+        source.connect(audioCtx.destination); 
+        source.start(0); 
+    }
     function speak(rate) { if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; window.speechSynthesis.cancel(); setTimeout(() => { let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; currentUtterance = new SpeechSynthesisUtterance(txt); currentUtterance.lang = 'pl-PL'; currentUtterance.rate = rate; if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices(); const plVoice = availableVoices.find(v => v.lang.includes('pl')); if (plVoice) currentUtterance.voice = plVoice; currentUtterance.onend = function() { currentUtterance = null; }; window.speechSynthesis.speak(currentUtterance); }, 10); }
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); if (d.style.display === 'flex') { d.style.display = 'none'; } else { d.style.display = 'flex'; renderStats(); } }
