@@ -1262,31 +1262,26 @@
     }
 
     function lose(btn) {
-        playSound('wrong'); state.streak = 0; state.wrongGuesses++;
-        let mistakeEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Wrong" }; mistakes.push(mistakeEntry); if (mistakes.length > 50) mistakes.shift(); localStorage.setItem('mistakes', JSON.stringify(mistakes));
-        if(btn) btn.classList.add('wrong'); else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "#d93025";
+        playSound('wrong'); 
+        state.streak = 0; 
+        state.wrongGuesses++;
         
-        // --- UPDATED REVEAL LOGIC ---
-        // For these modes, keep the answer hidden and just repeat the audio.
-        const hardModes = ['dates', 'context', 'gender'];
+        // Record mistake
+        let mistakeEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Wrong" }; 
+        mistakes.push(mistakeEntry); 
+        if (mistakes.length > 50) mistakes.shift(); 
+        localStorage.setItem('mistakes', JSON.stringify(mistakes));
         
-        if (hardModes.includes(state.mode)) {
-             // Do NOT reveal the text.
-             // Repeat the audio so the user can try again.
-             if (!state.handsfree) speak(1.0);
-        } else {
-             // For Numbers, Prices, etc., show the answer immediately as before.
-             const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
-             plBox.classList.add('visible'); enBox.classList.add('visible');
-             if (state.mode === 'context') { enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText; } 
-             else { plBox.innerText = state.currentPL; enBox.innerText = state.currentEN; }
-             
-             if (!state.handsfree) speak(0.8); 
-        }
+        // Visual feedback (Turn button red)
+        if(btn) btn.classList.add('wrong'); 
+        else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "#d93025";
+        
+        // DO NOT REVEAL ANSWER. Just repeat audio so user can try again.
+        if (!state.handsfree) speak(1.0); 
         
         updateUI();
     }
-
+    
     // --- SYSTEM UI & STATS ---
     function toggleHandsfree() { state.handsfree = !state.handsfree; let btn = document.getElementById('hf-btn'); if (state.handsfree) { btn.classList.add('active'); document.getElementById('badge-handsfree').style.display = 'block'; initAudio(); generate(); } else { btn.classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; window.speechSynthesis.cancel(); if (autoNextTimer) clearTimeout(autoNextTimer); } }
     function playHandsfreeSequence() { if (!state.handsfree) return; window.speechSynthesis.cancel(); let plText = (state.mode === 'context') ? state.speechText : state.currentPL; let enText = state.currentEN; let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); }; window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4); }
