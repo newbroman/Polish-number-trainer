@@ -2123,9 +2123,30 @@ function getOrdinalPL(n) {
 
 <style>
         /* Theme Variables */
-        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; }
+        :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; --callout-bg-blue: #f0f7ff;
+    --callout-border-blue: #cce5ff;
+    --callout-text-blue: #0056b3;
+    
+    --callout-bg-red: #fcf4f4;
+    --callout-border-red: #f8d7da;
+    --callout-text-red: #721c24;
+
+    --callout-bg-orange: #fff3e0;
+    --callout-border-orange: #ffe0b2;
+    --callout-text-orange: #e65100;
+        } 
         @media (prefers-color-scheme: dark) {
-            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; }
+            :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; --callout-bg-blue: #0d1b2a;
+        --callout-border-blue: #1b3a57;
+        --callout-text-blue: #a3cfbb;
+
+        --callout-bg-red: #2d1616;
+        --callout-border-red: #5c2b2b;
+        --callout-text-red: #f8d7da;
+
+        --callout-bg-orange: #2b1b0a;
+        --callout-border-orange: #52361b;
+        --callout-text-orange: #ffcc80; }
         }
         body.force-dark { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; }
         body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; }
