@@ -17,6 +17,7 @@
     <div class="stats-group">
         <div class="stat-item" title="XP">⭐ <span id="xp-display">0</span></div>
         <div class="stat-item" title="Streak">🔥 <span id="streak-display">0</span></div>
+        <div class="stat-item" title="Daily Goal">🎯 <span id="daily-display">0/300</span></div>
         <div class="stat-item" title="Rank">🏆 <span id="rank-display">Nowicjusz</span></div>
     </div>
     <div class="stats-group">
@@ -82,6 +83,7 @@
                 <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
                 <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="selectMode('phone')" id="nav-phone"><span>📱</span> Phone Nos</button>
                 <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤</button>
            </div>
         </div>
@@ -223,6 +225,7 @@
         
         <div class="tab-header">
             <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
+            <button class="tab-btn" onclick="setHelpTab('grammar')">Grammar</button>
             <button class="tab-btn" onclick="setHelpTab('gamemodes')">Modes</button>
             <button class="tab-btn" onclick="setHelpTab('campaign')">Campaign</button>
             <button class="tab-btn" onclick="setHelpTab('progress')">Stats</button>
@@ -235,25 +238,54 @@
                 <p class="help-p">2. Select the matching number/phrase.</p>
                 <p class="help-p">3. Answer quickly for bonus points!</p>
             </div>
+            <div id="tab-grammar" class="tab-content">
+            <div class="help-sec">
+                <div class="help-h">🧠 The 1, 2-4, 5+ Rule</div>
+                <p class="help-p">Polish numbers change the noun that follows them based on this strict mathematical rule:</p>
+                <ul style="margin-top:10px; padding-left:20px; font-size:0.9rem; color:var(--text); line-height: 1.5;">
+                    <li><b>Rule 1:</b> The number 1 uses <i>Nominative Singular</i> (e.g., 1 kot, 1 kobieta).</li>
+                    <li><b>Rule 2-4:</b> Numbers ending in 2, 3, or 4 use <i>Nominative Plural</i> (e.g., 2 koty, 3 kobiety).</li>
+                    <li><b>Rule 5+:</b> Numbers ending in 5-9, 0, and the teens (11-19) use <i>Genitive Plural</i> (e.g., 5 kotów, 5 kobiet).</li>
+                </ul>
+                <p class="help-p" style="margin-top:10px; font-size:0.85rem; color:#d93025;"><i>*Note: 12, 13, and 14 fall under the "Teens" exception and use Genitive Plural (Rule 5+).</i></p>
+            </div>
+            
+            <div class="help-sec">
+                <div class="help-h">🚻 Gender: 1 & 2</div>
+                <p class="help-p">Only the numbers 1 and 2 change spelling based on the gender of the noun.</p>
+                <p class="help-p"><b>1 (Jeden):</b> jeden chłopiec (m), jedna dziewczyna (f), jedno dziecko (n).</p>
+                <p class="help-p"><b>2 (Dwa):</b> dwa koty (m), dwie kobiety (f), dwa okna (n).</p>
+            </div>
+        </div>
+
+            <div class="help-sec">
+                <div class="help-h">⚔️ Campaign vs. Practice</div>
+                <div style="background:#f0f7ff; padding:10px; border-radius:8px; border:1px solid #cce5ff; margin-bottom:10px;">
+                    <p class="help-p" style="margin:0; color:#0056b3;"><strong>⭐ Auto Campaign (Recommended)</strong></p>
+                    <p class="help-p" style="margin:0; font-size:0.85rem;">The game automatically manages the difficulty, gradually introducing harder numbers and new grammar modes as you level up. Earn Campaign XP to increase your main Rank.</p>
+                </div>
+                <div style="background:#fcf4f4; padding:10px; border-radius:8px; border:1px solid #f8d7da;">
+                    <p class="help-p" style="margin:0; color:#721c24;"><strong>🏋️ Manual Practice</strong></p>
+                    <p class="help-p" style="margin:0; font-size:0.85rem;">Turn off Auto Campaign to use Manual Sliders. You pick the exact number ranges to drill. Earns Practice XP.</p>
+                </div>
+            </div>
 
             <div class="help-sec">
                 <div class="help-h">🏆 Scoring & XP</div>
-                <div style="background:#f8f9fa; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #eee;">
-                    <p class="help-p" style="margin-bottom:4px;"><strong>⭐ Campaign XP:</strong> Earned when "Auto Campaign" is ON.</p>
-                    <p class="help-p" style="margin-bottom:0;"><strong>🏋️ Practice XP:</strong> Earned using Manual Sliders.</p>
-                </div>
                 <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Base Score</p>
                 <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Speed Bonus (< 3s)</p>
-                <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Blind Mode (No text)</p>
                 <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Wrong Answer</p>
             </div>
 
             <div class="help-sec">
                 <div class="help-h">⏳ Time Penalties</div>
-                <p class="help-p"><span class="point-tag" style="background:#444; color:white;">> 10s</span> <b>-2 XP</b></p>
-                <p class="help-p"><span class="point-tag" style="background:#000; color:white;">> 20s</span> <b>-4 XP</b></p>
-                <p class="help-p" style="font-size:0.85rem; color:var(--error); margin-top:5px;">
-                    <i>*Slow correct answers are marked as "Needs Work" and will reappear in Review.</i>
+                <p class="help-p"><span class="point-tag" style="background:#444; color:white;">> 7s</span> <b>-2 XP</b></p>
+                <p class="help-p"><span class="point-tag" style="background:#000; color:white;">> 13s</span> <b>-4 XP</b></p>
+                <p class="help-p" style="font-size:0.85rem; color:#666; margin-top:5px;">
+                    <i>*Answers taking longer than 20s are ignored (assumes you got distracted).</i>
+                </p>
+                <p class="help-p" style="font-size:0.85rem; color:var(--error); margin-top:2px;">
+                    <i>*Slow correct answers (7s-20s) are marked as "Needs Work".</i>
                 </p>
             </div>
             
@@ -441,14 +473,14 @@
     // --- COMPLETE GAME LOGIC (MERGED) ---
 
     // --- GLOBAL STATE ---
-   let state = { 
+let state = { 
         mode: 'numbers', currentPL: '', currentEN: '', 
-        campaignXP: 0, // NEW: Only for Campaign/Rank
-        practiceXP: 0, // NEW: Only for Manual Mode
+        campaignXP: 0, practiceXP: 0, 
+        dailyXP: 0, dailyGoal: 300, goalMet: false, 
         streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
-        startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
-        genderTarget: null, currentContextKey: null,
-        handsfree: false
+        audioClicks: 0, audioPlaying: false, startTime: 0, needsWork: false, 
+        handsfree: false, speechText: null, wrongGuesses: 0, history: [],
+        genderTarget: null, currentContextKey: null
     };
     
     // --- PERSISTENT DATA ---
@@ -468,6 +500,7 @@
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let isListening = false;
+    let userInteracted = false;
 
     // --- INITIALIZATION ---
     function init() {
@@ -481,9 +514,31 @@
         if (oldXP) {
             state.campaignXP = parseInt(oldXP);
             localStorage.removeItem('xp'); // clear old key
+        } // <--- THIS BRACKET WAS MISSING!
+// LOAD DAILY GOALS
+        let todayStr = new Date().toDateString();
+        let lastPlay = localStorage.getItem('lastPlayDate');
+        if (lastPlay !== todayStr) {
+            // It's a new day! Reset daily XP.
+            state.dailyXP = 0;
+            state.goalMet = false;
+            localStorage.setItem('lastPlayDate', todayStr);
+            localStorage.setItem('dailyXP', 0);
+        } else {
+            // Same day, load existing daily progress
+            state.dailyXP = parseInt(localStorage.getItem('dailyXP') || 0);
+            if (state.dailyXP >= state.dailyGoal) state.goalMet = true;
         }
-        
-       // Setup Mic
+        // Load Campaign Toggle
+        const savedCamp = localStorage.getItem('campaignMode');
+        const isCamp = savedCamp !== null ? savedCamp === 'true' : true; // true by default
+        const campToggle = document.getElementById('campaign-toggle');
+        if (campToggle) {
+            campToggle.checked = isCamp;
+            toggleCampaign(); // This updates the UI immediately
+        }
+
+        // Setup Mic
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = false;
@@ -492,47 +547,48 @@
             recognition.maxAlternatives = 1;
             
             // WHEN MIC STARTS: Hide Grid, Show Listening Text
-        recognition.onstart = function() {
-            isListening = true;
-            document.getElementById('mic-btn').style.background = "#34a853";
-            
-            // Hide Grid/Tiles
-            document.getElementById('mc-area').style.display = 'none';
-            
-            // Show the answer box (type-area) so numerals appear there
-            document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').placeholder = "Listening...";
-            
-            const vCtrl = document.getElementById('voice-controls');
-            if(vCtrl) {
-                vCtrl.style.display = 'block';
-                vCtrl.innerHTML = "<p style='font-size:1.2rem; font-weight:bold; color:var(--primary); margin:0;'>Listening...</p>";
-            }
-        };
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('mic-btn').style.background = "#34a853";
+                
+                // Hide Grid/Tiles
+                document.getElementById('mc-area').style.display = 'none';
+                
+                // Show the answer box (type-area) so numerals appear there
+                document.getElementById('type-area').style.display = 'flex';
+                document.getElementById('type-input').placeholder = "Listening...";
+                
+                const vCtrl = document.getElementById('voice-controls');
+                if(vCtrl) {
+                    vCtrl.style.display = 'block';
+                    vCtrl.innerHTML = "<p style='font-size:1.2rem; font-weight:bold; color:var(--primary); margin:0;'>Listening...</p>";
+                }
+            };
 
-       // WHEN MIC ENDS: Restore UI
-        recognition.onend = function() {
-            isListening = false;
-            document.getElementById('mic-btn').style.background = "#ea4335";
-            document.getElementById('type-input').placeholder = "Type answer...";
-            
-            // Revert UI to the correct state for the current mode
-            setTimeout(() => {
-                if (!state.solved) applySettings(); 
-            }, 500);
-        };
+            // WHEN MIC ENDS: Restore UI
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('mic-btn').style.background = "#ea4335";
+                document.getElementById('type-input').placeholder = "Type answer...";
+                
+                // Revert UI to the correct state for the current mode
+                setTimeout(() => {
+                    if (!state.solved) applySettings(); 
+                }, 500);
+            };
 
-        recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
-    } else {
-         document.getElementById('mic-btn').style.display='none';
-    }
+            recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
+        } else {
+             document.getElementById('mic-btn').style.display='none';
+        }
+        
         // Setup Voices
         loadVoices();
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
-       // Input Listeners
+        // Input Listeners
         document.addEventListener('keydown', (e) => {
             // NEW: Block keyboard input while audio is speaking
             if (state.audioPlaying) return; 
@@ -550,8 +606,25 @@
         });
         
         // Audio Heartbeat
-        audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
-        document.body.addEventListener('click', initAudio, { once: true });
+       audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
+        
+        const unlockEvents = ['click', 'touchstart', 'keydown'];
+        const unlockAudio = () => {
+            if (userInteracted) return;
+            userInteracted = true;            
+            initAudio();
+            
+            // CHROME FIX: Empty strings ('') can crash the queue. Use a blank space (' ') instead.
+            let unlockVoice = new SpeechSynthesisUtterance(' ');
+            unlockVoice.volume = 0;
+            window.speechSynthesis.speak(unlockVoice);
+            
+            // Clean up listeners once audio is unlocked
+            unlockEvents.forEach(e => document.removeEventListener(e, unlockAudio, { capture: true }));
+        };
+
+        // Listen for ANY type of interaction to unlock audio
+        unlockEvents.forEach(e => document.addEventListener(e, unlockAudio, { capture: true }));
         
         // Load UI
         updateUI(); 
@@ -923,6 +996,14 @@ function generate() {
             let dow = Math.floor(Math.random()*7);
             return {d, m:mIdx, y, dow};
         }
+        // --- NEW: PHONE NUMBERS ---
+        else if (m === 'phone') {
+            // Generates 3 random 3-digit blocks
+            let p1 = Math.floor(Math.random() * 400) + 500; // 500-899 (Common Polish prefixes)
+            let p2 = Math.floor(Math.random() * 900) + 100; // 100-999
+            let p3 = Math.floor(Math.random() * 900) + 100; // 100-999
+            return { p1, p2, p3 };
+        }
         // --- 6. GENDER ---
         else if (m === 'gender') {
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
@@ -1115,6 +1196,11 @@ function generate() {
                 state.currentPL = `${numToPl(n)} ${grText}`;
             }
         } 
+        // --- NEW: PHONE NUMBERS ---
+        else if (m === 'phone') {
+            state.currentEN = `${val.p1} ${val.p2} ${val.p3}`;
+            state.currentPL = `${numToPl(val.p1)}, ${numToPl(val.p2)}, ${numToPl(val.p3)}`;
+        }
         // 5. TIME
         else if (m === 'time') {
             state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`; 
@@ -1338,6 +1424,13 @@ function generate() {
                             }
                         }
                     }
+                    else if (state.mode === 'phone') {
+                        if (showDigits) {
+                            fakeText = `${fakeVal.p1} ${fakeVal.p2} ${fakeVal.p3}`;
+                        } else {
+                            fakeText = `${numToPl(fakeVal.p1)}, ${numToPl(fakeVal.p2)}, ${numToPl(fakeVal.p3)}`;
+                        }
+                    }
                     // TIME
                     else if (state.mode === 'time') {
                         if (showDigits) {
@@ -1433,7 +1526,7 @@ function generate() {
     }
     function toggleMic() { if (!recognition) { alert("Voice input not supported."); return; } if (isListening) recognition.stop(); else { initAudio(); recognition.start(); } }
 
-    function win(btn) {
+function win(btn) {
         playSound('correct'); state.solved = true;
         let timeTaken = (Date.now() - state.startTime) / 1000;
         let score = 10; 
@@ -1444,12 +1537,12 @@ function generate() {
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
             score = 5; 
         } else {
-            // Normal Scoring
+            // Normal Scoring Base Modifiers
             if (typeof state.rawData === 'number') { let val = state.rawData; if (!Number.isInteger(val)) score += 3; if (val >= 1000) score += 2; }
             if (state.mode === 'context') score += 5;
 
-            // Weak Phrase Logic
-            if (timeTaken > 15) { 
+            // "Needs Work" Logic: Flag slow answers between 7s and 20s
+            if (timeTaken > 7 && timeTaken <= 20) { 
                 let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" }; 
                 mistakes.push(struggleEntry); 
                 if (mistakes.length > 50) mistakes.shift(); 
@@ -1457,14 +1550,25 @@ function generate() {
             }
         }
 
+        // --- TIME PENALTIES & BONUSES ---
         let audioPenalty = state.audioClicks * 2;
         let timePenalty = 0;
-        if (timeTaken > 20) timePenalty = 4; else if (timeTaken > 10) timePenalty = 2;
+        
+        if (timeTaken < 3) {
+            score += 5; // Speed Bonus!
+        } else if (timeTaken > 20) {
+            timePenalty = 0; // Distracted: No time penalty applied
+        } else if (timeTaken > 13) {
+            timePenalty = 4; // Major Slow Penalty
+        } else if (timeTaken > 7) {
+            timePenalty = 2; // Minor Slow Penalty
+        }
+
         let totalPenalty = audioPenalty + timePenalty; 
         if (score - totalPenalty < 1) totalPenalty = score - 1; 
         score -= totalPenalty;
         
-        // --- NEW: SPLIT SCORING ---
+        // --- SPLIT SCORING ---
         const isCamp = document.getElementById('campaign-toggle').checked;
         if (isCamp) {
             state.campaignXP += score;
@@ -1474,6 +1578,19 @@ function generate() {
         
         state.streak++; 
         categoryStats[state.mode] += score; 
+        // DAILY GOAL LOGIC
+        if (!state.goalMet) {
+            state.dailyXP += score;
+            localStorage.setItem('dailyXP', state.dailyXP);
+            
+            if (state.dailyXP >= state.dailyGoal) {
+                state.goalMet = true;
+                setTimeout(() => {
+                    fireConfetti();
+                    alert("🎯 Daily Goal Met! You earned 300 XP today. Great job!");
+                }, 500);
+            }
+        }
         saveAllStats();
         
         document.getElementById('badge-score').innerText = `+${score}`; 
@@ -1599,7 +1716,25 @@ function updateModeUI(m) {
         generate(); 
     }
 
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            
+            // CHROME FIX: Play a 1ms silent tone immediately to permanently unlock the context
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0; // Completely silent
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.01);
+        }
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
   function keepAudioAwake() { 
         // FIX: Only try to keep audio awake if the user has already started it
         if (!audioCtx || audioCtx.state !== 'running') return; 
@@ -1610,44 +1745,49 @@ function updateModeUI(m) {
         source.connect(audioCtx.destination); 
         source.start(0); 
     }
-    function speak(rate) { 
-        if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; 
+    // NEW: Track the first voice so we don't crash Chrome!
+    let isFirstVoice = true;
+
+   function speak(rate) { 
+        if (!userInteracted) return; 
+
+        // 1. Force a clean slate
         window.speechSynthesis.cancel(); 
         
-        // 1. FREEZE TILES
         state.audioPlaying = true;
         const grid = document.getElementById('mc-area');
-        if (grid) {
-            grid.style.pointerEvents = 'none';
-            grid.style.opacity = '0.5';
-        }
+        if (grid) { grid.style.pointerEvents = 'none'; grid.style.opacity = '0.5'; }
 
+        // 2. Linux Mint Fix: Use a longer delay (250ms) to let the system voice engine reset
         setTimeout(() => { 
             let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; 
+            
             currentUtterance = new SpeechSynthesisUtterance(txt); 
             currentUtterance.lang = 'pl-PL'; 
             currentUtterance.rate = rate; 
             
-            if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices(); 
-            const plVoice = availableVoices.find(v => v.lang.includes('pl')); 
-            if (plVoice) currentUtterance.voice = plVoice; 
+            // Re-fetch to ensure Linux hasn't dropped the voice
+            const voices = window.speechSynthesis.getVoices();
+            const plVoice = voices.find(v => v.lang.includes('pl') || v.lang.includes('PL')); 
             
-            // 2. UNFREEZE TILES WHEN AUDIO ENDS
+            if (plVoice) {
+                currentUtterance.voice = plVoice;
+            }
+
             currentUtterance.onend = function() { 
-                currentUtterance = null; 
                 state.audioPlaying = false;
                 if (grid) { grid.style.pointerEvents = 'auto'; grid.style.opacity = '1'; }
+                currentUtterance = null;
             }; 
-            
-            // Fallback: Unfreeze if audio fails to load
+
             currentUtterance.onerror = function() { 
-                currentUtterance = null; 
                 state.audioPlaying = false;
                 if (grid) { grid.style.pointerEvents = 'auto'; grid.style.opacity = '1'; }
+                currentUtterance = null;
             };
 
             window.speechSynthesis.speak(currentUtterance); 
-        }, 10); 
+        }, 250); 
     }
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); if (d.style.display === 'flex') { d.style.display = 'none'; } else { d.style.display = 'flex'; renderStats(); } }
@@ -1673,9 +1813,10 @@ function setHelpTab(tabName) {
     // 4. Activate the matching button
     const btns = document.querySelectorAll('.tab-btn');
     if(tabName === 'guide') btns[0].classList.add('active');
-    if(tabName === 'gamemodes') btns[1].classList.add('active');
-    if(tabName === 'campaign') btns[2].classList.add('active');
-    if(tabName === 'progress') btns[3].classList.add('active');
+    if(tabName === 'grammar') btns[1].classList.add('active');
+    if(tabName === 'gamemodes') btns[2].classList.add('active');
+    if(tabName === 'campaign') btns[3].classList.add('active');
+    if(tabName === 'progress') btns[4].classList.add('active');
 }
     
 function renderStats() {
@@ -1849,7 +1990,48 @@ function renderStats() {
     }
     function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
 
-    function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); } osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
+  function playTone(freq, type, dur, vol) {
+        initAudio(); // This now guarantees the context is awake
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+    }
+
+    function playSound(type) { 
+        initAudio(); 
+        if (type === 'correct') { 
+            // 1. Calculate the current step based on confetti reset points (5, 10, 20, 30...)
+            let s = state.streak;
+            let step = s < 5 ? s : (s >= 5 && s < 10 ? s - 5 : s % 10);
+            
+            // 2. Map the step to semitones on a Major Scale
+            const majorScale = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16]; 
+            let semitones = majorScale[step] || 0;
+            
+            // 3. Calculate pitch multiplier (12-tone equal temperament)
+            let pitchMult = Math.pow(1.059463, semitones);
+
+            // 4. Play the ascending "Ding-Ding"
+            playTone(523.25 * pitchMult, 'sine', 0.3, 0.15); 
+            setTimeout(() => playTone(659.25 * pitchMult, 'sine', 0.4, 0.15), 100); 
+            
+        } else { 
+            // Soft negative "thud" (always stays the same pitch)
+            playTone(150, 'triangle', 0.2, 0.2); 
+            setTimeout(() => playTone(100, 'triangle', 0.3, 0.2), 80); 
+        } 
+    }
     
     function runTranslator() { let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return; let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt; window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10); }
    
@@ -1893,6 +2075,15 @@ function updateUI() {
     const streakBox = document.querySelector('.stat-item[title="Streak"]');
     if(streakBox) {
         streakBox.innerHTML = `🔥 <span id="streak-display">${state.streak}</span>`;
+    }
+    // Update Daily Goal Display
+    const dailyBox = document.getElementById('daily-display');
+    if (dailyBox) {
+        if (state.goalMet) {
+            dailyBox.innerHTML = `<span style="color:var(--secondary)">Done! ✔️</span>`;
+        } else {
+            dailyBox.innerText = `${state.dailyXP}/${state.dailyGoal}`;
+        }
     }
 }
 </script>
