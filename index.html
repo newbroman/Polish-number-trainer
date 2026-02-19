@@ -83,6 +83,7 @@
                 <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
                 <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="selectMode('ordinal')" id="nav-ordinal"><span>🥇</span> Ordinals</button>
                 <button class="mode-btn" onclick="selectMode('phone')" id="nav-phone"><span>📱</span> Phone Nos</button>
                 <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤</button>
            </div>
@@ -297,6 +298,16 @@
                 <p class="help-p"><b>➡️ Skip:</b> Reveal answer (No points).</p>
                 <p class="help-p"><b>PC:</b> Use keys 1-8 to select answers.</p>
             </div>
+            <div class="help-sec" style="border-top: 1px solid var(--border); margin-top: 20px; padding-top: 10px;">
+                <div class="help-h">⚠️ Audio & Browser Support</div>
+                <p class="help-p" style="font-size: 0.85rem;"><b>Recommended:</b> Chrome, Edge, or Safari. <br><b>Limited Support:</b> Firefox and Brave may block the Polish voice engine by default.    </p>
+                <p class="help-p" style="font-size: 0.85rem; margin-top: 8px;"><b>If silent:</b>
+                <br>• Tap the screen once to "wake up" the audio engine.
+                <br>• <b>Linux Users:</b> Chrome may need the <code>espeak-ng</code> package.
+                <br>• <b>Brave Users:</b> Disable "Shields" or "Fingerprinting Protection" for this site.
+                <br>• <b>Firefox:</b> Go to <i>Settings > Privacy > Autoplay</i> and allow Audio.</p>
+            </div>
+            
         </div>
 
         <div id="tab-gamemodes" class="tab-content">
@@ -1004,6 +1015,9 @@ function generate() {
             let p3 = Math.floor(Math.random() * 900) + 100; // 100-999
             return { p1, p2, p3 };
         }
+        else if (m === 'ordinal') {
+            return Math.floor(Math.random() * 20) + 1;
+        }
         // --- 6. GENDER ---
         else if (m === 'gender') {
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
@@ -1021,6 +1035,7 @@ function generate() {
             }
             return { num: n, noun };
         }
+      
     }
 
     
@@ -1094,6 +1109,8 @@ function generate() {
     function processValue(val, activeMode) {
         state.rawData = val;
         let m = activeMode || state.mode;
+
+
         
         // 1. GENDER MODE (Pierogi Logic)
         if (m === 'gender') {
@@ -1200,6 +1217,10 @@ function generate() {
         else if (m === 'phone') {
             state.currentEN = `${val.p1} ${val.p2} ${val.p3}`;
             state.currentPL = `${numToPl(val.p1)}, ${numToPl(val.p2)}, ${numToPl(val.p3)}`;
+        }
+        else if (m === 'ordinal') {
+            state.currentEN = val + "."; 
+            state.currentPL = getOrdinalPL(val);
         }
         // 5. TIME
         else if (m === 'time') {
@@ -1423,6 +1444,9 @@ function generate() {
                                 fakeText = `${numToPl(n)} ${grText}`;
                             }
                         }
+                    }
+                    else if (state.mode === 'ordinal') {
+                        fakeText = showDigits ? fakeVal + "." : getOrdinalPL(fakeVal);
                     }
                     else if (state.mode === 'phone') {
                         if (showDigits) {
@@ -2086,6 +2110,15 @@ function updateUI() {
         }
     }
 }
+function getOrdinalPL(n) {
+    const ordinals = {
+        1: "pierwszy", 2: "drugi", 3: "trzeci", 4: "czwarty", 5: "piąty",
+        6: "szósty", 7: "siódmy", 8: "ósmy", 9: "dziewiąty", 10: "dziesiąty",
+        11: "jedenasty", 12: "dwunasty", 13: "trzynasty", 14: "czternasty", 15: "piętnasty",
+        16: "szesnasty", 17: "siedemnasty", 18: "osiemnasty", 19: "dziewiętnasty", 20: "dwudziesty"
+    };
+    return ordinals[n] || n + "."; // Fallback for higher numbers
+}
 </script>
 
 <style>
@@ -2310,6 +2343,37 @@ function updateUI() {
         /* Hide all content by default, show only active */
         .tab-content { display: none; animation: popIn 0.3s; }
         .tab-content.active { display: block; }
+
+        .modal-content {
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.help-p, .help-sec {
+    color: var(--text) !important;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+
+/* Specific fix for the bullet points we added */
+#tab-grammar ul li {
+    color: var(--text) !important;
+}
+
+.help-h {
+    color: var(--secondary); /* Keep headings colorful */
+    font-weight: bold;
+    margin-bottom: 8px;
+}
     </style>
 </body>
 </html>
