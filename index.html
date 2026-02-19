@@ -82,9 +82,8 @@
                 <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
                 <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
-                <button class="mode-btn" onclick="selectMode('dictation')" id="nav-dictation"><span>🎙️</span> Dictation</button>
-                <button class="mode-btn" onclick="selectMode('speech')" id="nav-speech" style="background:#ea4335; color:white; border-color:#ea4335"><span>🗣️</span> Speaking</button>
-            </div>
+                <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤</button>
+           </div>
         </div>
 
         <div class="set-group" style="border: 2px solid var(--secondary); background: rgba(52, 168, 83, 0.05);">
@@ -107,7 +106,7 @@
             </div>
         </div>
 
-        <div class="set-group" id="set-range">
+<div class="set-group" id="set-range">
             <div class="set-title">Manual Options</div>
 
             <div id="manual-sliders">
@@ -115,22 +114,37 @@
                     <span>Min: <span id="lbl-min">1</span></span>
                    <div style="width:50%"><input type="range" id="minP" min="0" max="6" value="0" oninput="updateRange()"></div>
                 </div>
+
                 <div class="set-row">
                     <span>Max: <span id="lbl-max">100</span></span>
                    <div style="width:50%"><input type="range" id="maxP" min="1" max="7" value="2" oninput="updateRange()"></div>
                 </div>
             </div>
 
-            <div id="modifiers-box" style="margin-top:15px; padding-top:10px; border-top:1px solid var(--border);">
-                <div class="set-title" style="color:#666; margin-bottom:8px;">Challenges</div>
+            <div id="modifiers-box" style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
+                <div class="set-title">Challenge Modes</div>
                 
-                <div class="set-row"><span>➖ Negative Numbers</span> <input type="checkbox" id="negatives-toggle"></div>
-                <div class="set-row"><span>⅒ Fractions</span> <input type="checkbox" id="fractions-toggle"></div>
-                <div class="set-row"><span>.00 Decimals</span> <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()"></div>
-                
-                <div class="set-row" id="decimal-opts" style="display:none; background:rgba(0,0,0,0.03); padding:5px 10px; border-radius:8px;">
-                    <span style="font-size:0.8rem">Precision: <span id="lbl-dp">2</span></span>
-                    <input type="range" id="decimal-places" min="1" max="3" value="2" style="width:60px" oninput="document.getElementById('lbl-dp').innerText=this.value">
+                <div class="set-row">
+                    <span>Negatives (Minusy)</span>
+                    <input type="checkbox" id="negatives-toggle">
+                </div>
+
+                <div class="set-row">
+                    <span>Decimals (Ułamki dziesiętne)</span>
+                    <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()">
+                </div>
+                <div id="decimal-opts" class="set-row" style="display:none; font-size:0.9rem; color:#666; padding-left:10px;">
+                    <span>Decimal Places:</span>
+                    <input type="number" id="decimal-places" value="1" min="1" max="2" style="width:50px">
+                </div>
+
+                <div class="set-row">
+                    <span>Fractions (Ułamki zwykłe)</span>
+                    <input type="checkbox" id="fractions-toggle" onchange="toggleFractions()">
+                </div>
+                <div id="fraction-opts" class="set-row" style="display:none; font-size:0.9rem; color:#666; padding-left:10px;">
+                    <span>Include Mixed (1 ½)</span>
+                    <input type="checkbox" id="mixed-numbers-toggle">
                 </div>
             </div>
         </div>
@@ -165,10 +179,14 @@
         </div>
         
         <div class="set-group" id="set-gameplay">
+            <div class="set-title">Gameplay</div>
             <div class="set-row">
                 <span>Blind Mode (No Text)</span>
                 <input type="checkbox" id="blind-toggle">
             </div>
+        </div>
+
+        <div class="set-group" id="set-display">
             <div class="set-title">Display</div>
              <div class="set-row">
                 <span>Theme</span>
@@ -180,7 +198,7 @@
             </div>
             <div class="set-row">
                 <span>Button Text</span>
-                <select id="btn-style-sel" onchange="saveAndGenerate()">
+                <select id="btn-style-sel" onchange="savePrefs(); generate()">
                     <option value="digits">Digits (Easy)</option>
                     <option value="words">Polish Words (Hard)</option>
                 </select>
@@ -195,7 +213,6 @@
                 </select>
             </div>
         </div>
-
         <button class="btn-check" onclick="saveAndGenerate()">Save & Restart</button>
 
     </div>
@@ -206,12 +223,13 @@
         
         <div class="tab-header">
             <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
-            <button class="tab-btn" onclick="setHelpTab('modes')">Modes</button>
+            <button class="tab-btn" onclick="setHelpTab('modes')">Campaign</button>
             <button class="tab-btn" onclick="setHelpTab('progress')">Stats</button>
         </div>
 
         <div id="tab-guide" class="tab-content active">
             <div class="help-sec">
+                <p class="help-p"></p>
                 <div class="help-h">🎮 How to Play</div>
                 <p class="help-p">1. Listen to the Polish number.</p>
                 <p class="help-p">2. Select the matching number/phrase.</p>
@@ -220,6 +238,10 @@
 
             <div class="help-sec">
                 <div class="help-h">🏆 Scoring & XP</div>
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #eee;">
+                    <p class="help-p" style="margin-bottom:4px;"><strong>⭐ Campaign XP:</strong> Earned when "Auto Campaign" is ON.</p>
+                    <p class="help-p" style="margin-bottom:0;"><strong>🏋️ Practice XP:</strong> Earned using Manual Sliders.</p>
+                </div>
                 <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Base Score</p>
                 <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Speed Bonus (< 3s)</p>
                 <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Blind Mode (No text)</p>
@@ -230,76 +252,70 @@
                 <div class="help-h">⏳ Time Penalties</div>
                 <p class="help-p"><span class="point-tag" style="background:#444; color:white;">> 10s</span> <b>-2 XP</b></p>
                 <p class="help-p"><span class="point-tag" style="background:#000; color:white;">> 20s</span> <b>-4 XP</b></p>
-                <p class="help-p" style="font-size:0.85rem; color:var(--error);"><i>*Slow correct answers are marked as "Needs Work".</i></p>
+                <p class="help-p" style="font-size:0.85rem; color:var(--error); margin-top:5px;">
+                    <i>*Slow correct answers are marked as "Needs Work" and will reappear in Review.</i>
+                </p>
             </div>
             
              <div class="help-sec">
                 <div class="help-h">🎹 Controls</div>
+                <p class="help-p"><b>🐢/🐇 Toggle:</b> Listen. Change audio speed (Slow/Fast).</p>
+                <p class="help-p"><b>🎤 Mic Button:</b> Speak the answer (Dictation).</p>   
+                <p class="help-p"><b>🚗 Handsfree:</b> Auto-play loop (perfect for driving).</p>
+                <p class="help-p"><b>➡️ Skip:</b> Reveal answer (No points).</p>
+                <p class="help-p"></p>
                 <p class="help-p"><b>PC:</b> Use keys 1-8 to select answers.</p>
-                <p class="help-p"><b>🚗 Handsfree:</b> Toggles auto-play loop (perfect for driving).</p>
+               
             </div>
         </div>
 
         <div id="tab-modes" class="tab-content">
-            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">Each mode targets a specific area of Polish grammar.</p>
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">
+                <strong>Auto Campaign</strong> guides you through 6 levels of difficulty.
+            </p>
 
             <div class="set-group">
-                <div class="set-title">123 Numbers</div>
-                <p class="help-p">The core mode. Practice standard counting.</p>
-                <p class="help-p"><i>Focus: Large numbers, decimals, negatives.</i></p>
+                <div class="set-title">Lvl 1: Novice (1-20)</div>
+                <p class="help-p">The basics. Mastering 1-10 and the "teens".</p>
             </div>
 
             <div class="set-group">
-                <div class="set-title">💬 Context (Sentences)</div>
-                <p class="help-p">Polish numbers change endings based on the noun.</p>
-                <p class="help-p"><b>Example:</b> "2 lata" (years) vs "5 lat".</p>
-                <p class="help-p"><i>Focus: Grammatical cases (Genitive/Nominative).</i></p>
+                <div class="set-title">Lvl 2: Apprentice (1-100)</div>
+                <p class="help-p"><b>Focus:</b> The "Tens" pattern (20, 30...).</p>
+                <p class="help-p"><b>New:</b> Gender (1/2) & Prices (zł/gr).</p>
             </div>
 
             <div class="set-group">
-                <div class="set-title">$$ Prices</div>
-                <p class="help-p">Practice currency declensions.</p>
-                <p class="help-p"><b>Example:</b> "2 złote" vs "5 złotych" vs "1 grosz".</p>
+                <div class="set-title">Lvl 3: Journeyman (1-1,000)</div>
+                <p class="help-p"><b>Focus:</b> Hundreds pattern.</p>
+                <p class="help-p"><b>New:</b> Time (Clock) & Negative Numbers.</p>
             </div>
 
             <div class="set-group">
-                <div class="set-title">🕒 Time</div>
-                <p class="help-p"><b>Casual:</b> "Za dziesięć druga" (10 to 2).</p>
-                <p class="help-p"><b>Formal:</b> "Trzynasta pięćdziesiąt" (13:50).</p>
+                <div class="set-title">Lvl 4: Expert (1-100,000)</div>
+                <p class="help-p"><b>Focus:</b> Thousands.</p>
+                <p class="help-p"><b>New:</b> Dates (Years/Months) & Decimals.</p>
             </div>
 
             <div class="set-group">
-                <div class="set-title">📅 Dates</div>
-                <p class="help-p">Ordinal numbers (first, second) and months.</p>
-                <p class="help-p"><b>Example:</b> "Pierwszy maja" (1st of May).</p>
+                <div class="set-title">Lvl 5: Master (1 Million)</div>
+                <p class="help-p"><b>Focus:</b> Large scale numbers.</p>
+                <p class="help-p"><b>New:</b> Context (Sentences & Cases).</p>
             </div>
 
             <div class="set-group">
-                <div class="set-title">🚻 Gender</div>
-                <p class="help-p">Numbers 1 and 2 change based on gender.</p>
-                <p class="help-p"><b>1:</b> Jeden (m), Jedna (f), Jedno (n).</p>
-                <p class="help-p"><b>2:</b> Dwa (m/n), Dwie (f).</p>
+                <div class="set-title">Lvl 6: Guru (100 Million)</div>
+                <p class="help-p"><b>Final Challenge.</b></p>
+                <p class="help-p"><b>New:</b> Fractions (1/2) & Mixed Numbers.</p>
             </div>
             
             <div class="set-group">
-                <div class="set-title">🎙️ Dictation</div>
-                <p class="help-p">No buttons. Listen and type the digits exactly.</p>
-            </div>
-
-            <div class="set-group">
-                <div class="set-title">🗣️ Speaking</div>
-                <p class="help-p">Voice training. Read the number shown and speak it in Polish into your microphone.</p>
+                <div class="set-title">🔤 Translator Mode</div>
+                <p class="help-p">Select the 🔤 tab to type any number (e.g., "1984" or "2.5") and hear it spoken in Polish.</p>
             </div>
         </div>
 
         <div id="tab-progress" class="tab-content">
-            <div style="text-align:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid var(--border);">
-                <h2 id="rank-name" style="color:var(--rank-color); margin:0">Novice</h2>
-                <div style="font-size:0.9rem; color:#888">Current Rank</div>
-                <h3 style="margin:5px 0">Total XP: <span id="total-xp-modal">0</span></h3>
-                <div style="font-size:0.8rem">Next Rank in: <span id="xp-needed">500</span> XP</div>
-            </div>
-            
             <div id="stats-container"></div>
         </div>
     </div>
@@ -337,13 +353,23 @@
 
     const RANKS = [
         { limit: 0, name: "Nowicjusz (Novice)" },
-        { limit: 500, name: "Uczeń (Apprentice)" },
-        { limit: 1500, name: "Czeladnik (Journeyman)" },
-        { limit: 3000, name: "Ekspert (Expert)" },
-        { limit: 5000, name: "Mistrz (Master)" }
+        { limit: 200, name: "Uczeń (Apprentice)" },
+        { limit: 5000, name: "Czeladnik (Journeyman)" },
+        { limit: 10000, name: "Ekspert (Expert)" },
+        { limit: 20000, name: "Mistrz (Master)" },
+        { limit: 50000, name: "Guru (Guru)" }
     ];
-    // --- EXPANDED NOUNS WITH LOGIC TAGS ---
-    // --- EXPANDED NOUNS WITH LOGIC TAGS ---
+
+    const PRACTICE_RANKS = [
+        { limit: 0, name: "Tourist" },
+        { limit: 500, name: "Trainee" },
+        { limit: 5000, name: "Grinder" },
+        { limit: 10000, name: "Gym Rat" },
+        { limit: 25000, name: "Veteran" },
+        { limit: 50000, name: "Legend" }
+    ];
+
+        // --- EXPANDED NOUNS WITH LOGIC TAGS ---
     const GENDER_NOUNS = [
         // LOGIC: 'living' (Max 20)
         { word: "pies", pl: "psy", gen: "psów", form: "m", en: "dog", logic: "living" },
@@ -401,8 +427,11 @@
     // --- COMPLETE GAME LOGIC (MERGED) ---
 
     // --- GLOBAL STATE ---
-    let state = { 
-        mode: 'numbers', currentPL: '', currentEN: '', xp: 0, streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
+   let state = { 
+        mode: 'numbers', currentPL: '', currentEN: '', 
+        campaignXP: 0, // NEW: Only for Campaign/Rank
+        practiceXP: 0, // NEW: Only for Manual Mode
+        streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false, 
         startTime: 0, audioClicks: 0, wrongGuesses: 0, history: [],
         genderTarget: null, currentContextKey: null,
         handsfree: false
@@ -428,29 +457,57 @@
 
     // --- INITIALIZATION ---
     function init() {
-        state.xp = parseInt(localStorage.getItem('xp') || 0);
+       
+        // LOAD XP SEPARATELY
+        state.campaignXP = parseInt(localStorage.getItem('campaignXP') || 0);
+        state.practiceXP = parseInt(localStorage.getItem('practiceXP') || 0);
         
-        // Setup Mic
+        // Backward Compatibility: If user has old 'xp', move it to campaignXP
+        let oldXP = localStorage.getItem('xp');
+        if (oldXP) {
+            state.campaignXP = parseInt(oldXP);
+            localStorage.removeItem('xp'); // clear old key
+        }
+        
+       // Setup Mic
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = false;
             recognition.lang = 'pl-PL';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
+            
+            // WHEN MIC STARTS: Hide Grid, Show Listening Text
             recognition.onstart = function() {
                 isListening = true;
                 document.getElementById('mic-btn').style.background = "#34a853";
-                document.getElementById('voice-feedback').innerText = "Listening...";
+                
+                // Hide Grid/Inputs
+                document.getElementById('mc-area').style.display = 'none';
+                document.getElementById('type-area').style.display = 'none';
+                
+                // Show Listening Indicator
+                const vCtrl = document.getElementById('voice-controls');
+                vCtrl.style.display = 'block';
+                vCtrl.innerHTML = "<p style='font-size:1.2rem; font-weight:bold; color:var(--primary); margin:0;'>Listening...</p>";
             };
+
+            // WHEN MIC ENDS: Restore Grid
             recognition.onend = function() {
                 isListening = false;
                 document.getElementById('mic-btn').style.background = "#ea4335";
+                
+                // Restore the Grid or Type input by reapplying settings
+                // (Wait a small moment if user spoke so they don't see a flicker before 'Win' animation)
+                setTimeout(() => {
+                    if (!state.solved) applySettings(); 
+                }, 200);
             };
+
             recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
         } else {
              document.getElementById('mic-btn').style.display='none';
         }
-
         // Setup Voices
         loadVoices();
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
@@ -505,20 +562,20 @@
             if(controls) controls.style.display = 'none';
             if(sliders) sliders.style.display = 'block';
         }
-        saveAndGenerate();
+         savePrefs();
+         updateUI();
     }
 
     function adjustLevel(dir) {
         state.campLevel += dir;
         // Clamp between Level 1 and 5
         if (state.campLevel < 1) state.campLevel = 1;
-        if (state.campLevel > 5) state.campLevel = 5;
+        if (state.campLevel > 6) state.campLevel = 6;
         
         updateLevelDisplay();
-        generate(); // Regenerate immediately
     }
 
-    function updateLevelDisplay() {
+   function updateLevelDisplay() {
         const numEl = document.getElementById('lvl-num');
         const descEl = document.getElementById('lvl-desc');
         if(!numEl || !descEl) return;
@@ -526,37 +583,40 @@
         numEl.innerText = state.campLevel;
         
         const desc = [
-            "Novice (1-10)",              // Lvl 1
-            "Apprentice (1-100)",         // Lvl 2
-            "Journeyman (1-1,000)",       // Lvl 3
-            "Expert (1-10,000)",          // Lvl 4
-            "Master (1-100,000)"          // Lvl 5
+            "Novice (1-200)",              // Lvl 1
+            "Apprentice (1-5,000)",        // Lvl 2
+            "Journeyman (1-10,000)",       // Lvl 3
+            "Expert (1-20,000)",           // Lvl 4
+            "Master (1-50,000)",           // Lvl 5
+            "Guru (1-200,000)"             // Lvl 6
         ];
         
-        descEl.innerText = desc[state.campLevel - 1];
+        descEl.innerText = desc[state.campLevel - 1] || desc[0];
     }
-
-    function saveAndGenerate() {
-        // 1. Save Manual Sliders (if they exist)
+    function savePrefs() {
+        // Save Sliders
         const minP = document.getElementById('minP');
         const maxP = document.getElementById('maxP');
         if (minP) localStorage.setItem('minP', minP.value);
         if (maxP) localStorage.setItem('maxP', maxP.value);
 
-        // 2. Save Button Style Preference
+        // Save Button Style
         const btnStyle = document.getElementById('btn-style-sel');
         if (btnStyle) localStorage.setItem('btnStyle', btnStyle.value);
-
-        // 3. Close Settings & Restart
+    }
+    function saveAndGenerate() {
+        savePrefs();
         toggleSettings(); 
         generate();
     }
     
 
     // 2. UPDATED GENERATOR (Respects Manual Levels)
-    function generate() {
+function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
-        state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
+        state.solved = false; 
+        state.audioClicks = 0; 
+        state.wrongGuesses = 0;
         document.getElementById('voice-feedback').innerText = ""; 
         
         // UI RESET
@@ -567,7 +627,7 @@
         plBox.innerHTML = '---'; 
         enBox.innerText = '???';
         
-        // CHECK REVIEW MODE
+        // --- 1. REVIEW MODE CHECK ---
         if (state.isReview) {
             if (mistakes.length === 0) { 
                 state.isReview = false; 
@@ -575,25 +635,29 @@
             } else {
                 document.getElementById('badge-review').style.display = 'block';
                 let m = mistakes[0]; 
-                state.currentPL = m.val; state.currentEN = m.en; state.mode = m.mode || 'numbers';
-                plBox.innerText = state.currentPL; enBox.innerText = state.currentEN;
-                updateModeUI(state.mode); applySettings(); 
+                state.currentPL = m.val; 
+                state.currentEN = m.en; 
+                state.mode = m.mode || 'numbers';
+                plBox.innerText = state.currentPL; 
+                enBox.innerText = state.currentEN;
+                updateModeUI(state.mode); 
+                applySettings(); 
                 state.startTime = Date.now();
                 if (!state.handsfree) setTimeout(() => { speak(1.0); }, 250);
                 return; 
             }
         }
         document.getElementById('badge-review').style.display = 'none';
-        
-        // Handle Translator
+
+        // --- 2. TRANSLATOR MODE CHECK ---
         if (state.mode === 'translator') {
-            document.getElementById('pl-text').innerText = "Type a number...";
-            document.getElementById('display-box').classList.add('trans-active');
-            document.getElementById('type-input').value = "";
-            document.getElementById('type-input').focus();
-            document.getElementById('main-btn').style.display = 'none'; 
-            document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
-            return;
+             document.getElementById('pl-text').innerText = "Type a number...";
+             document.getElementById('display-box').classList.add('trans-active');
+             document.getElementById('type-input').value = "";
+             document.getElementById('type-input').focus();
+             document.getElementById('main-btn').style.display = 'none'; 
+             document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
+             return;
         } else {
             document.getElementById('display-box').classList.remove('trans-active');
             document.getElementById('main-btn').style.display = 'flex';
@@ -601,50 +665,102 @@
         }
 
         const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; mainBtn.classList.remove('ready'); 
+        mainBtn.innerText = "SKIP ➡️"; 
+        mainBtn.classList.remove('ready'); 
         document.getElementById('type-input').value = "";
         document.getElementById('type-input').style.borderColor = "var(--border)";
-        if(state.mode === 'dictation') document.getElementById('type-input').focus();
-        
-        // --- CAMPAIGN MODE LOGIC (MANUAL LEVELS) ---
+
+        // --- 3. DETERMINE DIFFICULTY (Campaign vs Manual) ---
         let min = 0, max = 0;
         const toggleEl = document.getElementById('campaign-toggle');
         const isCampaign = toggleEl ? toggleEl.checked : false;
 
         if (isCampaign) {
-            // Use the manually selected level (Default to 1 if undefined)
             const lvl = state.campLevel || 1;
             let allowedModes = ['numbers'];
 
-            if (lvl === 1) {
-                // Novice: 1-10
-                min = 1; max = 10;
-                allowedModes = ['numbers'];
-            } else if (lvl === 2) {
-                // Apprentice: 1-100 (+ Gender)
-                min = 1; max = 100;
-                allowedModes = ['numbers', 'gender'];
-            } else if (lvl === 3) {
-                // Journeyman: 1-1,000 (+ Prices)
-                min = 1; max = 1000;
-                allowedModes = ['numbers', 'gender', 'prices'];
-            } else if (lvl === 4) {
-                // Expert: 1-10,000 (+ Time, Dates)
-                min = 1; max = 10000;
-                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates'];
-            } else {
-                // Master: 1-100,000 (+ Context, Dictation)
-                min = 1; max = 100000;
-                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context', 'dictation'];
+            // RESET CHALLENGES (Default off so they don't get stuck)
+            if (state.mode === 'numbers') {
+                document.getElementById('negatives-toggle').checked = false;
+                document.getElementById('decimal-toggle').checked = false;
+                document.getElementById('fractions-toggle').checked = false;
+                document.getElementById('mixed-numbers-toggle').checked = false;
+                document.getElementById('decimal-opts').style.display = 'none';
+                document.getElementById('fraction-opts').style.display = 'none';
             }
 
-            // Update Label for debug/visual
+            // === THE CURRICULUM ===
+            
+            // LEVEL 1: Novice (1-20)
+            // Focus: Basic Numbers 1-20
+            if (lvl === 1) { 
+                min = 1; max = 20; 
+                allowedModes = ['numbers']; 
+            }
+            
+            // LEVEL 2: Apprentice (1-100)
+            // Focus: Tens, Gender, Prices
+            else if (lvl === 2) { 
+                min = 1; max = 100; 
+                allowedModes = ['numbers', 'gender', 'prices']; 
+            }
+            
+            // LEVEL 3: Journeyman (1-1,000)
+            // Focus: Hundreds, Time + NEGATIVES
+            else if (lvl === 3) { 
+                min = 1; max = 1000; 
+                allowedModes = ['numbers', 'gender', 'prices', 'time'];
+                if (state.mode === 'numbers') document.getElementById('negatives-toggle').checked = true;
+            }
+            
+            // LEVEL 4: Expert (1-100,000)
+            // Focus: Thousands, Dates + DECIMALS
+            else if (lvl === 4) { 
+                min = 1; max = 100000; 
+                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates']; 
+                if (state.mode === 'numbers') {
+                    document.getElementById('negatives-toggle').checked = true;
+                    document.getElementById('decimal-toggle').checked = true;
+                    document.getElementById('decimal-opts').style.display = 'flex';
+                }
+            }
+            
+            // LEVEL 5: Master (1-1,000,000)
+            // Focus: Millions + CONTEXT (Cases)
+            else if (lvl === 5) { 
+                min = 1; max = 1000000; 
+                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context']; 
+                if (state.mode === 'numbers') {
+                    document.getElementById('negatives-toggle').checked = true;
+                    document.getElementById('decimal-toggle').checked = true;
+                    document.getElementById('decimal-opts').style.display = 'flex';
+                }
+            }
+            
+            // LEVEL 6: Guru (1-100,000,000)
+            // Focus: Mastery + FRACTIONS & MIXED
+            else { 
+                min = 1; max = 100000000; 
+                allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context']; 
+                if (state.mode === 'numbers') {
+                    document.getElementById('negatives-toggle').checked = true;
+                    document.getElementById('decimal-toggle').checked = true;
+                    document.getElementById('fractions-toggle').checked = true;
+                    document.getElementById('mixed-numbers-toggle').checked = true;
+                    document.getElementById('decimal-opts').style.display = 'flex';
+                    document.getElementById('fraction-opts').style.display = 'flex';
+                }
+            }
+
+            // Update Label
             document.getElementById('lbl-min').innerText = min.toLocaleString();
             document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Lvl " + lvl + ")";
 
-            // Logic: 70% chance to play hard mode, 30% chance to review easy mode
+            // WEIGHTED MODE SWITCHING
+            // 60% chance: Play the newest/hardest mode available
+            // 40% chance: Review older modes
             let targetMode = allowedModes[allowedModes.length - 1]; 
-            if (allowedModes.length > 1 && Math.random() < 0.3) {
+            if (allowedModes.length > 1 && Math.random() < 0.4) {
                 targetMode = allowedModes[Math.floor(Math.random() * (allowedModes.length - 1))];
             }
 
@@ -659,61 +775,107 @@
             max = Math.pow(10, document.getElementById('maxP').value);
         }
 
-        // Generate Data
+        // --- 4. GENERATE DATA ---
         let newVal, safety=0;
-        let tempMode = state.mode;
         
-        if (state.mode === 'speech') {
-            let opts = [];
-            if(document.getElementById('speech-numbers').checked) opts.push('numbers');
-            if(document.getElementById('speech-prices').checked) opts.push('prices');
-            if(document.getElementById('speech-time').checked) opts.push('time');
-            if(document.getElementById('speech-context').checked) opts.push('context');
-            if(opts.length === 0) opts.push('numbers'); 
-            tempMode = opts[Math.floor(Math.random()*opts.length)];
-        }
-
         do { 
-            newVal = generateRawValue(min, max, tempMode); 
+            newVal = generateRawValue(min, max, state.mode); 
             safety++; 
         } while (isRepeated(newVal) && safety < 15);
         
         addToHistory(newVal);
-        processValue(newVal, tempMode);
+        processValue(newVal, state.mode);
 
-        // --- RENDER LOGIC ---
+        // --- 5. RENDER UI ---
         if (state.mode !== 'gender') {
-             if (state.mode === 'context' || tempMode === 'context') plBox.innerHTML = state.currentPL; 
+             if (state.mode === 'context') plBox.innerHTML = state.currentPL; 
              else plBox.innerText = state.currentPL;
         }
         enBox.innerText = state.currentEN;
 
-        // --- VISIBILITY OVERRIDES ---
+        // Badge Handling
         const badge = document.getElementById('grammar-badge');
         if (badge) badge.classList.remove('visible'); 
 
-        if (state.mode === 'speech') { enBox.classList.add('visible'); } 
-        else if (state.mode === 'context') { enBox.innerText = "???"; if (badge) badge.classList.add('visible'); }
-        else if (state.mode === 'gender') { plBox.classList.add('visible'); if (badge) badge.classList.add('visible'); }
-        else if (state.mode === 'dates') { enBox.classList.add('visible'); if (badge) badge.classList.add('visible'); }
+        // Visibility Rules
+        if (state.mode === 'context') { 
+            enBox.innerText = "???"; 
+            if (badge) badge.classList.add('visible'); 
+        }
+        else if (state.mode === 'gender') { 
+            plBox.classList.add('visible'); 
+            if (badge) badge.classList.add('visible'); 
+        }
+        else if (state.mode === 'dates') { 
+            // Dates often help to see the English "On May 5th" to know what to translate
+            enBox.classList.add('visible'); 
+            if (badge) badge.classList.add('visible'); 
+        }
         
-        // Blind Mode & Score Badge
+        // Blind Mode Badge
         if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
         else document.getElementById('badge-blind').style.display = 'none';
+        
         document.getElementById('badge-score').style.display = 'none';
 
-        applySettings();
+        // --- 6. START GAME ---
+        applySettings(); // Generates grid or inputs
         state.startTime = Date.now();
+        
         if (state.handsfree) playHandsfreeSequence();
-        else if (state.mode !== 'speech') setTimeout(() => { speak(1.0); }, 250);
+        else setTimeout(() => { speak(1.0); }, 250);
     }
     // --- DATA GENERATORS ---
     // --- UPDATED DATA GENERATOR (Negatives & Fractions) ---
-    function generateRawValue(min, max, activeMode) {
+   function generateRawValue(min, max, activeMode) {
         let m = activeMode || state.mode;
         
-        // --- 1. CONTEXT MODE ---
-        if (m === 'context') {
+        // --- 1. NUMBERS MODE (Smart Mix) ---
+        if (m === 'numbers') {
+            // 1. Build a list of allowed types based on checkboxes
+            let allowedTypes = [];
+            
+            if (document.getElementById('fractions-toggle').checked) allowedTypes.push('fraction');
+            if (document.getElementById('decimal-toggle').checked) allowedTypes.push('decimal');
+            if (document.getElementById('negatives-toggle').checked) allowedTypes.push('negative');
+            
+            // If nothing checked, default to integer
+            if (allowedTypes.length === 0) allowedTypes.push('integer');
+            
+            // 2. Pick ONE type for this turn
+            let type = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
+            
+            // 3. Execute logic for that specific type
+            if (type === 'fraction') {
+                const denoms = [2, 3, 4, 5, 6, 8, 10, 100];
+                let d = denoms[Math.floor(Math.random() * denoms.length)];
+                let n = Math.floor(Math.random() * (d - 1)) + 1; 
+                
+                let integer = 0;
+                if (document.getElementById('mixed-numbers-toggle').checked && Math.random() < 0.5) {
+                    integer = Math.floor(Math.random() * 50) + 1; 
+                }
+                return { n: n, d: d, int: integer, type: 'fraction' };
+            }
+            
+            if (type === 'decimal') {
+                let places = parseInt(document.getElementById('decimal-places').value);
+                let range = max - min;
+                let raw = (Math.random() * range) + min;
+                return parseFloat(raw.toFixed(places));
+            }
+            
+            if (type === 'negative') {
+                let val = Math.floor(Math.random() * max) + 1;
+                return -val; 
+            }
+            
+            // Default: Standard Integer
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        } 
+        
+        // --- 2. CONTEXT ---
+        else if (m === 'context') {
             const keys = Object.keys(GRAMMAR);
             const k = keys[Math.floor(Math.random() * keys.length)];
             state.currentContextKey = k;
@@ -722,35 +884,6 @@
             let n = Math.floor(Math.random() * (localMax - min + 1)) + min;
             return { val: n, key: k };
         }
-        
-        // --- 2. NUMBERS / DICTATION ---
-        if (m === 'numbers' || m === 'dictation') {
-            // A. Check for Fraction (20% chance if enabled)
-            if (m === 'numbers' && document.getElementById('fractions-toggle').checked && Math.random() < 0.25) {
-                // Denominators: 2, 3, 4, 5, 6, 8, 10
-                const denoms = [2, 3, 4, 5, 6, 8, 10];
-                let d = denoms[Math.floor(Math.random() * denoms.length)];
-                let n = Math.floor(Math.random() * (d - 1)) + 1; // Numerator < Denominator
-                return { n: n, d: d, type: 'fraction' };
-            }
-
-            // B. Handle Negatives (If enabled, Min becomes negative Max)
-            if (document.getElementById('negatives-toggle').checked) {
-                min = -max;
-            }
-
-            // C. Handle Decimals
-            if (m === 'numbers' && document.getElementById('decimal-toggle').checked) {
-                let places = parseInt(document.getElementById('decimal-places').value);
-                let range = max - min;
-                let raw = (Math.random() * range) + min;
-                return parseFloat(raw.toFixed(places));
-            }
-            
-            // D. Standard Integers
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        } 
-        
         // --- 3. PRICES ---
         else if (m === 'prices') {
             let n = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -773,7 +906,8 @@
         else if (m === 'gender') {
             let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
             let n = 0;
-            if (noun.logic === 'living') n = Math.floor(Math.random() * 20) + 1;
+            if (noun.logic === 'living') n = Math.floor(Math.random() * 12) + 1;
+            else if (noun.logic === 'ordering') n = Math.floor(Math.random() * 15) + 1;
             else if (noun.logic === 'bulk') {
                 let roll = Math.random();
                 if (roll < 0.4) n = Math.floor(Math.random() * 50) + 1; 
@@ -781,7 +915,7 @@
                 else n = (Math.floor(Math.random() * 5) + 1) * 1000; 
             } else {
                 n = Math.floor(Math.random() * (max - min + 1)) + min;
-                if (max <= 10 && Math.random() < 0.4) n = (Math.random()<0.5 ? 1 : 2);
+                if (n > 20 && Math.random() < 0.3) n = Math.floor(Math.random() * 20) + 1;
             }
             return { num: n, noun };
         }
@@ -1040,135 +1174,196 @@
         if (style === 'type' || state.mode === 'dictation') { document.getElementById('mc-area').style.display = 'none'; document.getElementById('type-area').style.display = 'flex'; document.getElementById('type-input').setAttribute('type', 'number'); document.getElementById('type-input').focus(); } else { state.btnCount = parseInt(style); document.getElementById('mc-area').style.display = 'grid'; document.getElementById('type-area').style.display = 'none'; let grid = document.getElementById('mc-area'); grid.className = 'mc-grid'; if (state.btnCount === 12) grid.classList.add('cols-3'); else grid.classList.add('cols-2'); generateGrid(); }
     }
 
-       // --- UPDATED GRID GENERATOR (Price Consistency) ---
+      // --- UPDATED GRID GENERATOR (Digits/Words Toggle) ---
     function generateGrid() {
-        const container = document.getElementById('mc-area'); container.innerHTML = ''; let opts = [];
-        
-        // GENDER & CONTEXT (Always Text)
-        if (state.mode === 'gender') {
-            let noun = state.rawData.noun; let correct = state.currentPL; opts = [correct];
-            if (state.rawData.num === 1) { ['jeden', 'jedna', 'jedno'].forEach(f => { let phrase = `${f} ${noun.word}`; if (phrase !== correct) opts.push(phrase); }); } 
-            else if (state.rawData.num === 2) { ['dwa', 'dwie'].forEach(f => { let phrase = `${f} ${noun.pl}`; if (phrase !== correct) opts.push(phrase); }); } 
-            else {
-                 // Use the same realism logic for decoys? Or just generic random?
-                 // Let's stick to generic random for decoys to keep it simple, but strictly within range.
-                 let min = 1; let max = 100;
-                 if (noun.logic === 'living') max = 20;
-                 
-                 let safety = 0;
-                 while(opts.length < state.btnCount && safety < 100) {
-                     let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
-                     let dNum = numToPl(decoy); let dNoun = noun.gen; let r10 = decoy % 10, r100 = decoy % 100; if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) dNoun = noun.pl; if (decoy === 1) dNoun = noun.word;
-                     let phrase = `${dNum} ${dNoun}`; if(!opts.includes(phrase)) opts.push(phrase); safety++;
-                 }
-            }
-            while (opts.length < state.btnCount) opts.push(`zły ${noun.word} ${opts.length}`); opts = opts.slice(0, state.btnCount); opts.sort(() => Math.random() - 0.5);
-        } else if (state.mode === 'context') {
-            let g = GRAMMAR[state.currentContextKey]; let n = state.rawData.val; let correct = state.speechText; opts = [correct];
-            let min = 1; let max = g.max || Math.pow(10, document.getElementById('maxP').value);
-            
-            let safety = 0;
-            while(opts.length < state.btnCount && safety < 100) {
-                let decoyN = Math.floor(Math.random() * (max - min + 1)) + min; if (decoyN !== n) { let word = getPlural(decoyN, g.s, g.p, g.g); let numTxt = numToPl(decoyN); let decoyPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word); if (!opts.includes(decoyPhrase)) opts.push(decoyPhrase); } safety++;
-            }
-            opts.sort(() => Math.random() - 0.5);
-        } else {
-            // STANDARD MODES (Numbers, Prices, Time, Dates)
-            let btnStyle = document.getElementById('btn-style-sel').value;
-            let correct = (btnStyle === 'words') ? state.currentPL : state.currentEN;
-            opts = [correct];
-            
-            const min = Math.pow(10, document.getElementById('minP').value); 
-            const max = Math.pow(10, document.getElementById('maxP').value);
-            let safety = 0;
-            
-            // Check Price properties
-            let targetHasGrosze = false;
-            if (state.mode === 'prices') {
-                // If the raw number (e.g. 5.50) has a decimal remainder
-                targetHasGrosze = (state.rawData % 1 !== 0);
-            }
+        // FIX 1: Use the correct ID 'mc-area' (was numpad-grid)
+        const grid = document.getElementById('mc-area');
+        grid.innerHTML = '';
+        let count = state.btnCount;
+        let answers = [];
 
-            while(opts.length < state.btnCount && safety < 100) {
-                let dVal = 0;
-                
-                if (state.mode === 'numbers') {
-                     if (document.getElementById('decimal-toggle').checked) {
-                        let places = parseInt(document.getElementById('decimal-places').value);
-                        dVal = parseFloat((Math.random() * (max - min) + min).toFixed(places));
-                     } else {
-                        dVal = Math.floor(Math.random() * (max - min + 1)) + min;
-                     }
-                } else if (state.mode === 'prices') {
-                     // PRICE DECOY LOGIC
-                     let n = Math.floor(Math.random() * (max - min + 1)) + min;
-                     let gr = 0;
-                     
-                     if (targetHasGrosze) {
-                         // Target has grosze -> Decoy MUST have grosze
-                         gr = Math.floor(Math.random() * 99) + 1; // 1-99
-                     } else {
-                         // Target is whole -> Decoy MUST be whole
-                         gr = 0;
-                     }
-                     dVal = n + (gr/100);
-                     
-                } else if (state.mode === 'time') {
-                     dVal = { h: Math.floor(Math.random()*24), m: Math.floor(Math.random()*12)*5 };
-                } else if (state.mode === 'dates') {
-                     dVal = { d: Math.floor(Math.random()*30)+1, m: Math.floor(Math.random()*12), y: Math.floor(Math.random()*25)+2000, dow: Math.floor(Math.random()*7) };
-                } 
-                
-                // Convert Decoy to String
-                let dStr = "";
-                
-                if (state.mode === 'numbers') {
-                     if (document.getElementById('decimal-toggle').checked) {
-                         let s = dVal.toString(); if(!s.includes('.')) s += ".0"; let parts = s.split('.');
-                         dStr = (btnStyle==='words') ? `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}` : s.replace('.',',');
-                     } else {
-                         dStr = (btnStyle==='words') ? numToPl(dVal) : dVal.toLocaleString();
-                     }
-                }
-                else if (state.mode === 'prices') {
-                    // Re-use logic from processValue, but simpler for buttons
-                    let n = Math.floor(dVal); let gr = Math.round((dVal % 1) * 100);
-                    if (btnStyle === 'words') {
-                         if (n === 0) dStr = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
-                         else if (gr === 0) dStr = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
-                         else {
-                            let grText = numToPl(gr); if (gr < 10) grText = "zero " + grText;
-                            dStr = `${numToPl(n)} ${grText}`;
-                         }
-                    } else {
-                        dStr = `${n},${gr.toString().padStart(2,'0')} zł`;
-                    }
-                }
-                else if (state.mode === 'time') {
-                     let style = document.getElementById('time-style-sel').value;
-                     if (btnStyle === 'words') dStr = timeToPl(dVal.h, dVal.m, style === 'formal');
-                     else dStr = `${dVal.h.toString().padStart(2,'0')}:${dVal.m.toString().padStart(2,'0')}`;
-                }
-                else if (state.mode === 'dates') {
-                     let ord = ["", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty", "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dwudziesty", "dwudziesty pierwszy", "dwudziesty druga", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty", "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"];
-                     let includeYear = document.getElementById('year-toggle').checked; let includeDay = document.getElementById('day-toggle').checked;
-                     if (btnStyle === 'words') {
-                         if (includeDay) dStr += `${DAYS_PL[dVal.dow]}, `; dStr += `${ord[dVal.d]} ${MONTHS_PL[dVal.m]}`; if (includeYear) dStr += ` ${numToPl(dVal.y)} roku`;
-                     } else {
-                         if (includeDay) dStr += `${DAYS_EN[dVal.dow]}, `; dStr += `${dVal.d} ${MONTHS_EN[dVal.m]}`; if (includeYear) dStr += ` ${dVal.y}`;
-                     }
-                }
-                
-                if (dStr && !opts.includes(dStr)) opts.push(dStr);
+        // FIX 2: Check User Preference
+        // If mode is Gender/Context, ALWAYS use words (grammar is the point).
+        // For others, check the dropdown.
+        let style = document.getElementById('btn-style-sel').value;
+        let showDigits = (style === 'digits') && (state.mode !== 'gender' && state.mode !== 'context');
+
+        // --- STRATEGY 1: GENDER MODE (Always Text) ---
+        if (state.mode === 'gender') {
+            answers.push({ text: state.currentPL, val: state.rawData.num });
+            let noun = state.rawData.noun;
+            let safety = 0;
+            while(answers.length < count && safety < 200) {
                 safety++;
+                let max = (noun.logic === 'living' || noun.logic === 'ordering') ? 20 : 100; 
+                if (noun.logic === 'bulk') max = 5000;
+                let decoy = Math.floor(Math.random() * max) + 1;
+                if (answers.some(a => a.val === decoy)) continue;
+
+                let numStr = "";
+                if (decoy === 1) numStr = (noun.form === 'm') ? "jeden" : ((noun.form === 'f') ? "jedna" : "jedno");
+                else if (decoy === 2 && noun.form === 'f') numStr = "dwie";
+                else numStr = numToPl(decoy);
+
+                let nounStr = getPolishForm(decoy, noun); 
+                if (!nounStr) { // Fallback
+                    let r10 = decoy % 10, r100 = decoy % 100;
+                    if (decoy === 1) nounStr = noun.word;
+                    else if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) nounStr = noun.pl;
+                    else nounStr = noun.gen;
+                }
+                answers.push({ text: `${numStr} ${nounStr}`, val: decoy });
             }
-            opts.sort(() => Math.random() - 0.5);
+        }
+        
+        // --- STRATEGY 2: CONTEXT MODE (Always Text) ---
+        else if (state.mode === 'context') {
+            answers.push({ text: state.currentPL, val: state.rawData.val });
+            let g = GRAMMAR[state.rawData.key];
+            let target = state.rawData.val;
+            let safety = 0;
+            while(answers.length < count && safety < 200) {
+                safety++;
+                let range = Math.max(5, Math.ceil(target * 0.5));
+                let min = Math.max(1, target - range);
+                let max = target + range;
+                let decoy = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (answers.some(a => a.val === decoy)) continue;
+
+                let word = getPlural(decoy, g.s, g.p, g.g);
+                let phrase = g.phrase.replace('[N]', numToPl(decoy)).replace('[W]', word);
+                answers.push({ text: phrase, val: decoy });
+            }
         }
 
-        opts.forEach((val, index) => {
-            let b = document.createElement('button'); b.className = 'mc-btn'; 
-            if (state.mode !== 'gender' && state.mode !== 'context') { let hint = document.createElement('span'); hint.className = 'mc-key-hint'; hint.innerText = index + 1; b.appendChild(hint); }
-            b.appendChild(document.createTextNode(val)); b.onclick = () => check(val, b); container.appendChild(b);
+        // --- STRATEGY 3: NUMBERS / PRICES / TIME / DATES ---
+        else {
+            // DECISION: Add Correct Answer (Digits OR Words)
+            // state.currentEN usually holds the digit format (e.g. "123", "5.50 zł", "1/2")
+            // state.currentPL holds the word format (e.g. "sto dwadzieścia trzy")
+            let correctText = showDigits ? state.currentEN : state.currentPL;
+            answers.push({ text: correctText, val: state.rawData });
+            
+            let target = state.rawData;
+            let safety = 0;
+            
+            while (answers.length < count && safety < 200) {
+                safety++;
+                let fakeVal = null;
+                let fakeText = "---";
+
+                // A. Determine Neighbor Bounds (Same as before)
+                if (typeof target === 'number') {
+                    let range = Math.max(5, Math.ceil(Math.abs(target) * 0.4));
+                    let min = Math.floor(target - range);
+                    let max = Math.ceil(target + range);
+                    if (!document.getElementById('negatives-toggle').checked && min < 0) min = 0;
+
+                    if (state.mode === 'prices') {
+                        let hasGrosze = (target % 1 !== 0);
+                        let n = Math.floor(Math.random() * (max - min + 1)) + min;
+                        let gr = hasGrosze ? Math.floor(Math.random()*99)+1 : 0;
+                        fakeVal = n + (gr/100);
+                    } else {
+                        if (target % 1 !== 0) { 
+                            let places = 1; 
+                            fakeVal = parseFloat((Math.random() * (max - min) + min).toFixed(places));
+                        } else {
+                            fakeVal = Math.floor(Math.random() * (max - min + 1)) + min;
+                        }
+                    }
+                } 
+                else if (typeof target === 'object') {
+                    fakeVal = generateRawValue(1, 100, state.mode); 
+                }
+
+                // B. Convert Decoy to Text (Digits vs Words)
+                try {
+                    // FRACTIONS
+                    if (fakeVal && fakeVal.type === 'fraction') {
+                        if (showDigits) {
+                            // Display: "1 1/2" or "1/2"
+                            fakeText = (fakeVal.int > 0) ? `${fakeVal.int} ${fakeVal.n}/${fakeVal.d}` : `${fakeVal.n}/${fakeVal.d}`;
+                        } else {
+                            // Display: "jeden i jedna druga"
+                            let numText = (fakeVal.n === 1) ? "jedna" : ((fakeVal.n === 2) ? "dwie" : numToPl(fakeVal.n));
+                            let denArray = FRACTIONS[fakeVal.d];
+                            let denText = getPlural(fakeVal.n, denArray[0], denArray[1], denArray[2]);
+                            if (fakeVal.int > 0) fakeText = `${numToPl(fakeVal.int)} i ${numText} ${denText}`;
+                            else fakeText = `${numText} ${denText}`;
+                        }
+                    } 
+                    // PRICES
+                    else if (state.mode === 'prices') {
+                        let n = Math.floor(fakeVal); 
+                        let gr = Math.round((fakeVal % 1) * 100);
+                        if (showDigits) {
+                            // Display: "5,50 zł"
+                            fakeText = `${n},${gr.toString().padStart(2,'0')} zł`;
+                        } else {
+                            // Display: "pięć złotych..."
+                            if (n === 0) fakeText = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
+                            else if (gr === 0) fakeText = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
+                            else {
+                                let grText = numToPl(gr); if (gr < 10) grText = "zero " + grText;
+                                fakeText = `${numToPl(n)} ${grText}`;
+                            }
+                        }
+                    }
+                    // TIME
+                    else if (state.mode === 'time') {
+                        if (showDigits) {
+                            // Display: "14:30"
+                            fakeText = `${fakeVal.h.toString().padStart(2,'0')}:${fakeVal.m.toString().padStart(2,'0')}`;
+                        } else {
+                            // Display: "wpół do trzeciej"
+                            let style = document.getElementById('time-style-sel').value; 
+                            fakeText = timeToPl(fakeVal.h, fakeVal.m, style === 'formal');
+                        }
+                    }
+                    // NUMBERS (Int/Dec)
+                    else if (typeof fakeVal === 'number') {
+                        if (showDigits) {
+                            // Display: "123" or "1,5"
+                            if (!Number.isInteger(fakeVal)) {
+                                let s = fakeVal.toString(); 
+                                fakeText = s.replace('.', ',');
+                            } else {
+                                fakeText = fakeVal.toLocaleString();
+                            }
+                        } else {
+                            // Display: "sto dwadzieścia trzy"
+                            if (!Number.isInteger(fakeVal)) {
+                                let s = fakeVal.toString(); if(!s.includes('.')) s += ".0"; 
+                                let parts = s.split('.'); 
+                                fakeText = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+                            } else {
+                                fakeText = numToPl(fakeVal);
+                            }
+                        }
+                    }
+                    else if (state.mode === 'dates') {
+                         fakeText = "---"; 
+                    }
+                } catch (e) { console.log(e); fakeText = "---"; }
+
+                if (fakeText !== "---" && !answers.some(a => a.text === fakeText)) {
+                    answers.push({ text: fakeText, val: fakeVal });
+                }
+            }
+        }
+        
+        // 4. Shuffle and Render
+        answers.sort(() => Math.random() - 0.5);
+        
+        answers.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'mc-btn';
+            btn.innerText = item.text;
+            btn.onclick = () => {
+                if (item.text === state.currentPL || item.text === state.currentEN) win(btn); else lose(btn);
+            };
+            grid.appendChild(btn);
         });
     }
 
@@ -1217,7 +1412,6 @@
         
         // --- REVIEW MODE LOGIC ---
         if (state.isReview) {
-            // Remove the mistake we just solved
             mistakes.shift();
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
             score = 5; 
@@ -1226,7 +1420,7 @@
             if (typeof state.rawData === 'number') { let val = state.rawData; if (!Number.isInteger(val)) score += 3; if (val >= 1000) score += 2; }
             if (state.mode === 'context') score += 5;
 
-            // Weak Phrase Logic (Point 3)
+            // Weak Phrase Logic
             if (timeTaken > 15) { 
                 let struggleEntry = { mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" }; 
                 mistakes.push(struggleEntry); 
@@ -1242,15 +1436,24 @@
         if (score - totalPenalty < 1) totalPenalty = score - 1; 
         score -= totalPenalty;
         
-        state.xp += score; state.streak++; categoryStats[state.mode] += score; saveAllStats();
-        document.getElementById('badge-score').innerText = `+${score}`; document.getElementById('badge-score').style.display = 'block';
+        // --- NEW: SPLIT SCORING ---
+        const isCamp = document.getElementById('campaign-toggle').checked;
+        if (isCamp) {
+            state.campaignXP += score;
+        } else {
+            state.practiceXP += score;
+        }
+        
+        state.streak++; 
+        categoryStats[state.mode] += score; 
+        saveAllStats();
+        
+        document.getElementById('badge-score').innerText = `+${score}`; 
+        document.getElementById('badge-score').style.display = 'block';
 
-        // --- NEW: CONFETTI TRIGGER ---
         if (state.streak % 10 === 0 || state.streak === 5) fireConfetti();
-
         if(btn) btn.classList.add('correct'); else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
-        // REVEAL ANSWER ON WIN
         const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
         plBox.classList.add('visible'); enBox.classList.add('visible');
         if (state.mode === 'context') { enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText; } 
@@ -1287,48 +1490,40 @@
     function playHandsfreeSequence() { if (!state.handsfree) return; window.speechSynthesis.cancel(); let plText = (state.mode === 'context') ? state.speechText : state.currentPL; let enText = state.currentEN; let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; u4.onend = () => { if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); }; window.speechSynthesis.speak(u1); window.speechSynthesis.speak(u2); window.speechSynthesis.speak(u3); window.speechSynthesis.speak(u4); }
     function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; let msg = ""; if (speakerTaps === 1) { rate = 1.0; } else if (speakerTaps === 2) { rate = 0.5; msg = "🐢 Slow Speed (0.5x)"; } else { rate = 0.25; msg = "🐢🐢 Super Slow (0.25x)"; } if (msg) { let fb = document.getElementById('voice-feedback'); fb.innerText = msg; fb.style.color = "var(--primary)"; setTimeout(() => { if(fb.innerText === msg) fb.innerText = ""; }, 1500); } speak(rate); speakerTaps = 0; }, 300); }
         // --- NEW HELPER: UPDATE UI TABS (Visuals Only) ---
-    function updateModeUI(m) {
-        // 1. Highlight the correct button
+function updateModeUI(m) {
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         const btn = document.getElementById('nav-'+m);
         if(btn) btn.classList.add('active');
 
-        // 2. Update Label
-        let label = m;
-        if(m==='context') label='Sentences';
-        if(m==='translator') label='Translator';
-        if(m==='dictation') label='Dictation';
-        if(m==='speech') label='Speaking';
+        let label = m.toUpperCase();
+        if(m==='context') label='SENTENCES';
+        if(m==='translator') label='TRANSLATOR';
         document.getElementById('mode-label').innerText = label;
 
-               // 3. Show/Hide Settings Panels
+        // Hide all settings groups first
         ['range','prices','time','dates','speech-opts'].forEach(id => {
             const el = document.getElementById('set-'+id);
             if(el) el.style.display='none';
         });
         
-        // Show "Range" (Min/Max/Campaign) for most numeric modes
-        if (m==='numbers' || m==='context' || m==='gender' || m==='dictation') document.getElementById('set-range').style.display='block';
-        
-        // Specific Mode Settings
+        // Show relevant settings
+        if (m==='numbers' || m==='context' || m==='gender') document.getElementById('set-range').style.display='block';
         if (m==='prices') { document.getElementById('set-range').style.display='block'; document.getElementById('set-prices').style.display='block'; }
         if (m==='time') document.getElementById('set-time').style.display='block';
         if (m==='dates') document.getElementById('set-dates').style.display='block';
-        if (m==='speech') { document.getElementById('set-range').style.display='block'; document.getElementById('set-speech-opts').style.display='block'; }
 
-        // --- NEW: Toggle Modifiers (Negatives/Fractions) ---
-        // Only show these extra challenges in "Numbers" mode
+        // Logic for Modifiers Box (Negatives, Fractions, Decimals)
         const modBox = document.getElementById('modifiers-box');
         if (modBox) {
+            // Only show these options in Numbers mode
             modBox.style.display = (m === 'numbers') ? 'block' : 'none';
         }
-
-        // 4. Input Field vs Buttons
-        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context' || m==='dictation' || m==='speech') ? 'none' : 'flex';
+        
+        document.getElementById('input-row').style.display = (m==='translator' || m==='gender' || m==='context') ? 'none' : 'flex';
     }
 
-    function selectMode(m) { toggleSettings(); switchMode(m); }
-        function switchMode(m) { 
+    function selectMode(m) {switchMode(m); }
+    function switchMode(m) { 
         state.mode = m; 
         state.history = []; 
         state.handsfree = false; 
@@ -1354,38 +1549,173 @@
     function speak(rate) { if (!state.solved && rate === 1.0 && state.mode !== 'translator') state.audioClicks++; window.speechSynthesis.cancel(); setTimeout(() => { let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL; currentUtterance = new SpeechSynthesisUtterance(txt); currentUtterance.lang = 'pl-PL'; currentUtterance.rate = rate; if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices(); const plVoice = availableVoices.find(v => v.lang.includes('pl')); if (plVoice) currentUtterance.voice = plVoice; currentUtterance.onend = function() { currentUtterance = null; }; window.speechSynthesis.speak(currentUtterance); }, 10); }
     function toggleSettings() { let d=document.getElementById('settings-modal'); d.style.display=(d.style.display==='flex')?'none':'flex'; }
     function toggleHelp() { let d=document.getElementById('help-modal'); if (d.style.display === 'flex') { d.style.display = 'none'; } else { d.style.display = 'flex'; renderStats(); } }
-    function setHelpTab(t) { document.querySelectorAll('.tab-content').forEach(el => el.style.display='none'); document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active')); document.getElementById('tab-'+t).style.display='block'; const btns = document.querySelectorAll('.tab-header .tab-btn'); btns.forEach(btn => { if(btn.getAttribute('onclick').includes(t)) btn.classList.add('active'); }); }
+    function toggleDecimals() {
+        const chk = document.getElementById('decimal-toggle').checked;
+        document.getElementById('decimal-opts').style.display = chk ? 'flex' : 'none';
+    }
+
+    function toggleFractions() {
+        const chk = document.getElementById('fractions-toggle').checked;
+        document.getElementById('fraction-opts').style.display = chk ? 'flex' : 'none';
+    }
+ function setHelpTab(tabName) {
+    // 1. Remove 'active' from all buttons
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // 2. Remove 'active' from all content
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    function renderStats() { 
-        let currentRank = RANKS[0]; let nextRank = RANKS[1]; 
-        for (let i = 0; i < RANKS.length; i++) { if (state.xp >= RANKS[i].limit) { currentRank = RANKS[i]; nextRank = RANKS[i+1] || null; } } 
-        document.getElementById('total-xp-modal').innerText = state.xp; 
-        document.getElementById('rank-name').innerText = currentRank.name; 
-        if (nextRank) { let needed = nextRank.limit - state.xp; document.getElementById('xp-needed').innerText = needed; } else { document.getElementById('xp-needed').innerText = "0 (Max Level!)"; } 
+    // 3. Activate the clicked button (finding by text text or index is tricky, 
+    //    so we usually pass 'this' or use simple logic. 
+    //    For simplicity, let's assume the button onclick passes the ID logic:
+    
+    // Activate content
+    const content = document.getElementById('tab-' + tabName);
+    if(content) content.classList.add('active');
+
+    // Activate button (Visual hack: find button with onclick matching name)
+    const btns = document.querySelectorAll('.tab-btn');
+    if(tabName === 'guide') btns[0].classList.add('active');
+    if(tabName === 'modes') btns[1].classList.add('active');
+    if(tabName === 'progress') btns[2].classList.add('active');
+}
+    
+function renderStats() {
+        const c = document.getElementById('stats-container');
+        c.innerHTML = '';
         
-        const c = document.getElementById('stats-container'); 
-        c.innerHTML = ''; 
+           
+        // --- 1. RANK PROGRESS BAR ---
+       
+
+// --- 2. MAIN STATS HEADER (Hybrid Campaign + Practice) ---
         
-        // MISTAKES SECTION (Smart Review)
-        let localMistakes = JSON.parse(localStorage.getItem('mistakes') || "[]"); 
-        if (localMistakes.length > 0) {
-            c.innerHTML += `<div style="background:#fce8e6; padding:15px; border-radius:12px; border:1px solid #fad2cf; margin-bottom:20px;">
-                <h3 style="color:#d93025; margin:0 0 10px 0;">⚠️ Needs Work (${localMistakes.length})</h3>
-                <p style="font-size:0.9rem; margin-bottom:10px;">You have ${localMistakes.length} items to practice.</p>
-                <button class="btn-review" onclick="startReview()">▶️ Start Smart Review</button>
-                <button style="background:none; border:none; text-decoration:underline; color:#666; font-size:0.8rem; margin-top:10px; cursor:pointer" onclick="clearMistakes()">Clear List</button>
-            </div>`;
-        } else {
-             c.innerHTML += `<div style="background:#e6f4ea; padding:15px; border-radius:12px; border:1px solid #ceead6; margin-bottom:20px;">
-                <h3 style="color:#34a853; margin:0;">🎉 All Caught Up!</h3>
-                <p style="font-size:0.9rem; margin:5px 0 0;">No mistakes to review.</p>
-            </div>`;
+        // A. Calculate Campaign Rank & Progress
+        let currentRank = RANKS[0];
+        let nextRank = RANKS[1];
+        
+        for (let i = 0; i < RANKS.length; i++) {
+            if (state.campaignXP >= RANKS[i].limit) {
+                currentRank = RANKS[i];
+                nextRank = RANKS[i+1] || null;
+            }
         }
 
-        c.innerHTML += '<h3 style="color:var(--primary); font-size:1rem; margin-top:0;">📊 Mastery Levels</h3>'; 
-        let entries = Object.entries(categoryStats); entries.sort((a,b) => b[1] - a[1]); let hasData = false; 
-        entries.forEach(([key, val]) => { if(val <= 0) return; hasData = true; let max = Math.max(300, val * 1.5); let pct = Math.min(100, (val / max) * 100); let color = 'var(--secondary)'; if (val < 100) color = '#fbbc04'; if (val > 1000) color = '#a142f4'; c.innerHTML += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px; font-weight:bold; color:var(--text)"><span style="text-transform:capitalize">${key}</span><span>${val} XP</span></div><div style="background:#eee;height:8px;border-radius:4px;overflow:hidden"><div style="background:${color};width:${pct}%;height:100%"></div></div></div>`; }); 
-        if (!hasData) c.innerHTML += '<p style="color:#666; font-size:0.9rem;"><i>Play more to unlock stats!</i></p>'; 
+        // B. Calculate Practice Rank
+        let pracTitle = PRACTICE_RANKS[0].name;
+        for (let i = PRACTICE_RANKS.length - 1; i >= 0; i--) {
+            if (state.practiceXP >= PRACTICE_RANKS[i].limit) {
+                pracTitle = PRACTICE_RANKS[i].name;
+                break;
+            }
+        }
+
+        // C. Calculate Global Level
+        let totalXP = state.campaignXP + state.practiceXP;
+        let globalLevel = Math.floor(totalXP / 1000) + 1;
+
+        // D. Generate Progress Bar HTML (Focus on Campaign Progress)
+        let progressHTML = '';
+        if (nextRank) {
+            let range = nextRank.limit - currentRank.limit;
+            let current = state.campaignXP - currentRank.limit;
+            let pct = Math.floor((current / range) * 100);
+            if(pct < 5) pct = 5; // Visual minimum so bar is visible
+            progressHTML = `
+                <div style="margin-top:15px; display:flex; justify-content:space-between; font-size:0.8rem; color:#666;">
+                    <span>${currentRank.name.split('(')[0]}</span>
+                    <span>Next: ${nextRank.name.split('(')[0]}</span>
+                </div>
+                <div style="background:#eee; height:10px; border-radius:5px; overflow:hidden; margin-top:5px;">
+                    <div style="width:${pct}%; background:var(--primary); height:100%;"></div>
+                </div>
+                <div style="text-align:right; font-size:0.75rem; color:#999; margin-top:2px;">
+                    ${current}/${range} XP to promote
+                </div>`;
+        } else {
+            progressHTML = `<div style="margin:10px 0; color:gold; font-weight:bold;">🏆 Maximum Rank Achieved!</div>`;
+        }
+
+        // E. Render the Stats Card
+        c.innerHTML += `
+            <div style="text-align:center; padding:20px; border-bottom:1px solid #eee;">
+                <div style="display:inline-block; background:#333; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold; margin-bottom:10px;">
+                    PLAYER LEVEL ${globalLevel}
+                </div>
+
+                <div style="font-size:1.4rem; font-weight:bold; color:var(--text); margin-bottom:20px; line-height:1.2;">
+                    ${currentRank.name.split('(')[0]}
+                    <div style="font-size:0.9rem; color:#888; font-weight:normal; margin-top:2px;">
+                        ${pracTitle} (Practice)
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div style="flex:1; background:#fff8e1; padding:15px 5px; border-radius:12px; border:1px solid #ffe082;">
+                        <div style="font-size:0.75rem; color:#f57f17; font-weight:bold; letter-spacing:0.5px;">CAMPAIGN</div>
+                        <div style="font-size:1.5rem; font-weight:bold; color:#f57f17;">${state.campaignXP}</div>
+                    </div>
+                    <div style="flex:1; background:#e8f0fe; padding:15px 5px; border-radius:12px; border:1px solid #d2e3fc;">
+                        <div style="font-size:0.75rem; color:#1967d2; font-weight:bold; letter-spacing:0.5px;">PRACTICE</div>
+                        <div style="font-size:1.5rem; font-weight:bold; color:#1967d2;">${state.practiceXP}</div>
+                    </div>
+                </div>
+                
+                <div style="font-size:0.9rem; color:#555; margin-bottom:10px;">
+                    Total Combined XP: <strong>${totalXP}</strong>
+                </div>
+
+                ${progressHTML}
+            </div>
+        `;
+
+        // --- 3. PRACTICE STATS (New Section) ---
+        c.innerHTML += `
+            <div style="background:#e8f0fe; padding:15px; border-radius:12px; margin:20px 0; text-align:center; border:1px solid #d2e3fc;">
+                <h3 style="color:#1967d2; margin:0 0 5px 0;">🏋️ Practice Score</h3>
+                <div style="font-size:1.5rem; font-weight:bold; color:#1967d2;">${state.practiceXP} XP</div>
+                <div style="font-size:0.8rem; color:#666;">Earned in Manual Mode</div>
+            </div>
+        `;
+
+        // --- 4. RECENT MISTAKES ---
+        if (mistakes.length > 0) {
+            let html = `<div style="margin-top:20px;"><h3 style="color:#d93025; border-bottom:2px solid #fce8e6; padding-bottom:5px;">⚠️ Recent Mistakes</h3>`;
+            // Show last 5 mistakes
+            mistakes.slice().reverse().slice(0, 5).forEach(m => {
+                html += `<div style="background:#fff0f0; padding:10px; margin-bottom:8px; border-radius:8px; border-left:4px solid #d93025;">
+                    <div style="font-weight:bold; color:#333;">${m.val}</div>
+                    <div style="font-size:0.9rem; color:#555;">${m.en}</div>
+                    <div style="font-size:0.8rem; color:#d93025; margin-top:2px;">${m.reason || "Wrong"}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            c.innerHTML += html;
+        }
+
+        // --- 5. CATEGORY BREAKDOWN ---
+        let catsHTML = `<div style="margin-top:20px;"><h3 style="border-bottom:2px solid #eee; padding-bottom:5px;">📊 Topic Mastery</h3>`;
+        for (const [key, val] of Object.entries(categoryStats)) {
+            // Simple level calc: every 1000 points is a level
+            let lvl = Math.floor(val / 1000) + 1;
+            let label = key.toUpperCase();
+            if(key === 'context') label = 'SENTENCES';
+            if(key === 'dictation') continue; // Skip dictation as it's removed
+
+            // Skip categories with 0 points to keep UI clean
+            if (val === 0) continue; 
+
+            catsHTML += `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; margin-top:10px;">
+                    <span>${label} <span style="color:#aaa;">(Lvl ${lvl})</span></span>
+                    <span>${val} pts</span>
+                </div>
+                <div style="background:#eee; height:6px; border-radius:3px;">
+                    <div style="width:${Math.min(100, (val % 1000)/10)}%; background:var(--secondary); height:100%;"></div>
+                </div>
+            `;
+        }
+        catsHTML += `</div>`;
+        c.innerHTML += catsHTML;
     }
     
     function startReview() {
@@ -1413,18 +1743,54 @@
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
     function updateRange() { let min=document.getElementById('minP').value, max=document.getElementById('maxP').value; if(parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; } document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString(); document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString(); }
 
-    function saveAllStats() { localStorage.setItem('xp', state.xp); localStorage.setItem('catStats', JSON.stringify(categoryStats)); }
+   function saveAllStats() { 
+        localStorage.setItem('campaignXP', state.campaignXP); 
+        localStorage.setItem('practiceXP', state.practiceXP); 
+        localStorage.setItem('catStats', JSON.stringify(categoryStats)); 
+    }
     function resetProgress() { if(confirm("Reset?")) { state.xp=0; state.streak=0; categoryStats={numbers:0,context:0,prices:0,dates:0,time:0,gender:0}; localStorage.clear(); location.reload(); } }
+
     function playSound(type) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); } osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
+    
     function runTranslator() { let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return; let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt; window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10); }
+   
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
     
-    function updateUI() { 
-        const rankData = { current: "Nowicjusz" }; 
-        for(let i=RANKS.length-1; i>=0; i--) if (state.xp >= RANKS[i].limit) { rankData.current = RANKS[i].name; break; } 
-        document.getElementById('rank-display').innerText = rankData.current; 
-        document.getElementById('xp-display').innerText = state.xp; 
-        document.getElementById('streak-display').innerText = state.streak; 
+function updateUI() { 
+        // 1. Calculate Campaign Title
+        let campTitle = RANKS[0].name;
+        for(let i=RANKS.length-1; i>=0; i--) if (state.campaignXP >= RANKS[i].limit) { campTitle = RANKS[i].name; break; } 
+
+        // 2. Calculate Practice Title
+        let pracTitle = PRACTICE_RANKS[0].name;
+        for(let i=PRACTICE_RANKS.length-1; i>=0; i--) if (state.practiceXP >= PRACTICE_RANKS[i].limit) { pracTitle = PRACTICE_RANKS[i].name; break; }
+
+        // 3. Determine "Global Level" (Total XP / 1000)
+        let totalXP = state.campaignXP + state.practiceXP;
+        let globalLevel = Math.floor(totalXP / 1000) + 1;
+
+        // 4. Update Status Bar
+        const isCamp = document.getElementById('campaign-toggle') ? document.getElementById('campaign-toggle').checked : false;
+        
+        // XP BOX: Shows specific XP for the current mode
+        const xpBox = document.querySelector('.stat-item[title="XP"]');
+        if (isCamp) {
+            if(xpBox) xpBox.innerHTML = `⭐ <span id="xp-display">${state.campaignXP}</span>`;
+            // Show Rank Name (e.g. "Nowicjusz")
+            document.getElementById('rank-display').innerText = campTitle.split('(')[0]; 
+        } else {
+            if(xpBox) xpBox.innerHTML = `🏋️ <span id="xp-display">${state.practiceXP}</span>`;
+            // Show Practice Title (e.g. "Gym Rat")
+            document.getElementById('rank-display').innerText = pracTitle; 
+        }
+
+        // STREAK BOX -> Change to GLOBAL LEVEL
+        // We replace the streak fire icon with a Level badge
+        const streakBox = document.querySelector('.stat-item[title="Streak"]');
+        if(streakBox) {
+            streakBox.innerHTML = `🛡️ Lvl ${globalLevel}`;
+            streakBox.title = "Global Player Level (Combined XP)";
+        }
     }
 </script>
 
@@ -1625,8 +1991,31 @@
     .grammar-badge.visible {
         opacity: 1;
     }
+.tab-header { 
+            display: flex; 
+            border-bottom: 1px solid var(--border); 
+            margin-bottom: 15px; 
+        }
+        .tab-btn { 
+            flex: 1; 
+            background: none; 
+            border: none; 
+            padding: 12px; 
+            font-weight: 700; 
+            color: #888; 
+            cursor: pointer; 
+            border-bottom: 3px solid transparent; 
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background: rgba(0,0,0,0.03); }
+        .tab-btn.active { 
+            color: var(--primary); 
+            border-bottom-color: var(--primary); 
+        }
 
-
+        /* Hide all content by default, show only active */
+        .tab-content { display: none; animation: popIn 0.3s; }
+        .tab-content.active { display: block; }
     </style>
 </body>
 </html>
