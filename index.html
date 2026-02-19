@@ -224,13 +224,15 @@
     <div class="modal-box">
         <button class="close-x" onclick="toggleHelp()">×</button>
         
-        <div class="tab-header">
-            <button class="tab-btn active" onclick="setHelpTab('guide')">Guide</button>
-            <button class="tab-btn" onclick="setHelpTab('grammar')">Grammar</button>
-            <button class="tab-btn" onclick="setHelpTab('gamemodes')">Modes</button>
-            <button class="tab-btn" onclick="setHelpTab('campaign')">Campaign</button>
-            <button class="tab-btn" onclick="setHelpTab('progress')">Stats</button>
-        </div>
+        <div class="tab-header" style="border:none; margin-bottom:20px;">
+    <select id="help-nav-dropdown" onchange="setHelpTab(this.value)" style="width:100%; padding:12px; font-size:1rem; font-weight:bold; border-radius:12px; border:2px solid var(--primary); background:var(--card); color:var(--text);">
+        <option value="guide">📖 User Guide</option>
+        <option value="grammar">🧠 Grammar Rules</option>
+        <option value="gamemodes">🎮 Game Modes</option>
+        <option value="campaign">🚀 Campaign Info</option>
+        <option value="progress">📊 My Stats</option>
+    </select>
+</div>
 
         <div id="tab-guide" class="tab-content active">
             <div class="help-sec">
@@ -261,13 +263,13 @@
 
             <div class="help-sec">
                 <div class="help-h">⚔️ Campaign vs. Practice</div>
-                <div style="background:#f0f7ff; padding:10px; border-radius:8px; border:1px solid #cce5ff; margin-bottom:10px;">
-                    <p class="help-p" style="margin:0; color:#0056b3;"><strong>⭐ Auto Campaign (Recommended)</strong></p>
-                    <p class="help-p" style="margin:0; font-size:0.85rem;">The game automatically manages the difficulty, gradually introducing harder numbers and new grammar modes as you level up. Earn Campaign XP to increase your main Rank.</p>
+                <div style="background:var(--callout-bg-blue); padding:10px; border-radius:8px; border:1px solid var(--callout-border-blue); margin-bottom:10px;">
+                <p class="help-p" style="margin:0; color:var(--callout-text-blue);"><strong>⭐ Auto Campaign (Recommended)</strong></p>
+                <p class="help-p" style="margin:0; font-size:0.85rem;">The game automatically manages the difficulty, gradually introducing harder numbers and new grammar modes as you level up. Earn Campaign XP to increase your main Rank.</p>
                 </div>
-                <div style="background:#fcf4f4; padding:10px; border-radius:8px; border:1px solid #f8d7da;">
-                    <p class="help-p" style="margin:0; color:#721c24;"><strong>🏋️ Manual Practice</strong></p>
-                    <p class="help-p" style="margin:0; font-size:0.85rem;">Turn off Auto Campaign to use Manual Sliders. You pick the exact number ranges to drill. Earns Practice XP.</p>
+                <div style="background:var(--callout-bg-red); padding:10px; border-radius:8px; border:1px solid var(--callout-border-red);">
+    <p class="help-p" style="margin:0; color:var(--callout-text-red);"><strong>🏋️ Manual Practice</strong></p>
+    <p class="help-p" style="margin:0; font-size:0.85rem;">Turn off Auto Campaign to use Manual Sliders. You pick the exact number ranges to drill. Earns Practice XP.</p>
                 </div>
             </div>
 
@@ -323,8 +325,8 @@
             <div class="set-group">
                 <div class="set-title">💬 Context (Sentences)</div>
                 <p class="help-p">Polish numbers change their endings depending on the noun (Genitive vs Nominative cases).</p>
-                <div style="background:#fff3e0; padding:8px; border-radius:6px; margin-top:8px; border:1px solid #ffe0b2;">
-                    <p class="help-p" style="margin:0; font-size:0.85rem; color:#e65100;"><strong>Why are Digits disabled?</strong> The entire goal of this mode is to practice spelling the correct declension (e.g., <em>2 lata</em> vs <em>5 lat</em>). Digits are intentionally disabled so you don't bypass the grammar rule!</p>
+                <div style="background:var(--callout-bg-orange); padding:8px; border-radius:6px; margin-top:8px; border:1px solid var(--callout-border-orange);"> 
+                    <p class="help-p" style="margin:0; font-size:0.85rem; color:var(--callout-text-orange);"><strong>Why are Digits disabled?</strong> The entire goal of this mode is to practice spelling the correct declension (e.g., <em>2 lata</em> vs <em>5 lat</em>). Digits are intentionally disabled so you don't bypass the grammar rule!</p>
                 </div>
             </div>
 
@@ -349,8 +351,8 @@
             <div class="set-group">
                 <div class="set-title">🚻 Gender</div>
                 <p class="help-p">Numbers 1 and 2 change spelling based on the noun's gender (jeden/jedna/jedno, dwa/dwie).</p>
-                <div style="background:#fff3e0; padding:8px; border-radius:6px; margin-top:8px; border:1px solid #ffe0b2;">
-                    <p class="help-p" style="margin:0; font-size:0.85rem; color:#e65100;"><strong>Why are Digits disabled?</strong> Just like Context mode, you are forced to choose the correctly spelled word that matches the gender of the noun shown on the screen.</p>
+                <div style="background:var(--callout-bg-orange); padding:8px; border-radius:6px; margin-top:8px; border:1px solid var(--callout-border-orange);">
+                 <p class="help-p" style="margin:0; font-size:0.85rem; color:var(--callout-text-orange);"><strong>Why are Digits disabled?</strong> Just like Context mode, you are forced to choose the correctly spelled word that matches the gender of the noun shown on the screen.</p>
                 </div>
             </div>
             
@@ -1825,22 +1827,25 @@ function initAudio() {
         document.getElementById('fraction-opts').style.display = chk ? 'flex' : 'none';
     }
 function setHelpTab(tabName) {
-    // 1. Remove 'active' from all buttons
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    // 2. Remove 'active' from all content
+    // 1. Hide all content boxes first
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    // 3. Activate the matching content box
+    // 2. Show the selected content box
     const content = document.getElementById('tab-' + tabName);
-    if(content) content.classList.add('active');
+    if (content) {
+        content.classList.add('active');
+    }
 
-    // 4. Activate the matching button
-    const btns = document.querySelectorAll('.tab-btn');
-    if(tabName === 'guide') btns[0].classList.add('active');
-    if(tabName === 'grammar') btns[1].classList.add('active');
-    if(tabName === 'gamemodes') btns[2].classList.add('active');
-    if(tabName === 'campaign') btns[3].classList.add('active');
-    if(tabName === 'progress') btns[4].classList.add('active');
+    // 3. Sync the Dropdown Menu selection
+    const dropdown = document.getElementById('help-nav-dropdown');
+    if (dropdown) {
+        dropdown.value = tabName;
+    }
+
+    // 4. Special Case: Render Stats if the 'progress' tab is selected
+    if (tabName === 'progress') {
+        renderStats();
+    }
 }
     
 function renderStats() {
