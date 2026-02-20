@@ -10,9 +10,13 @@
 <body onload="init()">
 
 <div class="brand-header">
-    <div class="brand-title">Polski Trener Liczb</div>
-    <div class="header-controls">
+    <div class="header-controls-left">
         <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
+    </div>
+
+    <div class="brand-title">Polski Trener Liczb</div>
+
+    <div class="header-controls-right">
         <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
     </div>
 </div>
@@ -2257,11 +2261,17 @@ function getOrdinalPL(n) {
         z-index: 10;
         }
 
-        .header-controls {
+        /* Split Header Controls */
+        .header-controls-left {
             position: absolute;
-            right: 10px; /* Positioned at the top right */
+            left: 10px;
             display: flex;
-            gap: 8px;
+        }
+
+        .header-controls-right {
+            position: absolute;
+            right: 10px;
+            display: flex;
         }
 
         /* Style buttons for the header background */
