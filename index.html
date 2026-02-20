@@ -1797,42 +1797,51 @@ function win(btn) {
         window.speechSynthesis.cancel(); 
         if (autoNextTimer) clearTimeout(autoNextTimer); 
         
-        // Regenerate a standard question to bring the buttons back
+        // Reset the top text styling back to default CSS rules
+        const targetBox = document.getElementById('pl-text') || document.getElementById('cy-text');
+        if (targetBox) {
+            targetBox.style.filter = ''; 
+            targetBox.style.opacity = '';
+            targetBox.style.visibility = '';
+        }
+
+        // Regenerate a standard question, which restores the answer grid
         generate(); 
     } 
 }
-   function playHandsfreeSequence() { 
+  function playHandsfreeSequence() { 
     if (!state.handsfree) return; 
     window.speechSynthesis.cancel(); 
     
     state.audioPlaying = true;
 
-    // 1. Hide the answer grid and typing area
+    // 1. Completely hide the answer input areas (both grid and typing)
     const grid = document.getElementById('mc-area');
     const typeArea = document.getElementById('type-area');
     if (grid) grid.style.display = 'none';
     if (typeArea) typeArea.style.display = 'none';
 
-    // 2. Identify the text boxes (Supports both Polish and Welsh setups)
+    // 2. Identify the top display boxes
     const targetBox = document.getElementById('pl-text') || document.getElementById('cy-text');
     const enBox = document.getElementById('en-text');
-
-    // 3. Make the text visible immediately
-    if (targetBox) targetBox.classList.add('visible');
-    if (enBox) enBox.classList.add('visible');
-
-    // 4. Populate the correct text into the boxes
+    
+    // 3. Populate and force-reveal the text in the top status box
     let targetText = (state.mode === 'context') ? state.speechText : (state.currentPL || state.currentCY);
     
-    if (state.mode === 'context') {
-        if (enBox) enBox.innerText = state.currentEN;
-        if (targetBox) targetBox.innerHTML = state.speechText;
-    } else {
-        if (targetBox) targetBox.innerText = targetText;
-        if (enBox) enBox.innerText = state.currentEN;
+    if (targetBox) {
+        targetBox.innerHTML = (state.mode === 'context') ? state.speechText : targetText;
+        targetBox.style.visibility = 'visible';
+        targetBox.style.opacity = '1'; 
+        targetBox.style.filter = 'none'; // Removes the blur effect if Listening Mode was on
+    }
+    
+    if (enBox) {
+        enBox.innerText = state.currentEN;
+        enBox.style.visibility = 'visible';
+        enBox.style.opacity = '1';
     }
 
-    // 5. Play the audio sequence
+    // 4. Play the audio sequence
     let langCode = document.documentElement.lang === 'cy' ? 'cy-GB' : 'pl-PL';
     
     let u1 = new SpeechSynthesisUtterance(" " + targetText); u1.lang = langCode; u1.rate = 1.0; 
@@ -1842,7 +1851,7 @@ function win(btn) {
     
     u4.onend = () => { 
         state.audioPlaying = false;
-        // Proceed to the next word after 3 seconds
+        // Move to the next word after a 3-second pause
         if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
     }; 
     u4.onerror = () => { state.audioPlaying = false; };
