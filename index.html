@@ -879,21 +879,21 @@ function generate() {
             // LEVEL 1: Novice (1-200)
             // Focus: Basic Numbers 1-20
             if (lvl === 1) { 
-                min = 1; max = 200; 
+                min = 1; max = 20; 
                 allowedModes = ['numbers']; 
             }
             
             // LEVEL 2: Apprentice (1-5,000)
             // Focus: Tens, Gender, Prices
             else if (lvl === 2) { 
-                min = 1; max = 5000; 
+                min = 1; max = 100; 
                 allowedModes = ['numbers', 'gender', 'prices']; 
             }
             
             // LEVEL 3: Journeyman (1-10,000)
             // Focus: Hundreds, Time + NEGATIVES
             else if (lvl === 3) { 
-                min = 1; max = 10000; 
+                min = 1; max = 1000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time'];
                 if (state.mode === 'numbers') document.getElementById('negatives-toggle').checked = true;
             }
@@ -901,7 +901,7 @@ function generate() {
             // LEVEL 4: Expert (1-20,000)
             // Focus: Thousands, Dates + DECIMALS
             else if (lvl === 4) { 
-                min = 1; max = 20000; 
+                min = 1; max = 10000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates']; 
                 if (state.mode === 'numbers') {
                     document.getElementById('negatives-toggle').checked = true;
@@ -913,7 +913,7 @@ function generate() {
             // LEVEL 5: Master (1-50,000)
             // Focus: Millions + CONTEXT (Cases)
             else if (lvl === 5) { 
-                min = 1; max = 50000; 
+                min = 1; max = 100000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context']; 
                 if (state.mode === 'numbers') {
                     document.getElementById('negatives-toggle').checked = true;
