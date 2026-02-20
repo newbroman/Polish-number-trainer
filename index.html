@@ -1666,7 +1666,22 @@ function win(btn) {
         document.getElementById('badge-score').innerText = `+${score}`; 
         document.getElementById('badge-score').style.display = 'block';
 
-        if (state.streak % 10 === 0 || state.streak === 5) fireConfetti();
+       // Milestone Celebrations
+        if (state.streak === 100) {
+            fireConfetti(250); // Massive shower for 100
+        } else if (state.streak === 50) {
+            fireConfetti(150); // Large shower for 50
+        } else if (state.streak % 10 === 0 || state.streak === 5) {
+            fireConfetti(40);  // Standard celebration
+        }
+
+        if (state.streak === 50 || state.streak === 100) {
+            const feedback = document.getElementById('voice-feedback');
+            feedback.innerText = `🏆 UNBELIEVABLE! ${state.streak} STREAK! 🏆`;
+            feedback.style.color = "var(--rank-color)";
+        }
+        
+
         if(btn) btn.classList.add('correct'); else if(document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
         
         const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
@@ -2038,19 +2053,19 @@ function renderStats() {
         generate();   
     }
 
-    function fireConfetti() {
-        const colors = ['#fbbc04', '#ea4335', '#34a853', '#4285f4'];
-        for (let i = 0; i < 40; i++) {
-            const c = document.createElement('div');
-            c.className = 'confetti';
-            c.style.left = Math.random() * 100 + 'vw';
-            c.style.background = colors[Math.floor(Math.random() * colors.length)];
-            c.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            c.style.opacity = Math.random();
-            document.body.appendChild(c);
-            setTimeout(() => c.remove(), 5000);
-        }
+    function fireConfetti(amount = 40) { // Default to 40 if no amount is provided
+    const colors = ['#fbbc04', '#ea4335', '#34a853', '#4285f4'];
+    for (let i = 0; i < amount; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        c.style.opacity = Math.random();
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 5000);
     }
+}
     
     function clearMistakes() { if(confirm("Clear your 'Needs Work' list?")) { localStorage.setItem('mistakes', "[]"); mistakes = []; renderStats(); } }
     function toggleDecimals() { document.getElementById('decimal-opts').style.display=document.getElementById('decimal-toggle').checked?'flex':'none'; }
@@ -2105,6 +2120,32 @@ function renderStats() {
             setTimeout(() => playTone(100, 'triangle', 0.3, 0.2), 80); 
         } 
     }
+
+    function playFanfare(milestone) {
+    initAudio();
+    const now = audioCtx.currentTime;
+    
+    // Define notes for a triumphant major chord (C4, E4, G4, C5)
+    const notes = milestone === 100 ? [523.25, 659.25, 783.99, 1046.50] : [261.63, 329.63, 392.00, 523.25];
+    const volume = 0.15;
+
+    notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'triangle'; // Gives a slightly "brassy" feel
+        osc.frequency.setValueAtTime(freq, now + (i * 0.1)); // Stagger the notes
+        
+        gain.gain.setValueAtTime(0, now + (i * 0.1));
+        gain.gain.linearRampToValueAtTime(volume, now + (i * 0.1) + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.1) + 0.5);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + (i * 0.1));
+        osc.stop(now + (i * 0.1) + 0.5);
+    });
+}
     
     function runTranslator() { let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return; let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt; window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10); }
    
