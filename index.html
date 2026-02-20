@@ -411,7 +411,7 @@
         <div id="tab-campaign" class="tab-content">
             <p style="font-size:0.9rem; color:#666; margin-bottom:15px;"><strong>Auto Campaign</strong> guides you through 6 levels of difficulty. If you find the game too easy, in the settings tab you can skip to a higher level or switch to Manual mode to work on certain areas.</p>
             <div class="set-group"><div class="set-title">Lvl 1: Novice (1-200)</div><p class="help-p">The basics. Mastering 1-10 and the "teens".</p></div>
-            <div class="set-group"><div class="set-title">Lvl 2: Apprentice (200-5000)</div><p class="help-p"><b>Focus:</b> The "Tens" pattern (20, 30...).<br><b>New:</b> Gender (1/2) & Prices (zł/gr).</p></div>
+            <div class="set-group"><div class="set-title">Lvl 2: Apprentice (200-5,000)</div><p class="help-p"><b>Focus:</b> The "Tens" pattern (20, 30...).<br><b>New:</b> Gender (1/2) & Prices (zł/gr).</p></div>
             <div class="set-group"><div class="set-title">Lvl 3: Journeyman (5000-10,000)</div><p class="help-p"><b>Focus:</b> Hundreds pattern.<br><b>New:</b> Time (Clock) & Negative Numbers.</p></div>
             <div class="set-group"><div class="set-title">Lvl 4: Expert (10,000-20,000)</div><p class="help-p"><b>Focus:</b> Thousands.<br><b>New:</b> Dates (Years/Months) & Decimals.</p></div>
             <div class="set-group"><div class="set-title">Lvl 5: Master (20,000-50,000)</div><p class="help-p"><b>Focus:</b> Large scale numbers.<br><b>New:</b> Context (Sentences & Cases).</p></div>
@@ -842,32 +842,32 @@ function generate() {
 
             // === THE CURRICULUM ===
             
-            // LEVEL 1: Novice (1-20)
+            // LEVEL 1: Novice (1-200)
             // Focus: Basic Numbers 1-20
             if (lvl === 1) { 
-                min = 1; max = 20; 
+                min = 1; max = 200; 
                 allowedModes = ['numbers']; 
             }
             
-            // LEVEL 2: Apprentice (1-100)
+            // LEVEL 2: Apprentice (1-5,000)
             // Focus: Tens, Gender, Prices
             else if (lvl === 2) { 
-                min = 1; max = 100; 
+                min = 1; max = 5000; 
                 allowedModes = ['numbers', 'gender', 'prices']; 
             }
             
-            // LEVEL 3: Journeyman (1-1,000)
+            // LEVEL 3: Journeyman (1-10,000)
             // Focus: Hundreds, Time + NEGATIVES
             else if (lvl === 3) { 
-                min = 1; max = 1000; 
+                min = 1; max = 10000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time'];
                 if (state.mode === 'numbers') document.getElementById('negatives-toggle').checked = true;
             }
             
-            // LEVEL 4: Expert (1-100,000)
+            // LEVEL 4: Expert (1-20,000)
             // Focus: Thousands, Dates + DECIMALS
             else if (lvl === 4) { 
-                min = 1; max = 100000; 
+                min = 1; max = 20000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates']; 
                 if (state.mode === 'numbers') {
                     document.getElementById('negatives-toggle').checked = true;
@@ -876,10 +876,10 @@ function generate() {
                 }
             }
             
-            // LEVEL 5: Master (1-1,000,000)
+            // LEVEL 5: Master (1-50,000)
             // Focus: Millions + CONTEXT (Cases)
             else if (lvl === 5) { 
-                min = 1; max = 1000000; 
+                min = 1; max = 50000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time', 'dates', 'context']; 
                 if (state.mode === 'numbers') {
                     document.getElementById('negatives-toggle').checked = true;
@@ -1435,7 +1435,7 @@ function generate() {
 
                 // A. Determine Neighbor Bounds (Same as before)
                 if (typeof target === 'number') {
-                    let range = Math.max(5, Math.ceil(Math.abs(target) * 0.4));
+                    let range = Math.max(15, Math.ceil(Math.abs(target) * 0.4));
                     let min = Math.floor(target - range);
                     let max = Math.ceil(target + range);
                     if (!document.getElementById('negatives-toggle').checked && min < 0) min = 0;
