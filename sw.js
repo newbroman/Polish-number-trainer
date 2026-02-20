@@ -1,7 +1,8 @@
-const CACHE_NAME = 'polish-trainer-v1';
+const CACHE_NAME = 'polish-trainer-v2';
 const ASSETS = [
   'index.html',
   'manifest.json'
+  'icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {

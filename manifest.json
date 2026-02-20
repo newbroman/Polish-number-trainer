@@ -1,13 +1,13 @@
 {
-  "name": "Welsh Number Trainer",
-  "short_name": "Welsh Trainer",
+  "name": "Polski Trener Liczb",
+  "short_name": "Polski Trener",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1a73e8",
+  "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/197/197529.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
