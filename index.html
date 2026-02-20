@@ -11,6 +11,10 @@
 
 <div class="brand-header">
     <div class="brand-title">Polski Trener Liczb</div>
+    <div class="header-controls">
+        <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
+        <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
+    </div>
 </div>
 
 <div class="status-bar">
@@ -19,10 +23,6 @@
         <div class="stat-item" title="Streak">🔥 <span id="streak-display">0</span></div>
         <div class="stat-item" title="Daily Goal">🎯 <span id="daily-display">0/300</span></div>
         <div class="stat-item" title="Rank">🏆 <span id="rank-display">Nowicjusz</span></div>
-    </div>
-    <div class="stats-group">
-        <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
-        <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
     </div>
 </div>
 
@@ -2246,14 +2246,38 @@ function getOrdinalPL(n) {
 
         /* Polish Flag Branding */
         .brand-header {
-            background: linear-gradient(to bottom, #ffffff 50%, #dc143c 50%);
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-            z-index: 10;
+        display: flex;
+         align-items: center;
+         justify-content: center;
+          position: relative;
+         background: linear-gradient(to bottom, #ffffff 50%, #dc143c 50%);
+        width: 100%;
+        padding: 15px 0;
+        height: 60px;
+        z-index: 10;
         }
+
+        .header-controls {
+            position: absolute;
+            right: 10px; /* Positioned at the top right */
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Style buttons for the header background */
+        .brand-header .icon-btn {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            border: 1px solid var(--border);
+        }
+
         .brand-title {
             background: rgba(255,255,255,0.95);
             color: #202124;
