@@ -1815,7 +1815,7 @@ function win(btn) {
     
     state.audioPlaying = true;
 
-    // 1. Completely hide the answer input areas (both grid and typing)
+    // 1. Completely hide the answer input areas
     const grid = document.getElementById('mc-area');
     const typeArea = document.getElementById('type-area');
     if (grid) grid.style.display = 'none';
@@ -1825,20 +1825,23 @@ function win(btn) {
     const targetBox = document.getElementById('pl-text') || document.getElementById('cy-text');
     const enBox = document.getElementById('en-text');
     
-    // 3. Populate and force-reveal the text in the top status box
+    // 3. Populate and FORCE the CSS visible class
     let targetText = (state.mode === 'context') ? state.speechText : (state.currentPL || state.currentCY);
     
     if (targetBox) {
         targetBox.innerHTML = (state.mode === 'context') ? state.speechText : targetText;
-        targetBox.style.visibility = 'visible';
-        targetBox.style.opacity = '1'; 
-        targetBox.style.filter = 'none'; // Removes the blur effect if Listening Mode was on
+        // Strip any conflicting inline styles and apply the CSS animation class
+        targetBox.style.visibility = ''; 
+        targetBox.style.opacity = '';
+        targetBox.style.filter = '';
+        targetBox.classList.add('visible'); 
     }
     
     if (enBox) {
         enBox.innerText = state.currentEN;
-        enBox.style.visibility = 'visible';
-        enBox.style.opacity = '1';
+        enBox.style.visibility = ''; 
+        enBox.style.opacity = '';
+        enBox.classList.add('visible'); 
     }
 
     // 4. Play the audio sequence
@@ -1851,10 +1854,14 @@ function win(btn) {
     
     u4.onend = () => { 
         state.audioPlaying = false;
-        // Move to the next word after a 3-second pause
         if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
     }; 
-    u4.onerror = () => { state.audioPlaying = false; };
+    
+    // NEW: Fallback in case Chrome Android drops the audio queue
+    u4.onerror = () => { 
+        state.audioPlaying = false; 
+        if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
+    };
 
     window.speechSynthesis.speak(u1); 
     window.speechSynthesis.speak(u2); 
