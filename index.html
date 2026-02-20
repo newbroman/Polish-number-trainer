@@ -1826,7 +1826,7 @@ function playHandsfreeSequence() {
     const enBox = document.getElementById('en-text');
     let targetText = (state.mode === 'context') ? state.speechText : (state.currentPL || state.currentCY);
     
-    // 3. FORCE CSS REFLOW (Fixes the vanishing text bug)
+    // 3. FORCE CSS REFLOW & VISIBILITY (Fixes the vanishing text bug)
     if (targetBox) {
         targetBox.innerHTML = (state.mode === 'context') ? state.speechText : targetText;
         
@@ -1835,23 +1835,26 @@ function playHandsfreeSequence() {
         targetBox.style.opacity = '';
         targetBox.style.filter = '';
         
-        // Force the browser to redraw the animation
+        // Force the browser to redraw the element and lock it visible
         targetBox.classList.remove('visible');
-        void targetBox.offsetWidth; // Triggers Reflow
+        void targetBox.offsetWidth; // Triggers DOM Reflow
         targetBox.classList.add('visible'); 
     }
     
     if (enBox) {
         enBox.innerText = state.currentEN;
+        
+        // Strip conflicting inline styles
         enBox.style.visibility = ''; 
         enBox.style.opacity = '';
         
+        // Force the browser to redraw the element and lock it visible
         enBox.classList.remove('visible');
-        void enBox.offsetWidth; // Triggers Reflow
+        void enBox.offsetWidth; // Triggers DOM Reflow
         enBox.classList.add('visible'); 
     }
 
-    // 4. ROBUST AUDIO CHAINING (Fixes Android audio drops)
+    // 4. ROBUST AUDIO CHAINING (Ensures smooth playback)
     let langCode = document.documentElement.lang === 'cy' ? 'cy-GB' : 'pl-PL';
     
     let u1 = new SpeechSynthesisUtterance(" " + targetText); u1.lang = langCode; u1.rate = 1.0; 
@@ -1859,13 +1862,13 @@ function playHandsfreeSequence() {
     let u3 = new SpeechSynthesisUtterance(" " + targetText); u3.lang = langCode; u3.rate = 0.5; 
     let u4 = new SpeechSynthesisUtterance(" " + targetText); u4.lang = langCode; u4.rate = 1.0; 
     
-    // Function to safely loop to the next word
+    // Function to safely loop to the next word after 3 seconds
     const scheduleNext = () => { 
         state.audioPlaying = false;
         if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
     }; 
     
-    // Chain them together so Chrome processes them one at a time
+    // Chain them together so Chrome processes them one at a time perfectly
     u1.onend = () => window.speechSynthesis.speak(u2);
     u1.onerror = () => window.speechSynthesis.speak(u2);
     
@@ -1878,7 +1881,7 @@ function playHandsfreeSequence() {
     u4.onend = scheduleNext;
     u4.onerror = scheduleNext;
 
-    // Start the chain
+    // Start the sequence
     window.speechSynthesis.speak(u1); 
 }
     function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; let msg = ""; if (speakerTaps === 1) { rate = 1.0; } else if (speakerTaps === 2) { rate = 0.5; msg = "🐢 Slow Speed (0.5x)"; } else { rate = 0.25; msg = "🐢🐢 Super Slow (0.25x)"; } if (msg) { let fb = document.getElementById('voice-feedback'); fb.innerText = msg; fb.style.color = "var(--primary)"; setTimeout(() => { if(fb.innerText === msg) fb.innerText = ""; }, 1500); } speak(rate); speakerTaps = 0; }, 300); }
