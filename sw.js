@@ -1,4 +1,4 @@
-const CACHE_NAME = 'polish-trainer-v2';
+const CACHE_NAME = 'polish-trainer-v3';
 const ASSETS = [
   'index.html',
   'manifest.json'

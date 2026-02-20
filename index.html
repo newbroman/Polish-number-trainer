@@ -1782,40 +1782,76 @@ function win(btn) {
     }
     
     // --- SYSTEM UI & STATS ---
-    function toggleHandsfree() { state.handsfree = !state.handsfree; let btn = document.getElementById('hf-btn'); if (state.handsfree) { btn.classList.add('active'); document.getElementById('badge-handsfree').style.display = 'block'; initAudio(); generate(); } else { btn.classList.remove('active'); document.getElementById('badge-handsfree').style.display = 'none'; window.speechSynthesis.cancel(); if (autoNextTimer) clearTimeout(autoNextTimer); } }
-    function playHandsfreeSequence() { 
-        if (!state.handsfree) return; 
+   function toggleHandsfree() { 
+    state.handsfree = !state.handsfree; 
+    let btn = document.getElementById('hf-btn'); 
+
+    if (state.handsfree) { 
+        btn.classList.add('active'); 
+        document.getElementById('badge-handsfree').style.display = 'block'; 
+        initAudio(); 
+        generate(); // Starts the handsfree loop
+    } else { 
+        btn.classList.remove('active'); 
+        document.getElementById('badge-handsfree').style.display = 'none'; 
         window.speechSynthesis.cancel(); 
+        if (autoNextTimer) clearTimeout(autoNextTimer); 
         
-        // FREEZE TILES
-        state.audioPlaying = true;
-        const grid = document.getElementById('mc-area');
-        if (grid) { grid.style.pointerEvents = 'none'; grid.style.opacity = '0.5'; }
+        // Regenerate a standard question to bring the buttons back
+        generate(); 
+    } 
+}
+   function playHandsfreeSequence() { 
+    if (!state.handsfree) return; 
+    window.speechSynthesis.cancel(); 
+    
+    state.audioPlaying = true;
 
-        let plText = (state.mode === 'context') ? state.speechText : state.currentPL; 
-        let enText = state.currentEN; 
-        
-        let u1 = new SpeechSynthesisUtterance(" " + plText); u1.lang = 'pl-PL'; u1.rate = 1.0; 
-        let u2 = new SpeechSynthesisUtterance(" " + enText); u2.lang = 'en-US'; u2.rate = 1.0; 
-        let u3 = new SpeechSynthesisUtterance(" " + plText); u3.lang = 'pl-PL'; u3.rate = 0.5; 
-        let u4 = new SpeechSynthesisUtterance(" " + plText); u4.lang = 'pl-PL'; u4.rate = 1.0; 
-        
-        // UNFREEZE AFTER THE 4TH AUDIO FINISHES
-        u4.onend = () => { 
-            state.audioPlaying = false;
-            if (grid) { grid.style.pointerEvents = 'auto'; grid.style.opacity = '1'; }
-            if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
-        }; 
-        u4.onerror = () => {
-            state.audioPlaying = false;
-            if (grid) { grid.style.pointerEvents = 'auto'; grid.style.opacity = '1'; }
-        };
+    // 1. Hide the answer grid and typing area
+    const grid = document.getElementById('mc-area');
+    const typeArea = document.getElementById('type-area');
+    if (grid) grid.style.display = 'none';
+    if (typeArea) typeArea.style.display = 'none';
 
-        window.speechSynthesis.speak(u1); 
-        window.speechSynthesis.speak(u2); 
-        window.speechSynthesis.speak(u3); 
-        window.speechSynthesis.speak(u4); 
+    // 2. Identify the text boxes (Supports both Polish and Welsh setups)
+    const targetBox = document.getElementById('pl-text') || document.getElementById('cy-text');
+    const enBox = document.getElementById('en-text');
+
+    // 3. Make the text visible immediately
+    if (targetBox) targetBox.classList.add('visible');
+    if (enBox) enBox.classList.add('visible');
+
+    // 4. Populate the correct text into the boxes
+    let targetText = (state.mode === 'context') ? state.speechText : (state.currentPL || state.currentCY);
+    
+    if (state.mode === 'context') {
+        if (enBox) enBox.innerText = state.currentEN;
+        if (targetBox) targetBox.innerHTML = state.speechText;
+    } else {
+        if (targetBox) targetBox.innerText = targetText;
+        if (enBox) enBox.innerText = state.currentEN;
     }
+
+    // 5. Play the audio sequence
+    let langCode = document.documentElement.lang === 'cy' ? 'cy-GB' : 'pl-PL';
+    
+    let u1 = new SpeechSynthesisUtterance(" " + targetText); u1.lang = langCode; u1.rate = 1.0; 
+    let u2 = new SpeechSynthesisUtterance(" " + state.currentEN); u2.lang = 'en-US'; u2.rate = 1.0; 
+    let u3 = new SpeechSynthesisUtterance(" " + targetText); u3.lang = langCode; u3.rate = 0.5; 
+    let u4 = new SpeechSynthesisUtterance(" " + targetText); u4.lang = langCode; u4.rate = 1.0; 
+    
+    u4.onend = () => { 
+        state.audioPlaying = false;
+        // Proceed to the next word after 3 seconds
+        if(state.handsfree) autoNextTimer = setTimeout(generate, 3000); 
+    }; 
+    u4.onerror = () => { state.audioPlaying = false; };
+
+    window.speechSynthesis.speak(u1); 
+    window.speechSynthesis.speak(u2); 
+    window.speechSynthesis.speak(u3); 
+    window.speechSynthesis.speak(u4); 
+}
     function handleSpeakerClick() { speakerTaps++; if (speakerTapTimer) clearTimeout(speakerTapTimer); speakerTapTimer = setTimeout(() => { let rate = 1.0; let msg = ""; if (speakerTaps === 1) { rate = 1.0; } else if (speakerTaps === 2) { rate = 0.5; msg = "🐢 Slow Speed (0.5x)"; } else { rate = 0.25; msg = "🐢🐢 Super Slow (0.25x)"; } if (msg) { let fb = document.getElementById('voice-feedback'); fb.innerText = msg; fb.style.color = "var(--primary)"; setTimeout(() => { if(fb.innerText === msg) fb.innerText = ""; }, 1500); } speak(rate); speakerTaps = 0; }, 300); }
         // --- NEW HELPER: UPDATE UI TABS (Visuals Only) ---
 function updateModeUI(m) {
