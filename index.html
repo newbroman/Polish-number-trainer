@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Welsh Trainer">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Polski Trener">
     <title>Polski Trener Liczb</title>
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/197/197529.png">
@@ -1450,11 +1458,22 @@ function generate() {
                     // 1. Large Number Mirror (100,000s and 100s)
                     if (target >= 100000) {
                         // Flip the "ten-thousands" digit (e.g., 141,000 vs 131,000)
-                        fakeVal = (target % 100000 >= 50000) ? target - 10000 : target + 10000;
+                        fakeVal = (target % 100000 >= 40000) ? target - 10000 : target + 10000;
                     }
+
+                     if (target >= 10000) {
+                        // Flip the "thousands" digit (e.g., 141,000 vs 131,000)
+                        fakeVal = (target % 10000 >= 4000) ? target - 1000 : target + 1000;
+                    }
+
+                     if (target >= 1000) {
+                        // Flip the "hundreds" digit (e.g., 141,000 vs 131,000)
+                        fakeVal = (target % 100 >= 400) ? target - 100 : target + 100;
+                    }
+
                     else if (target >= 100 && target <= 999) {
                         // Flip the "tens" digit (e.g., 141 vs 131)
-                        fakeVal = (target % 100 >= 50) ? target - 10 : target + 10;
+                        fakeVal = (target % 100 >= 40) ? target - 10 : target + 10;
                     }
                     
                     // 2. The 30s/40s Gap (Trzydzieści vs Czterdzieści)
@@ -2256,9 +2275,15 @@ function getOrdinalPL(n) {
     };
     return ordinals[n] || n + "."; // Fallback for higher numbers
 }
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+
 </script>
 
 <style>
+
         /* Theme Variables */
         :root { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; --header-h: 50px; --callout-bg-blue: #f0f7ff;
     --callout-border-blue: #cce5ff;
@@ -2272,6 +2297,19 @@ function getOrdinalPL(n) {
     --callout-border-orange: #ffe0b2;
     --callout-text-orange: #e65100;
         } 
+
+     @media (max-height: 700px) {
+    .mc-grid { /* Changed from .grid-container */
+        gap: 8px; /* Slightly tighter spacing */
+        margin-bottom: 90px; /* Ensures space for the footer */
+        }
+    .mc-btn { /* Changed from .btn-tile */
+        min-height: 55px; /* Shorter buttons to fit more rows */
+        padding: 5px;
+        font-size: 0.85rem;
+        }
+    }   
+
         @media (prefers-color-scheme: dark) {
             :root { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; --callout-bg-blue: #0d1b2a;
         --callout-border-blue: #1b3a57;
@@ -2289,7 +2327,17 @@ function getOrdinalPL(n) {
         body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+       body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            height: 100dvh; /* Changed from 100vh to 100dvh */
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* Prevents overlapping iPhone notch/bar */
+        }
 
         /* Polish Flag Branding */
         .brand-header {
@@ -2362,7 +2410,15 @@ function getOrdinalPL(n) {
         .icon-btn:active { background: rgba(0,0,0,0.1); }
 
         /* Game Area */
-        .game-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; width: 100%; position: relative; }
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px;
+            /* Ensure the grid doesn't get squashed */
+            min-height: 0; 
+}
         
         /* Display Box */
         .display-box { 
@@ -2562,6 +2618,8 @@ function getOrdinalPL(n) {
     font-weight: bold;
     margin-bottom: 8px;
 }
+
+
     </style>
 </body>
 </html>
