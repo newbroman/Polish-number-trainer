@@ -110,7 +110,7 @@
                 <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
                 <button class="mode-btn" onclick="selectMode('ordinal')" id="nav-ordinal"><span>🥇</span> Ordinals</button>
                 <button class="mode-btn" onclick="selectMode('phone')" id="nav-phone"><span>📱</span> Phone Nos</button>
-                <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤</button>
+                <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤   Translator</button>
            </div>
         </div>
 
@@ -316,9 +316,59 @@
                 <p class="help-p" style="font-size: 0.85rem;"><b>Recommended:</b> Chrome, Edge, or Safari. <br><b>Limited Support:</b> Firefox and Brave may block the Polish voice engine by default.    </p>
                 <p class="help-p" style="font-size: 0.85rem; margin-top: 8px;"><b>If silent:</b>
                 <br>• Tap the screen once to "wake up" the audio engine.
+                <br>• <b>Android and Apple Users:</b> See note below on downloading the Polish voice pack.
                 <br>• <b>Linux Users:</b> Chrome may need the <code>espeak-ng</code> package.
                 <br>• <b>Brave Users:</b> Disable "Shields" or "Fingerprinting Protection" for this site.
                 <br>• <b>Firefox:</b> Go to <i>Settings > Privacy > Autoplay</i> and allow Audio.</p>
+            </div>
+            <div class="help-section" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.03); border-radius: 12px; border: 1px solid var(--border);">
+                <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                    <span>🔊</span> Setup Polish Voice (Android)</h3>
+                <p style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 12px;">
+                    Chrome and Samsung Internet rely on <b>Google Speech Services</b>. To hear a clear Polish voice, you need to download the language pack manually:</p>
+                
+                <ol style="font-size: 0.85rem; padding-left: 20px; line-height: 1.6;">
+                    <li>Open your phone <b>Settings</b>.</li>
+                    <li>Go to <b>General Management</b> > <b>Language and Input</b> (or <i>System > Languages</i>).</li>
+                    <li>Tap on <b>Text-to-speech output</b>.</li>
+                    <li>Ensure <b>Speech Services by Google</b> is selected as the <i>Preferred engine</i>.</li>
+                    <li>Tap the <b>Settings (cog)</b> icon next to it.</li>
+                    <li>Tap <b>Install voice data</b>.</li>
+                    <li>Find <b>Polski (Polska)</b> and tap the download (arrow) icon.</li>
+                </ol>
+
+                <div style="margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #ffe58f; border-radius: 4px; font-size: 0.8rem;">
+                    <strong>Tip:</strong> If it says it is already installed but sounds robotic or doesn't work, delete the pack and download it again to clear any errors.
+                </div>
+
+                <button class="btn-review" onclick="speechSynthesis.speak(new SpeechSynthesisUtterance('MTo działa dobrze'))" style="margin-top:10px; background:var(--primary); color:white; width:100%; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    Test Audio 
+                </button>
+            </div>
+            <div class="help-section" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.03); border-radius: 12px; border: 1px solid var(--border);">
+                <h3 style="margin-top:0; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                    <span>🍎</span> Setup Polish Voice (Apple iOS)</h3>
+                <p style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 12px;">
+                    Safari relies on system-level voices. If the audio is missing or sounds robotic, you must download the high-quality <b>pl-PL</b> language pack manually:</p>
+                
+                <ol style="font-size: 0.85rem; padding-left: 20px; line-height: 1.6;">
+                    <li>Open your iPhone/iPad <b>Settings</b>.</li>
+                    <li>Go to <b>Accessibility</b> > <b>Spoken Content</b>.</li>
+                    <li>Tap on <b>Voices</b>.</li>
+                    <li>Scroll down and select <b>Polish</b>.</li>
+                    <li>Tap the <b>Cloud (download)</b> icon next to a high-quality voice (e.g., <i>Zosia</i>, <i>Krzysztof</i>, or <i>Siri</i>).</li>
+                    <li><b>Important:</b> Fully close Safari and reopen the app for the new voice to take effect.</li>
+                </ol>
+
+                
+
+                <div style="margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #ffe58f; border-radius: 4px; font-size: 0.8rem;">
+                    <strong>Tip:</strong> Ensure the <b>Physical Silent Switch</b> on the side of your iPhone is turned OFF. Apple often blocks web audio even if your volume is up while in Silent Mode.
+                </div>
+
+                <button class="btn-review" onclick="speechSynthesis.speak(new SpeechSynthesisUtterance('To działa dobrze'))" style="margin-top:10px; background:var(--primary); color:white; width:100%; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    Test Audio (Apple)
+                </button>
             </div>
 
         </div>
@@ -589,7 +639,38 @@ let state = {
     
     // --- SPEECH RECOGNITION ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
+    let recognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'cy-GB'; // Setting to Welsh
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // Handle Samsung/Google Service specific errors
+        recognition.onerror = (event) => {
+            if (event.error === 'service-not-allowed') {
+                alert("Gwall: Gwiriwch fod yr ap Google wedi'i alluogi a bod caniatâd meicroffon wedi'i roi.");
+            }
+            console.error("Speech Error:", event.error);
+        };
+    }
+
+// 2. Updated visibility check for the mic button
+function updateMicButtonVisibility() {
+    const micBtn = document.getElementById('mic-btn');
+    if (!micBtn) return;
+
+    // If Speech isn't supported or is disabled in about:config
+    if (!SpeechRecognition) {
+        micBtn.style.display = 'none';
+        console.warn("Speech recognition is not supported or is disabled in this browser.");
+    } else {
+        micBtn.style.display = 'flex'; // Or 'block'
+    }
+}
+    
     let isListening = false;
     let userInteracted = false;
 
@@ -680,21 +761,22 @@ let state = {
         }
 
         // Input Listeners
-        document.addEventListener('keydown', (e) => {
-            // NEW: Block keyboard input while audio is speaking
+            document.addEventListener('keydown', (e) => {
             if (state.audioPlaying) return; 
 
-            if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
-            if (document.getElementById('input-style').value === 'type' || state.mode === 'translator' || state.mode === 'dictation') {
-                if (e.key === 'Enter') checkTyped();
-            } else {
-                if (!isNaN(parseInt(e.key)) && e.key !== '0') {
-                    const idx = parseInt(e.key) - 1;
-                    const buttons = document.querySelectorAll('.mc-btn');
-                    if (buttons[idx]) buttons[idx].click();
-                }
+            // Trigger Translator if active
+            if (state.mode === 'translator' && e.key === 'Enter') {
+                runTranslator();
+                return;
             }
-        });
+
+            if (state.solved && state.mode !== 'translator') { 
+                if (e.key === 'Enter') generate(); 
+                return; 
+            }
+    
+    // ... existing mc-btn logic ...
+});
         
         // Audio Heartbeat
        audioKeepAliveTimer = setInterval(keepAudioAwake, 8000); 
@@ -797,7 +879,7 @@ let state = {
     
 
     // 2. UPDATED GENERATOR (Respects Manual Levels)
-function generate() {
+    function generate() {
         if (autoNextTimer) clearTimeout(autoNextTimer);
         state.solved = false; 
         state.audioClicks = 0; 
@@ -834,26 +916,61 @@ function generate() {
         }
         document.getElementById('badge-review').style.display = 'none';
 
-        // --- 2. TRANSLATOR MODE CHECK ---
+      // --- 2. TRANSLATOR MODE CHECK ---
         if (state.mode === 'translator') {
-             document.getElementById('pl-text').innerText = "Type a number...";
+             const plBox = document.getElementById('pl-text') || document.getElementById('cy-text');
+             if (plBox) {
+                 plBox.innerText = "Wpisz liczbę..."; // "Type a number..."
+                 plBox.classList.add('visible'); 
+             }
+             
              document.getElementById('display-box').classList.add('trans-active');
-             document.getElementById('type-input').value = "";
-             document.getElementById('type-input').focus();
-             document.getElementById('main-btn').style.display = 'none'; 
-             document.getElementById('action-btn').innerText = "TRANSLATE & SPEAK 🔊";
-             return;
-        } else {
-            document.getElementById('display-box').classList.remove('trans-active');
-            document.getElementById('main-btn').style.display = 'flex';
-            document.getElementById('action-btn').innerText = "CHECK ANSWER";
-        }
+             
+             // 1. Let the engine naturally show the typing area
+             applySettings(); 
 
-        const mainBtn = document.getElementById('main-btn');
-        mainBtn.innerText = "SKIP ➡️"; 
-        mainBtn.classList.remove('ready'); 
-        document.getElementById('type-input').value = "";
-        document.getElementById('type-input').style.borderColor = "var(--border)";
+             const typeInput = document.getElementById('type-input');
+             typeInput.value = "";
+             typeInput.placeholder = "np. 1250";
+             
+             // 2. Target the CORRECT button ID ('type-btn')
+             const typeBtn = document.getElementById('type-btn');
+             if (typeBtn) {
+                 typeBtn.style.display = 'block'; 
+                 typeBtn.innerText = "TRANSLATE 🔊";
+                 // 3. Directly wire the button to our translator function
+                 typeBtn.onclick = runTranslator; 
+             }
+             
+             const enBox = document.getElementById('en-text');
+             if (enBox) enBox.innerText = "";
+             
+             setTimeout(() => typeInput.focus(), 50);
+             return; 
+             
+        } else {
+            // Restore normal game UI when leaving translator mode
+            document.getElementById('display-box').classList.remove('trans-active');
+            
+           // 1. HIDE THE TEXT BOXES AGAIN
+            const plBox = document.getElementById('pl-text') || document.getElementById('cy-text');
+            const enBox = document.getElementById('en-text');
+            if (plBox) { 
+                plBox.classList.remove('visible'); 
+                plBox.innerText = ""; 
+            }
+            if (enBox) { 
+                enBox.classList.remove('visible'); 
+                enBox.innerText = ""; 
+            }
+
+            // 2. RESTORE THE BUTTON
+            const typeBtn = document.getElementById('type-btn');
+            if (typeBtn) {
+                typeBtn.innerText = "SPRAWDŹ"; // Or "CHECK"
+                typeBtn.onclick = checkTyped; 
+            }
+        }
 
         // --- 3. DETERMINE DIFFICULTY (Campaign vs Manual) ---
         let min = 0, max = 0;
@@ -991,11 +1108,57 @@ function generate() {
             plBox.classList.add('visible'); 
             if (badge) badge.classList.add('visible'); 
         }
-        else if (state.mode === 'dates') { 
-            // Dates often help to see the English "On May 5th" to know what to translate
-            enBox.classList.add('visible'); 
-            if (badge) badge.classList.add('visible'); 
-        }
+       else if (state.mode === 'dates') {
+                        // Check if the "In/On" grammar toggle is active
+                        const isDateInMode = document.getElementById('date-in-toggle') && document.getElementById('date-in-toggle').checked;
+
+                        if (showDigits) {
+                            let enStr = ""; 
+                            // Add "On" if the grammar toggle is active
+                            if (isDateInMode) enStr += "On "; 
+
+                            if (document.getElementById('day-toggle').checked) enStr += `${DAYS_EN[fakeVal.dow]}, `; 
+                            enStr += `${MONTHS_EN[fakeVal.m]} ${fakeVal.d}`; 
+                            
+                            // Year logic for English ("In 2024" if only year is shown, otherwise "2024")
+                            if (document.getElementById('year-toggle').checked) {
+                                if (isDateInMode && !document.getElementById('day-toggle').checked && !document.getElementById('month-toggle').checked) {
+                                    enStr = `In ${fakeVal.y}`; // "In 2024"
+                                } else {
+                                    enStr += `, ${fakeVal.y}`; // "May 5th, 2024"
+                                }
+                            }
+                            fakeText = enStr;
+                        } else {
+                            let plStr = ""; 
+                            
+                            // 1. IF FULL DATE (Day/Month/Year) - "w/we" is NOT used. We use "w dniu" or just Genitive.
+                            if (document.getElementById('month-toggle').checked) {
+                                if (document.getElementById('day-toggle').checked) plStr += `${DAYS_PL[fakeVal.dow]}, `; 
+                                let dayText = ORDINAL_PL[fakeVal.d] || fakeVal.d.toString(); // e.g. "piąty"
+                                
+                                // Cleaned up Polish format (Removed Welsh "Y... o fis")
+                                plStr += `${dayText} ${MONTHS_PL_GEN[fakeVal.m]}`; // e.g. "piąty maja"
+                                if (document.getElementById('year-toggle').checked) plStr += ` ${numToPl(fakeVal.y)}`; 
+                            } 
+                            // 2. IF ONLY YEAR IS SHOWN AND "IN" IS CHECKED
+                            else if (document.getElementById('year-toggle').checked && isDateInMode) {
+                                // Apply the Polish Locative rule (w/we)
+                                let yTxt = numToPl(fakeVal.y);
+                                let prefix = (yTxt.startsWith("w") || yTxt.startsWith("f")) ? "we " : "w ";
+                                
+                                // Make the last digit locative (Very simplified version of your yearToPl logic)
+                                // Note: You should ideally replace this whole block with `fakeText = yearToPl(fakeVal.y, isDateInMode);` if you have that function!
+                                plStr = `${prefix}${yTxt}`; // Ensure this matches exactly how your state.currentPL is generated!
+                            } 
+                            // 3. DEFAULT YEAR ONLY
+                            else if (document.getElementById('year-toggle').checked) {
+                                plStr = numToPl(fakeVal.y);
+                            }
+
+                            fakeText = plStr;
+                        }
+                    }
         
         // Blind Mode Badge
         if (document.getElementById('blind-toggle').checked) document.getElementById('badge-blind').style.display = 'block';
@@ -1613,8 +1776,24 @@ function generate() {
                         }
                     }
                     else if (state.mode === 'dates') {
-                         fakeText = "---"; 
+                    // Generate the text for the decoy date tiles
+                    if (showDigits) {
+                        // English Format (matching state.currentEN logic)
+                        let enStr = ""; 
+                        if (document.getElementById('day-toggle').checked) enStr += `${DAYS_EN[fakeVal.dow]}, `; 
+                        enStr += `${MONTHS_EN[fakeVal.m]} ${fakeVal.d}`; 
+                        if (document.getElementById('year-toggle').checked) enStr += ` ${fakeVal.y}`; 
+                        fakeText = enStr;
+                    } else {
+                        // Polish Format (matching state.currentPL logic)
+                        let plStr = ""; 
+                        if (document.getElementById('day-toggle').checked) plStr += `${DAYS_PL[fakeVal.dow]}, `; 
+                        let dayText = ORDINAL_PL[fakeVal.d] || fakeVal.d.toString(); 
+                        plStr += `Y ${dayText} o fis ${MONTHS_PL[fakeVal.m]}`; 
+                        if (document.getElementById('year-toggle').checked) plStr += ` ${numToPl(fakeVal.y)}`; 
+                        fakeText = plStr;
                     }
+                }
                 } catch (e) { console.log(e); fakeText = "---"; }
 
                 if (fakeText !== "---" && !answers.some(a => a.text === fakeText)) {
@@ -1656,6 +1835,46 @@ function generate() {
         if (isCorrect) win(btn); else lose(btn);
     }
 
+        function runTranslator() { 
+            let inputVal = document.getElementById('type-input').value;
+            if (!inputVal) return;
+
+            // Handle both dots and commas for decimals
+            inputVal = inputVal.replace(',', '.');
+            let n = parseFloat(inputVal);
+            if (isNaN(n)) return; 
+
+            let txt = "";
+            
+            // Handle Decimals vs Integers
+            if (inputVal.includes('.')) {
+                let parts = inputVal.split('.'); 
+                if (!parts[1]) parts[1] = "0"; 
+                // Generates: "[Whole] przecinek [Decimal]"
+                txt = `${numToPl(parseInt(parts[0]))} przecinek ${numToPl(parseInt(parts[1]))}`;
+            } else {
+                txt = numToPl(n);
+            }
+
+            state.currentPL = txt; 
+            
+            // Update the UI
+            const plBox = document.getElementById('pl-text');
+            plBox.innerText = txt; 
+            plBox.classList.add('visible');
+            
+            const enBox = document.getElementById('en-text');
+            enBox.innerText = n.toLocaleString();
+            enBox.classList.add('visible');
+
+            // Speak immediately
+            window.speechSynthesis.cancel(); 
+            setTimeout(() => { 
+                let u = new SpeechSynthesisUtterance(" " + txt); 
+                u.lang = 'pl-PL'; 
+                window.speechSynthesis.speak(u); 
+            }, 50); 
+        }
 
     function checkTyped() {
         if (state.mode === 'translator') { runTranslator(); return; }
@@ -2278,7 +2497,44 @@ function renderStats() {
     });
 }
     
-    function runTranslator() { let n=parseInt(document.getElementById('type-input').value); if(isNaN(n)) return; let txt=numToPl(n); state.currentPL = txt; document.getElementById('pl-text').innerText = txt; window.speechSynthesis.cancel(); setTimeout(()=>{ let u=new SpeechSynthesisUtterance(" "+txt); u.lang='pl-PL'; window.speechSynthesis.speak(u); },10); }
+    function runTranslator() { 
+        let inputVal = document.getElementById('type-input').value;
+        if (!inputVal) return;
+
+        let n = parseFloat(inputVal);
+        if (isNaN(n)) return; 
+
+        let txt = "";
+        
+        // Handle Decimals vs Integers
+        if (inputVal.includes('.') || inputVal.includes(',')) {
+            let s = n.toString(); 
+            if(!s.includes('.')) s += ".0"; 
+            let parts = s.split('.'); 
+            txt = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+        } else {
+            txt = numToPl(n);
+        }
+
+        state.currentPL = txt; 
+        
+        // Update the UI
+        const plBox = document.getElementById('pl-text');
+        plBox.innerText = txt; 
+        plBox.classList.add('visible');
+        
+        const enBox = document.getElementById('en-text');
+        enBox.innerText = n.toLocaleString();
+        enBox.classList.add('visible');
+
+        // Speak immediately
+        window.speechSynthesis.cancel(); 
+        setTimeout(() => { 
+            let u = new SpeechSynthesisUtterance(" " + txt); 
+            u.lang = 'pl-PL'; 
+            window.speechSynthesis.speak(u); 
+        }, 50); 
+    }
    
     function applyTheme() { const t=document.getElementById('theme-select').value; document.body.className=''; if(t==='dark')document.body.classList.add('force-dark'); if(t==='light')document.body.classList.add('force-light'); }
     
@@ -2365,9 +2621,9 @@ if ('serviceWorker' in navigator) {
         } 
 
      @media (max-height: 700px) {
-    .mc-grid { /* Changed from .grid-container */
-        gap: 8px; /* Slightly tighter spacing */
-        margin-bottom: 90px; /* Ensures space for the footer */
+     .mc-grid { 
+    display: grid; gap: 8px; flex-grow: 1; align-content: start; 
+    /* Removed margin-bottom: 100px; */
         }
     .mc-btn { /* Changed from .btn-tile */
         min-height: 55px; /* Shorter buttons to fit more rows */
@@ -2416,6 +2672,7 @@ if ('serviceWorker' in navigator) {
         padding: 15px 0;
         height: 60px;
         z-index: 10;
+        padding-top: env(safe-area-inset-top, 20px);
         }
 
         /* Split Header Controls */
@@ -2476,21 +2733,16 @@ if ('serviceWorker' in navigator) {
         .icon-btn:active { background: rgba(0,0,0,0.1); }
 
         /* Game Area */
-        .game-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 10px;
-            /* Ensure the grid doesn't get squashed */
-            min-height: 0; 
-}
+       .game-area { 
+            flex-grow: 1; padding: 15px 15px 5px 15px; overflow-y: auto; 
+            display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; width: 100%; position: relative; 
+        }
         
         /* Display Box */
         .display-box { 
-            text-align: center; margin-bottom: 20px; min-height: 140px; 
+            text-align: center; margin-bottom: 15px; min-height: 110px; 
             display: flex; flex-direction: column; justify-content: center; 
-            background: var(--card); border-radius: 16px; padding: 20px; 
+            background: var(--card); border-radius: 16px; padding: 15px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border); 
             position: relative; transition: border-color 0.3s;
         }
@@ -2536,7 +2788,7 @@ if ('serviceWorker' in navigator) {
         
         .mc-btn { 
             position:relative; background: var(--card); border: 1px solid var(--border); border-bottom-width: 3px;
-            border-radius: 12px; min-height: 65px; font-weight: 700; font-size: 0.95rem; color: var(--text); 
+            border-radius: 12px; min-height: 55px; font-weight: 700; font-size: 0.95rem; color: var(--text); 
             cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; 
             transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s; word-break: break-word; text-align: center;
         }
@@ -2553,11 +2805,16 @@ if ('serviceWorker' in navigator) {
         .btn-check { width: 100%; background: var(--primary); color: white; padding: 15px; border-radius: 12px; font-weight: bold; border: none; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.2); }
 
         /* Footer Controls */
-        .footer { 
-            position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); padding: 15px; 
+       .footer { 
+            background: var(--card); padding: 15px; 
             border-top: 1px solid var(--border); display: grid; gap: 12px; z-index: 100; height: 85px; 
             grid-template-columns: 2fr 1fr 1fr 1fr; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); 
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            /* NEW: Let flexbox handle positioning instead of floating it */
+            position: relative;
+            flex-shrink: 0;
         }
+        
         .btn-action { 
             border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -2612,22 +2869,22 @@ if ('serviceWorker' in navigator) {
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         /* CONFETTI ANIMATION */
-.confetti { position: fixed; top: -10px; width: 10px; height: 10px; border-radius: 50%; animation: fall linear forwards; z-index: 9999; pointer-events: none; }
-@keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
-.btn-review { width:100%; padding:10px; margin-top:10px; background:var(--text); color:var(--bg); border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
-    .grammar-badge {
-        font-size: 0.85rem;
-        color: #ffa726; /* Orange for visibility */
-        margin-top: -5px;
-        margin-bottom: 10px;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-        opacity: 0; /* Hidden by default */
-        transition: opacity 0.3s;
-    }
+        .confetti { position: fixed; top: -10px; width: 10px; height: 10px; border-radius: 50%; animation: fall linear forwards; z-index: 9999; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
+        .btn-review { width:100%; padding:10px; margin-top:10px; background:var(--text); color:var(--bg); border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+   .grammar-badge {
+    background: var(--secondary);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    display: none;
+}
     .grammar-badge.visible {
-        opacity: 1;
+        opacity: 1; display: inline-block;
     }
+
 .tab-header { 
             display: flex; 
             border-bottom: 1px solid var(--border); 
@@ -2683,6 +2940,24 @@ if ('serviceWorker' in navigator) {
     color: var(--secondary); /* Keep headings colorful */
     font-weight: bold;
     margin-bottom: 8px;
+}
+
+#display-number {
+    /* Fluid font size that respects screen width */
+    font-size: clamp(2.5rem, 12vw, 5rem);
+    text-align: center;
+    width: 100%;
+}
+body, .container {
+    /* Fixed height for all mobile browsers */
+    height: 100vh;
+    height: 100dvh; 
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* Background color should extend to the edges */
+    background-color: var(--bg);
 }
 
 
