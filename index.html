@@ -843,21 +843,25 @@ function generate() {
     const badge = document.getElementById('grammar-badge');
     badge.classList.remove('visible');
 
+    // All modes: both boxes stay hidden until the player answers.
+    // The listening element IS the question — nothing is shown upfront.
     if (state.mode === 'gender') {
-        plBox.innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${state.rawData.noun.pl}</span>`;
+        // Exception: show the noun so the player knows what they're counting
+        plBox.innerHTML = `<span style="color:#ccc">... </span><span style="color:var(--text)">${state.rawData.noun.pl}</span>`;
+        plBox.classList.add('visible');
         badge.classList.add('visible');
     } else if (state.mode === 'counting') {
-        plBox.innerHTML = `<span style="color:#ccc">...</span> <span style="color:var(--text)">${state.rawData.noun.word}?</span>`;
+        // Exception: show the noun so the player knows which word to inflect
+        plBox.innerHTML = `<span style="color:#ccc">... </span><span style="color:var(--text)">${state.rawData.noun.word}?</span>`;
+        plBox.classList.add('visible');
         badge.classList.add('visible');
     } else if (state.mode === 'context') {
-        enBox.innerText = '???';
         badge.classList.add('visible');
+        // Both boxes hidden — player picks full sentence by ear
     } else {
-        plBox.classList.add('visible');
-        plBox.innerText = state.currentPL;
+        // Numbers, prices, time, dates, ordinals etc.
+        // Both boxes hidden — audio is the only clue
     }
-    enBox.innerText = state.currentEN;
-    if (state.mode === 'context') enBox.innerText = '???';
 
     document.getElementById('badge-blind').style.display =
         document.getElementById('blind-toggle').checked ? 'block' : 'none';
