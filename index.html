@@ -494,9 +494,9 @@
 
         <div id="tab-campaign" class="tab-content">
             <p style="font-size:0.9rem; color:#666; margin-bottom:15px;"><strong>Auto Campaign</strong> guides you through 6 levels of difficulty. If you find the game too easy, in the settings tab you can skip to a higher level or switch to Manual mode to work on certain areas.</p>
-            <div class="set-group"><div class="set-title">Lvl 1: Novice (1-200)</div><p class="help-p">The basics. Mastering 1-10 and the "teens".</p></div>
-            <div class="set-group"><div class="set-title">Lvl 2: Apprentice (200-5,000)</div><p class="help-p"><b>Focus:</b> The "Tens" pattern (20, 30...).<br><b>New:</b> Gender (1/2) & Prices (zł/gr).</p></div>
-            <div class="set-group"><div class="set-title">Lvl 3: Journeyman (5,000-10,000)</div><p class="help-p"><b>Focus:</b> Hundreds pattern.<br><b>New:</b> Time (Clock) & Negative Numbers.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 1: Novice (1-20)</div><p class="help-p">The basics. Mastering 1-10 and the "teens" (11-19).</p></div>
+            <div class="set-group"><div class="set-title">Lvl 2: Apprentice (20-100)</div><p class="help-p"><b>Focus:</b> The "Tens" pattern (dwadzieścia, trzydzieści...) and compound numbers like 25, 67, 84.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 3: Journeyman (1-1,000)</div><p class="help-p"><b>Focus:</b> Hundreds pattern.<br><b>New:</b> Gender (1/2), Prices (zł/gr), Time (Clock) & Negative Numbers.</p></div>
             <div class="set-group"><div class="set-title">Lvl 4: Expert (10,000-20,000)</div><p class="help-p"><b>Focus:</b> Thousands.<br><b>New:</b> Dates (Years/Months) & Decimals.</p></div>
             <div class="set-group"><div class="set-title">Lvl 5: Master (20,000-50,000)</div><p class="help-p"><b>Focus:</b> Large scale numbers.<br><b>New:</b> Context (Sentences & Cases).</p></div>
             <div class="set-group"><div class="set-title">Lvl 6: Guru (>50,0000)</div><p class="help-p"><b>Final Challenge.</b><br><b>New:</b> Fractions (1/2) & Mixed Numbers.</p></div>
@@ -540,7 +540,7 @@
 
     const RANKS = [
         { limit: 0, name: "Nowicjusz (Novice)" },
-        { limit: 200, name: "Uczeń (Apprentice)" },
+        { limit: 150, name: "Uczeń (Apprentice)" },
         { limit: 5000, name: "Czeladnik (Journeyman)" },
         { limit: 10000, name: "Ekspert (Expert)" },
         { limit: 20000, name: "Mistrz (Master)" },
@@ -850,12 +850,12 @@ function updateMicButtonVisibility() {
         numEl.innerText = state.campLevel;
         
         const desc = [
-            "Novice (1-200)",              // Lvl 1
-            "Apprentice (1-5,000)",        // Lvl 2
-            "Journeyman (1-10,000)",       // Lvl 3
+            "Novice (1-20)",               // Lvl 1
+            "Apprentice (20-100)",         // Lvl 2
+            "Journeyman (1-1,000)",        // Lvl 3
             "Expert (1-20,000)",           // Lvl 4
-            "Master (1-50,000)",           // Lvl 5
-            "Guru (1-200,000)"             // Lvl 6
+            "Master (1-100,000)",          // Lvl 5
+            "Guru (1-100,000,000)"         // Lvl 6
         ];
         
         descEl.innerText = desc[state.campLevel - 1] || desc[0];
@@ -1000,15 +1000,15 @@ function updateMicButtonVisibility() {
                 allowedModes = ['numbers']; 
             }
             
-            // LEVEL 2: Apprentice (1-5,000)
-            // Focus: Tens, Gender, Prices
+            // LEVEL 2: Apprentice (20-100)
+            // Focus: Tens pattern - mastering 20, 30, 40... and compound numbers like 25, 67
             else if (lvl === 2) { 
-                min = 1; max = 100; 
-                allowedModes = ['numbers', 'gender', 'prices']; 
+                min = 20; max = 100; 
+                allowedModes = ['numbers']; 
             }
             
-            // LEVEL 3: Journeyman (1-10,000)
-            // Focus: Hundreds, Time + NEGATIVES
+            // LEVEL 3: Journeyman (1-1,000)
+            // Focus: Hundreds, Time + NEGATIVES + Gender & Prices
             else if (lvl === 3) { 
                 min = 1; max = 1000; 
                 allowedModes = ['numbers', 'gender', 'prices', 'time'];
