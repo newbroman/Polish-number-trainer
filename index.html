@@ -1,39 +1,54 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Polski Trener Liczb</title>
-    <meta name="theme-color" content="#ffffff">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Polski Trener">
     <link rel="apple-touch-icon" href="icon-512.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Polski Trener Liczb</title>
+    <meta name="theme-color" content="#ffffff">
 </head>
 <body onload="init()">
 
-<!-- HANDSFREE OVERLAY -->
+<!-- ═══════════════════════════════════════════════════════════
+     APP SUITE HUB BAR
+═══════════════════════════════════════════════════════════ -->
+<div class="hub-bar">
+    <div class="hub-label">SUITE</div>
+    <a class="hub-btn hub-active" href="#" title="Number Trainer">
+        <span>123</span>
+        <small>Numbers</small>
+    </a>
+    <a class="hub-btn" href="https://newbroman.github.io/Polishdate2/" title="Polish Date Master" target="_blank">
+        <span>📅</span>
+        <small>Dates</small>
+    </a>
+    <a class="hub-btn" href="https://newbroman.github.io/Polish-clock/" title="Polish Clock" target="_blank">
+        <span>🕒</span>
+        <small>Clock</small>
+    </a>
+    <div class="hub-xp" id="hub-xp" title="Shared XP across all apps">⭐ <span id="hub-xp-val">0</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HANDSFREE OVERLAY
+═══════════════════════════════════════════════════════════ -->
 <div id="handsfree-page" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
     <div style="flex:1; display:flex; flex-direction:column; justify-content:center; width:100%;">
         <div style="font-size:3rem; margin-bottom:10px;">🚗</div>
-        <div style="font-size:1rem; color:var(--primary); font-weight:bold; margin-bottom:40px; text-transform:uppercase;">Handsfree Mode Active</div>
+        <div style="font-size:1rem; color:var(--primary); font-weight:bold; margin-bottom:40px; text-transform:uppercase; letter-spacing:2px;">Handsfree Mode Active</div>
         <div id="hf-pl-text" style="font-size:2.5rem; color:var(--text); font-weight:800; margin-bottom:20px; line-height:1.2;">---</div>
         <div id="hf-en-text" style="font-size:1.5rem; color:#888; font-weight:500;">---</div>
     </div>
     <button onclick="toggleHandsfree()" style="background:#ea4335; color:white; border:none; padding:20px 40px; border-radius:30px; font-size:1.2rem; font-weight:bold; margin-bottom:40px; cursor:pointer; box-shadow:0 4px 15px rgba(234,67,53,0.4);">⏹ EXIT HANDSFREE</button>
 </div>
 
-<!-- LEVEL UP OVERLAY -->
-<div id="levelup-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9998; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:30px;">
-    <div style="font-size:4rem; margin-bottom:10px;">🎉</div>
-    <div style="font-size:2rem; font-weight:900; color:white; margin-bottom:10px;">LEVEL UP!</div>
-    <div id="levelup-title" style="font-size:1.3rem; color:var(--rank-color); font-weight:bold; margin-bottom:20px;"></div>
-    <div id="levelup-desc" style="font-size:0.95rem; color:#ccc; max-width:300px; line-height:1.6; margin-bottom:30px;"></div>
-    <button onclick="dismissLevelUp()" style="background:var(--primary); color:white; border:none; padding:15px 40px; border-radius:20px; font-size:1.1rem; font-weight:bold; cursor:pointer;">Let's go! →</button>
-</div>
-
-<!-- HEADER -->
+<!-- ═══════════════════════════════════════════════════════════
+     BRAND HEADER
+═══════════════════════════════════════════════════════════ -->
 <div class="brand-header">
     <div class="header-controls-left">
         <button class="icon-btn" onclick="toggleHelp()" title="Help">❓</button>
@@ -44,7 +59,9 @@
     </div>
 </div>
 
-<!-- STATUS BAR -->
+<!-- ═══════════════════════════════════════════════════════════
+     STATUS BAR
+═══════════════════════════════════════════════════════════ -->
 <div class="status-bar">
     <div class="stats-group">
         <div class="stat-item" title="XP">⭐ <span id="xp-display">0</span></div>
@@ -54,42 +71,39 @@
     </div>
 </div>
 
-<!-- CAMPAIGN PROGRESS BAR (shown in campaign mode) -->
-<div id="camp-progress-bar" style="display:none; background:var(--card); border-bottom:1px solid var(--border); padding:6px 15px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:#888; margin-bottom:4px;">
-        <span id="camp-level-label" style="font-weight:700; color:var(--primary);">Level 1 — Novice</span>
-        <span id="camp-pass-label">0 / 15 correct</span>
-    </div>
-    <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
-        <div id="camp-progress-fill" style="width:0%; background:var(--secondary); height:100%; transition:width 0.3s;"></div>
-    </div>
-</div>
-
-<!-- GAME AREA -->
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN GAME AREA
+═══════════════════════════════════════════════════════════ -->
 <div class="game-area">
     <div id="display-box" class="display-box">
         <div id="mode-label" class="mode-label">Numbers</div>
-        <div id="grammar-badge" class="grammar-badge"></div>
+        <div id="grammar-badge" class="grammar-badge">Rule: 5+</div>
         <div id="badge-review" class="badge badge-review">Review</div>
         <div id="badge-score" class="badge badge-score">+10</div>
         <div id="badge-blind" class="badge badge-blind">🙈 Audio Only</div>
+        <div id="badge-handsfree" class="badge badge-handsfree">Handsfree On</div>
         <div id="voice-feedback" style="font-size:0.9rem; color:var(--error); font-weight:bold; min-height:1.2em; margin-bottom:5px;"></div>
         <div id="pl-text" class="pl-text">---</div>
         <div id="en-text" class="en-text">---</div>
     </div>
+
     <div id="mc-area" class="mc-grid cols-2"></div>
+
     <div id="type-area" class="type-container">
         <input type="text" id="type-input" class="type-input" placeholder="Type answer..." autocomplete="off">
         <button class="btn-check" id="action-btn" onclick="checkTyped()">CHECK ANSWER</button>
     </div>
+
     <div id="voice-controls" style="display:none; text-align:center; margin-top:-10px; color:#666;">
-        <p>Tap the mic and say the Polish number.</p>
+        <p>Tap the mic and say the Polish word.</p>
     </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER CONTROLS
+═══════════════════════════════════════════════════════════ -->
 <div class="footer">
-    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()" title="Tap x2/x3 for slow speed">
+    <button class="btn-action btn-listen" id="spk-btn" onclick="handleSpeakerClick()" title="Tap once: Normal | Twice: 0.5x | Thrice: 0.25x">
         <span style="font-size:1.3rem">🔊</span>
         <span style="font-size:0.6rem; font-weight:normal; opacity:0.9; margin-top:-2px;">Tap x2/x3 Slow</span>
     </button>
@@ -98,53 +112,49 @@
     <button class="btn-action btn-next" id="main-btn" onclick="generate()">SKIP ➡️</button>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- ═══════════════════════════════════════════════════════════
+     SETTINGS MODAL
+═══════════════════════════════════════════════════════════ -->
 <div id="settings-modal" class="modal">
     <div class="modal-box">
         <button class="close-x" onclick="saveAndGenerate()">×</button>
         <h2 style="margin-top:0">Settings</h2>
 
-        <!-- SECTION 1: NUMBER SCHOOL (Campaign) -->
-        <div class="set-group" style="border:2px solid var(--primary); background:rgba(26,115,232,0.04);">
-            <div class="set-title" style="color:var(--primary)">📚 Number School (Campaign)</div>
+        <div class="set-group">
+            <div class="set-title">Game Mode</div>
+            <div class="mode-grid">
+                <button class="mode-btn active" onclick="selectMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
+                <button class="mode-btn" onclick="selectMode('context')" id="nav-context"><span>💬</span> Context</button>
+                <button class="mode-btn" onclick="selectMode('prices')" id="nav-prices"><span>$$</span> Prices</button>
+                <button class="mode-btn" onclick="selectMode('time')" id="nav-time"><span>🕒</span> Time</button>
+                <button class="mode-btn" onclick="selectMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
+                <button class="mode-btn" onclick="selectMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
+                <button class="mode-btn" onclick="selectMode('ordinal')" id="nav-ordinal"><span>🥇</span> Ordinals</button>
+                <button class="mode-btn" onclick="selectMode('phone')" id="nav-phone"><span>📱</span> Phone Nos</button>
+                <button class="mode-btn" id="nav-translator" onclick="selectMode('translator')">🔤 Translator</button>
+            </div>
+        </div>
+
+        <div class="set-group" style="border: 2px solid var(--secondary); background: rgba(52, 168, 83, 0.05);">
+            <div class="set-title" style="color:var(--secondary)">🚀 Campaign Mode</div>
             <div class="set-row">
-                <span>Enable Campaign Mode</span>
+                <span>Enable Auto-Difficulty</span>
                 <input type="checkbox" id="campaign-toggle" onchange="toggleCampaign()">
             </div>
-            <div id="campaign-controls" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--primary);">
+            <div id="campaign-controls" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--secondary);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <button class="icon-btn" onclick="adjustLevel(-1)" style="background:white; width:32px; height:32px; box-shadow:0 1px 3px rgba(0,0,0,0.1)">➖</button>
                     <div style="text-align:center;">
                         <div style="font-weight:bold; color:var(--text); font-size:1.1rem;">LEVEL <span id="lvl-num">1</span></div>
-                        <div id="lvl-desc" style="font-size:0.8rem; color:var(--primary); font-weight:bold;">Novice (1–9)</div>
+                        <div id="lvl-desc" style="font-size:0.8rem; color:var(--secondary); font-weight:bold;">Novice (1-10)</div>
                     </div>
                     <button class="icon-btn" onclick="adjustLevel(1)" style="background:white; width:32px; height:32px; box-shadow:0 1px 3px rgba(0,0,0,0.1)">➕</button>
                 </div>
-                <p style="font-size:0.8rem; color:#888; text-align:center; margin:8px 0 0 0;">Each level has a pass target. Complete it to advance.</p>
             </div>
         </div>
 
-        <!-- SECTION 2: GRAMMAR GYM -->
-        <div class="set-group" style="border:2px solid var(--secondary); background:rgba(52,168,83,0.04);">
-            <div class="set-title" style="color:var(--secondary)">🏋️ Grammar Gym (Free Practice)</div>
-            <p style="font-size:0.8rem; color:#888; margin:0 0 10px 0;">Choose a topic to drill. Earns Practice XP. Always available.</p>
-            <div class="mode-grid">
-                <button class="mode-btn" onclick="selectGymMode('numbers')" id="nav-numbers"><span>123</span> Numbers</button>
-                <button class="mode-btn" onclick="selectGymMode('counting')" id="nav-counting"><span>🥟</span> Counting Rule</button>
-                <button class="mode-btn" onclick="selectGymMode('gender')" id="nav-gender"><span>🚻</span> Gender</button>
-                <button class="mode-btn" onclick="selectGymMode('context')" id="nav-context"><span>💬</span> Sentences</button>
-                <button class="mode-btn" onclick="selectGymMode('prices')" id="nav-prices"><span>💰</span> Prices</button>
-                <button class="mode-btn" onclick="selectGymMode('time')" id="nav-time"><span>🕒</span> Time</button>
-                <button class="mode-btn" onclick="selectGymMode('dates')" id="nav-dates"><span>📅</span> Dates</button>
-                <button class="mode-btn" onclick="selectGymMode('ordinal')" id="nav-ordinal"><span>🥇</span> Ordinals</button>
-                <button class="mode-btn" onclick="selectGymMode('phone')" id="nav-phone"><span>📱</span> Phone Nos</button>
-                <button class="mode-btn" id="nav-translator" onclick="selectGymMode('translator')"><span>🔤</span> Translator</button>
-            </div>
-        </div>
-
-        <!-- SECTION 3: MANUAL RANGE (shown in Gym/Numbers mode) -->
         <div class="set-group" id="set-range">
-            <div class="set-title">Manual Range</div>
+            <div class="set-title">Manual Options</div>
             <div id="manual-sliders">
                 <div class="set-row">
                     <span>Min: <span id="lbl-min">1</span></span>
@@ -156,14 +166,23 @@
                 </div>
             </div>
             <div id="modifiers-box" style="margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
-                <div class="set-title">Challenge Modifiers</div>
-                <div class="set-row"><span>Negatives (Minusy)</span><input type="checkbox" id="negatives-toggle"></div>
-                <div class="set-row"><span>Decimals (Ułamki dziesiętne)</span><input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()"></div>
+                <div class="set-title">Challenge Modes</div>
+                <div class="set-row">
+                    <span>Negatives (Minusy)</span>
+                    <input type="checkbox" id="negatives-toggle">
+                </div>
+                <div class="set-row">
+                    <span>Decimals (Ułamki dziesiętne)</span>
+                    <input type="checkbox" id="decimal-toggle" onchange="toggleDecimals()">
+                </div>
                 <div id="decimal-opts" class="set-row" style="display:none; font-size:0.9rem; color:#666; padding-left:10px;">
                     <span>Decimal Places:</span>
                     <input type="number" id="decimal-places" value="1" min="1" max="2" style="width:50px">
                 </div>
-                <div class="set-row"><span>Fractions (Ułamki zwykłe)</span><input type="checkbox" id="fractions-toggle" onchange="toggleFractions()"></div>
+                <div class="set-row">
+                    <span>Fractions (Ułamki zwykłe)</span>
+                    <input type="checkbox" id="fractions-toggle" onchange="toggleFractions()">
+                </div>
                 <div id="fraction-opts" class="set-row" style="display:none; font-size:0.9rem; color:#666; padding-left:10px;">
                     <span>Include Mixed (1 ½)</span>
                     <input type="checkbox" id="mixed-numbers-toggle">
@@ -175,11 +194,13 @@
             <div class="set-title">Price Options</div>
             <div class="set-row"><span>Include Grosze</span><input type="checkbox" id="grosze-toggle" checked></div>
         </div>
+
         <div class="set-group" id="set-dates" style="display:none">
             <div class="set-title">Date Options</div>
             <div class="set-row"><span>Include Year</span><input type="checkbox" id="year-toggle" checked></div>
             <div class="set-row"><span>Include Day of Week</span><input type="checkbox" id="day-toggle"></div>
         </div>
+
         <div class="set-group" id="set-time" style="display:none">
             <div class="set-title">Time Options</div>
             <div class="set-row">
@@ -193,8 +214,12 @@
 
         <div class="set-group" id="set-gameplay">
             <div class="set-title">Gameplay</div>
-            <div class="set-row"><span>Blind Mode (No Text)</span><input type="checkbox" id="blind-toggle"></div>
+            <div class="set-row">
+                <span>Blind Mode (No Text)</span>
+                <input type="checkbox" id="blind-toggle">
+            </div>
         </div>
+
         <div class="set-group" id="set-display">
             <div class="set-title">Display</div>
             <div class="set-row">
@@ -226,378 +251,318 @@
     </div>
 </div>
 
-<!-- SUCCESS MODAL -->
+<!-- ═══════════════════════════════════════════════════════════
+     SUCCESS MODAL
+═══════════════════════════════════════════════════════════ -->
 <div id="success-modal" class="modal">
     <div class="modal-box" style="text-align:center;">
-        <h2 style="color:var(--secondary)">🎯 Daily Goal Hit!</h2>
-        <p class="help-p">You earned 300 XP today. Excellent work!</p>
+        <h2 style="color:var(--secondary)">🎯 Goal Achieved!</h2>
+        <p class="help-p">You earned 300 XP today. Świetna robota!</p>
         <button class="btn-check" onclick="document.getElementById('success-modal').style.display='none'">Awesome!</button>
     </div>
 </div>
 
-<!-- HELP MODAL -->
+<!-- ═══════════════════════════════════════════════════════════
+     HELP MODAL
+═══════════════════════════════════════════════════════════ -->
 <div id="help-modal" class="modal">
     <div class="modal-box">
         <button class="close-x" onclick="toggleHelp()">×</button>
         <div class="tab-header" style="border:none; margin-bottom:20px;">
             <select id="help-nav-dropdown" onchange="setHelpTab(this.value)" style="width:100%; padding:12px; font-size:1rem; font-weight:bold; border-radius:12px; border:2px solid var(--primary); background:var(--card); color:var(--text);">
-                <option value="guide">📖 How to Play</option>
-                <option value="curriculum">📚 Number School</option>
-                <option value="gym">🏋️ Grammar Gym</option>
-                <option value="grammar">🧠 Grammar Notes</option>
+                <option value="guide">📖 User Guide</option>
+                <option value="grammar">🧠 Grammar Rules</option>
+                <option value="gamemodes">🎮 Game Modes</option>
+                <option value="campaign">🚀 Campaign Info</option>
                 <option value="progress">📊 My Stats</option>
             </select>
         </div>
 
+        <!-- GUIDE TAB -->
         <div id="tab-guide" class="tab-content active">
             <div class="help-sec">
                 <div class="help-h">🎮 How to Play</div>
-                <p class="help-p">1. Press 🔊 to hear the Polish number spoken aloud.</p>
-                <p class="help-p">2. Tap the matching answer from the grid.</p>
-                <p class="help-p">3. Answer fast for a speed bonus!</p>
+                <p class="help-p">1. Press 🔊 to hear the Polish number.</p>
+                <p class="help-p">2. Select the matching number or phrase.</p>
+                <p class="help-p">3. Answer quickly for bonus points!</p>
             </div>
             <div class="help-sec">
-                <div class="help-h">📚 Number School vs 🏋️ Grammar Gym</div>
+                <div class="help-h">🔗 App Suite</div>
+                <p class="help-p">This app is part of a trio of Polish learning tools. Your shared XP is shown at the top. Visit the <strong>📅 Date Master</strong> to practice calendar dates as an appointment diary, and the <strong>🕒 Clock</strong> to drill telling the time.</p>
+            </div>
+            <div class="help-sec">
+                <div class="help-h">⚔️ Campaign vs Practice</div>
                 <div style="background:var(--callout-bg-blue); padding:10px; border-radius:8px; border:1px solid var(--callout-border-blue); margin-bottom:10px;">
-                    <p class="help-p" style="margin:0; color:var(--callout-text-blue);"><strong>📚 Number School (Campaign)</strong></p>
-                    <p class="help-p" style="margin:0; font-size:0.85rem;">8 structured levels teaching numbers from scratch. Each level has a pass target — get enough correct answers to unlock the next level. Pure number literacy first, grammar later.</p>
+                    <p class="help-p" style="margin:0; color:var(--callout-text-blue);"><strong>⭐ Auto Campaign (Recommended)</strong></p>
+                    <p class="help-p" style="margin:0; font-size:0.85rem;">Automatically manages difficulty, gradually introducing harder numbers and new grammar modes as you level up.</p>
                 </div>
                 <div style="background:var(--callout-bg-red); padding:10px; border-radius:8px; border:1px solid var(--callout-border-red);">
-                    <p class="help-p" style="margin:0; color:var(--callout-text-red);"><strong>🏋️ Grammar Gym</strong></p>
-                    <p class="help-p" style="margin:0; font-size:0.85rem;">Always unlocked. Choose any topic — Counting Rule, Gender, Prices, Time, Dates, Context — and drill it freely. Earns Practice XP.</p>
+                    <p class="help-p" style="margin:0; color:var(--callout-text-red);"><strong>🏋️ Manual Practice</strong></p>
+                    <p class="help-p" style="margin:0; font-size:0.85rem;">Turn off Auto Campaign to use Manual Sliders. Pick exact number ranges to drill.</p>
                 </div>
             </div>
             <div class="help-sec">
-                <div class="help-h">🏆 Scoring</div>
-                <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Base score</p>
-                <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Speed bonus (under 3s)</p>
-                <p class="help-p"><span class="point-tag pt-red">-2 / -4 XP</span> Time penalty (over 7s / 13s)</p>
-                <p class="help-p"><span class="point-tag" style="background:#444;color:white;">Wrong</span> Streak reset + mistake logged</p>
+                <div class="help-h">🏆 Scoring & XP</div>
+                <p class="help-p"><span class="point-tag pt-green">+10 XP</span> Base Score</p>
+                <p class="help-p"><span class="point-tag pt-green">+5 XP</span> Speed Bonus (&lt; 3s)</p>
+                <p class="help-p"><span class="point-tag pt-red">-5 XP</span> Wrong Answer</p>
+            </div>
+            <div class="help-sec">
+                <div class="help-h">⏳ Time Penalties</div>
+                <p class="help-p"><span class="point-tag" style="background:#444; color:white;">&gt; 7s</span> <b>-2 XP</b></p>
+                <p class="help-p"><span class="point-tag" style="background:#000; color:white;">&gt; 13s</span> <b>-4 XP</b></p>
+                <p class="help-p" style="font-size:0.85rem; color:#666;"><i>*Answers over 20s are ignored (assumes distraction).</i></p>
             </div>
             <div class="help-sec">
                 <div class="help-h">🎹 Controls</div>
-                <p class="help-p"><b>🔊 Single tap:</b> Normal speed. Double tap: 0.5x. Triple tap: 0.25x.</p>
-                <p class="help-p"><b>🎙️ Mic:</b> Speak your answer aloud.</p>
-                <p class="help-p"><b>🚗 Handsfree:</b> Auto-loop for driving practice.</p>
-                <p class="help-p"><b>Skip ➡️:</b> Reveal answer (no points).</p>
-                <p class="help-p"><b>PC keyboard:</b> Keys 1–8 select answers. Enter = next.</p>
+                <p class="help-p"><b>🔊 Toggle:</b> Change audio speed by single, double or triple tap.</p>
+                <p class="help-p"><b>🎤 Mic:</b> Speak the answer aloud for extra points.</p>
+                <p class="help-p"><b>🚗 Handsfree:</b> Auto-play loop for driving.</p>
+                <p class="help-p"><b>➡️ Skip:</b> Reveal answer (no points).</p>
+                <p class="help-p"><b>PC:</b> Keys 1–8 to select answers.</p>
             </div>
             <div class="help-sec">
                 <div class="help-h">⚠️ Audio Setup</div>
-                <p class="help-p" style="font-size:0.85rem;"><b>Best:</b> Chrome, Edge, Safari.<br><b>Android:</b> Download Polish voice — Settings → General Management → Language & Input → Text-to-speech → Google Speech → Install Voice Data → Polski.<br><b>iOS:</b> Settings → Accessibility → Spoken Content → Voices → Polish → download Zosia or Krzysztof.<br><b>Silent switch (iPhone):</b> Must be OFF.</p>
-                <button class="btn-review" onclick="speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance('To działa dobrze'),{lang:'pl-PL'}))" style="margin-top:10px; background:var(--primary); color:white; width:100%; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🔊 Test Polish Audio</button>
+                <p class="help-p" style="font-size:0.85rem;"><b>Best:</b> Chrome, Edge, Safari. Firefox/Brave may need audio permissions enabled.</p>
+                <p class="help-p" style="font-size:0.85rem;"><b>Android:</b> Settings → General Management → Language & Input → Text-to-Speech → Google → Install voice data → Polski.</p>
+                <p class="help-p" style="font-size:0.85rem;"><b>iPhone:</b> Settings → Accessibility → Spoken Content → Voices → Polish → Download (e.g. Zosia). Disable the physical Silent switch.</p>
+                <button onclick="speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance('To działa dobrze'), {lang:'pl-PL'}))" style="margin-top:10px; background:var(--primary); color:white; width:100%; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🔊 Test Polish Audio</button>
             </div>
         </div>
 
-        <div id="tab-curriculum" class="tab-content">
-            <p style="font-size:0.9rem; color:#888; margin-bottom:15px;">8 levels — pure number literacy before grammar. Each level has a pass target before you advance.</p>
-            <div class="set-group"><div class="set-title">Lvl 1 — Nowicjusz · Units (1–9)</div><p class="help-p">The basic building blocks. jeden, dwa, trzy... <br><b>Pass:</b> 15 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 2 — Uczeń · Teens (10–19)</div><p class="help-p">Irregular forms: dziesięć, jedenaście, dwanaście...<br><b>Pass:</b> 15 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 3 — Czeladnik · Round Tens (20–90)</div><p class="help-p">dwadzieścia, trzydzieści, czterdzieści... Note the tricky spelling changes.<br><b>Pass:</b> 15 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 4 — Praktykant · Compound Tens (21–99)</div><p class="help-p">Combining tens + units: dwadzieścia pięć, sześćdziesiąt siedem...<br><b>Pass:</b> 20 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 5 — Setnik · Round Hundreds (100–900)</div><p class="help-p">sto, dwieście, trzysta, czterysta... isolated before compounds.<br><b>Pass:</b> 15 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 6 — Ekspert · Compound Hundreds (101–999)</div><p class="help-p">Full three-digit numbers: pięćset dwadzieścia siedem...<br><b>Pass:</b> 20 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 7 — Mistrz · Thousands (1,000–99,999)</div><p class="help-p">tysiąc, dwa tysiące, pięć tysięcy... plus compound thousands.<br><b>Pass:</b> 25 correct.</p></div>
-            <div class="set-group"><div class="set-title">Lvl 8 — Guru · Large Numbers (100,000+)</div><p class="help-p">sto tysięcy, milion, and everything combined. The full range.<br><b>Pass:</b> 30 correct. You've mastered Polish numbers!</p></div>
-        </div>
-
-        <div id="tab-gym" class="tab-content">
-            <p style="font-size:0.9rem; color:#888; margin-bottom:15px;">All Grammar Gym modes are always available. Each targets a specific grammar skill.</p>
-            <div class="set-group"><div class="set-title">123 Numbers</div><p class="help-p">Free-range number drill. Set any range with manual sliders. Add negatives, decimals, fractions.</p></div>
-            <div class="set-group" style="border-color:var(--secondary)">
-                <div class="set-title" style="color:var(--secondary)">🥟 Counting Rule (Pierogi Rule)</div>
-                <p class="help-p">The most important Polish grammar rule. The noun form changes based on the number:</p>
-                <p class="help-p" style="font-family:monospace; background:var(--bg); padding:8px; border-radius:6px;">1 → <b>godzina</b> (singular)<br>2, 3, 4 → <b>godziny</b> (nom. plural)<br>5+ → <b>godzin</b> (gen. plural)<br>12, 13, 14 → <b>godzin</b> (always gen.)</p>
-                <p class="help-p" style="font-size:0.85rem; color:#888;">Drilled with simple nouns in isolation, before sentences complicate things.</p>
-            </div>
-            <div class="set-group"><div class="set-title">🚻 Gender</div><p class="help-p">Only 1 and 2 change form. jeden/jedna/jedno, dwa/dwie. Practiced with real nouns.</p></div>
-            <div class="set-group"><div class="set-title">💬 Sentences (Context)</div><p class="help-p">Full sentences using the counting rule in context: "Czekam pięć godzin", "Mam trzy lata".</p></div>
-            <div class="set-group"><div class="set-title">💰 Prices</div><p class="help-p">Natural shop-style prices. "Pięć pięćdziesiąt" (5,50 zł). Combines the counting rule with złoty/grosze.</p></div>
-            <div class="set-group"><div class="set-title">🕒 Time</div><p class="help-p">Casual: "Za dziesięć druga". Formal: "Trzynasta pięćdziesiąt".</p></div>
-            <div class="set-group"><div class="set-title">📅 Dates</div><p class="help-p">Nominative (Dzisiaj jest piąty maja) vs Genitive (Spotkanie jest piątego maja).</p></div>
-            <div class="set-group"><div class="set-title">🥇 Ordinals</div><p class="help-p">pierwszy, drugi, trzeci... Used in dates, rankings, and everyday speech.</p></div>
-            <div class="set-group"><div class="set-title">🔤 Translator</div><p class="help-p">Type any number to hear it spoken and see the Polish spelling.</p></div>
-        </div>
-
+        <!-- GRAMMAR TAB -->
         <div id="tab-grammar" class="tab-content">
             <div class="help-sec">
-                <div class="help-h">🥟 The Counting Rule (1 / 2–4 / 5+)</div>
-                <p class="help-p">When counting nouns, the noun form depends on the last digit of the number — with one exception for teens.</p>
-                <ul style="margin-top:8px; padding-left:20px; font-size:0.9rem; color:var(--text); line-height:1.8;">
-                    <li><b>1:</b> Singular — <i>1 godzina, 1 rok</i></li>
-                    <li><b>2, 3, 4:</b> Nominative Plural — <i>3 godziny, 4 lata</i></li>
-                    <li><b>5+:</b> Genitive Plural — <i>5 godzin, 7 lat</i></li>
-                    <li><b>Teens exception (12, 13, 14):</b> Always Genitive Plural — <i>13 godzin</i> (not godziny)</li>
-                    <li><b>Compound numbers</b> follow the last digit: 22 → godziny, 25 → godzin, 114 → godzin</li>
+                <div class="help-h">1. The 1 / 2-4 / 5+ Rule</div>
+                <p class="help-p">The form of a noun changes based on the number preceding it:</p>
+                <ul style="margin-top:10px; padding-left:20px; font-size:0.9rem; color:var(--text); line-height:1.8;">
+                    <li><strong>1:</strong> Singular — <em>1 godzina, 1 rok</em></li>
+                    <li><strong>2, 3, 4:</strong> Nominative Plural — <em>3 godziny, 3 lata</em></li>
+                    <li><strong>5+:</strong> Genitive Plural — <em>5 godzin, 5 lat</em></li>
                 </ul>
+                <div style="background:var(--callout-bg-orange); padding:10px; border-radius:8px; margin-top:10px; border:1px solid var(--callout-border-orange);">
+                    <p class="help-p" style="margin:0; font-size:0.85rem; color:var(--callout-text-orange);"><strong>⚠️ Exception:</strong> The teens (12, 13, 14) always use the Genitive Plural (5+ rule), not the 2-4 rule. So "12 lat" not "12 lata".</p>
+                </div>
             </div>
             <div class="help-sec">
-                <div class="help-h">🚻 Gender: 1 & 2</div>
-                <p class="help-p"><b>1:</b> jeden (m), jedna (f), jedno (n)</p>
-                <p class="help-p"><b>2:</b> dwa (m/n), dwie (f)</p>
-                <p class="help-p">All other numbers are gender-neutral.</p>
+                <div class="help-h">2. Gender: 1 & 2</div>
+                <p class="help-p">Only the numbers 1 and 2 change to match grammatical gender:</p>
+                <p class="help-p"><b>1:</b> jeden (m.), jedna (f.), jedno (n.)</p>
+                <p class="help-p"><b>2:</b> dwa (m./n.), dwie (f.)</p>
+                <p class="help-p" style="font-size:0.85rem; color:#666;"><em>Example: jeden stół, jedna lampa, jedno okno</em></p>
             </div>
             <div class="help-sec">
-                <div class="help-h">🕒 Telling Time</div>
-                <p class="help-p"><b>Formal (24h):</b> Hour as feminine ordinal + minutes as cardinal. <i>13:50 → trzynasta pięćdziesiąt</i></p>
-                <p class="help-p"><b>Casual (12h):</b> Focuses on the next hour.</p>
+                <div class="help-h">3. Telling the Time</div>
+                <p class="help-p"><strong>Formal (24h):</strong> Hours as feminine ordinals, then minutes as cardinals.<br><em>13:50 → "trzynasta pięćdziesiąt"</em></p>
+                <p class="help-p" style="margin-top:8px;"><strong>Casual (12h):</strong></p>
                 <ul style="padding-left:20px; font-size:0.9rem; color:var(--text); line-height:1.8;">
-                    <li>On the hour: <i>druga</i> (2:00)</li>
-                    <li>Half past: <i>wpół do trzeciej</i> (2:30)</li>
-                    <li>Past: <i>dziesięć po drugiej</i> (2:10)</li>
-                    <li>To: <i>za dziesięć druga</i> (1:50)</li>
+                    <li>On the hour: <em>druga</em> (2:00)</li>
+                    <li>Half past: <em>wpół do trzeciej</em> (2:30)</li>
+                    <li>Minutes past: <em>dziesięć po drugiej</em> (2:10)</li>
+                    <li>Minutes to: <em>za dziesięć druga</em> (1:50)</li>
                 </ul>
             </div>
             <div class="help-sec">
-                <div class="help-h">📅 Dates</div>
-                <p class="help-p"><b>Naming (Today is...):</b> Masculine ordinal + genitive month. <i>Dzisiaj jest piąty maja.</i></p>
-                <p class="help-p"><b>Event (On the...):</b> Genitive ordinal (-ego). <i>Spotkanie jest piątego maja.</i></p>
-                <p class="help-p"><b>Year:</b> Always followed by <i>roku</i>. <i>Dwa tysiące dwudziestego czwartego roku.</i></p>
+                <div class="help-h">4. Dates</div>
+                <p class="help-p"><strong>Naming (Nominative) — "What day is it?"</strong><br>Day = Masculine Ordinal (e.g. <em>piąty</em>), Month = Genitive (e.g. <em>maja</em>).<br><em>Dzisiaj jest piąty maja.</em></p>
+                <p class="help-p" style="margin-top:8px;"><strong>Event (Genitive) — "On which date?"</strong><br>Day ordinal ends in <em>-ego</em>.<br><em>Piątego maja mam spotkanie.</em></p>
+                <p class="help-p" style="margin-top:8px;"><strong>Year:</strong> Always followed by <em>roku</em> (Genitive of <em>rok</em>).<br><em>... dwa tysiące dwudziestego czwartego roku.</em></p>
             </div>
         </div>
 
+        <!-- GAME MODES TAB -->
+        <div id="tab-gamemodes" class="tab-content">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">Each mode targets a specific area of Polish numbers and grammar.</p>
+            <div class="set-group"><div class="set-title">123 Numbers</div><p class="help-p">Core counting. Integers, fractions, decimals, and negatives.</p></div>
+            <div class="set-group"><div class="set-title">💬 Context (Sentences)</div><p class="help-p">Numbers in real sentences with correct noun declension. Digit buttons are disabled — you must choose the correctly spelled Polish word.</p></div>
+            <div class="set-group"><div class="set-title">$$ Prices</div><p class="help-p">Prices spoken naturally as in everyday shops. <em>"Pięć pięćdziesiąt"</em> (5,50 zł).</p></div>
+            <div class="set-group"><div class="set-title">🕒 Time</div><p class="help-p">Clock reading in Casual and Formal styles. Links to the Polish Clock app in the suite.</p></div>
+            <div class="set-group"><div class="set-title">📅 Dates</div><p class="help-p">Ordinal numbers and months, Nominative vs Genitive cases. Links to the Polish Date Master for calendar practice.</p></div>
+            <div class="set-group"><div class="set-title">🚻 Gender</div><p class="help-p">Correct form of 1 and 2 based on noun gender (jeden/jedna/jedno, dwa/dwie).</p></div>
+            <div class="set-group"><div class="set-title">🥇 Ordinals</div><p class="help-p">Practice ordinal numbers (pierwszy, drugi, trzeci...) up to 20.</p></div>
+            <div class="set-group"><div class="set-title">📱 Phone Numbers</div><p class="help-p">Hear a Polish phone number spoken in three-digit groups and identify it.</p></div>
+            <div class="set-group"><div class="set-title">🔤 Translator</div><p class="help-p">Type any number to hear it spoken and see it written in Polish.</p></div>
+        </div>
+
+        <!-- CAMPAIGN TAB -->
+        <div id="tab-campaign" class="tab-content">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;"><strong>Auto Campaign</strong> guides you through 6 difficulty levels. You can also jump levels manually in Settings.</p>
+            <div class="set-group"><div class="set-title">Lvl 1: Nowicjusz / Novice (1–20)</div><p class="help-p">The basics. Mastering 1–10 and the teens.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 2: Uczeń / Apprentice (1–100)</div><p class="help-p"><b>Focus:</b> Tens pattern.<br><b>New:</b> Gender (1/2) & Prices.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 3: Czeladnik / Journeyman (1–1,000)</div><p class="help-p"><b>Focus:</b> Hundreds.<br><b>New:</b> Time & Negative numbers.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 4: Ekspert / Expert (1–10,000)</div><p class="help-p"><b>Focus:</b> Thousands.<br><b>New:</b> Dates & Decimals.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 5: Mistrz / Master (1–100,000)</div><p class="help-p"><b>Focus:</b> Large numbers.<br><b>New:</b> Context sentences & Cases.</p></div>
+            <div class="set-group"><div class="set-title">Lvl 6: Guru (1–100,000,000)</div><p class="help-p"><b>Final challenge.</b><br><b>New:</b> Fractions & Mixed numbers.</p></div>
+        </div>
+
+        <!-- PROGRESS TAB -->
         <div id="tab-progress" class="tab-content">
             <div id="stats-container"></div>
+            <button class="btn-review" onclick="startReview()" style="margin-top:15px;">⚠️ Review Mistakes</button>
+            <button class="btn-review" onclick="clearMistakes()" style="margin-top:8px; background:#d93025;">🗑️ Clear Mistakes</button>
+            <button class="btn-review" onclick="resetProgress()" style="margin-top:8px; background:#555;">⚠️ Reset All Progress</button>
         </div>
     </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
 <script>
-// ============================================================
-//  PART 1: DATA DICTIONARIES
-// ============================================================
-const UNITS  = ["","jeden","dwa","trzy","cztery","pięć","sześć","siedem","osiem","dziewięć"];
-const TEENS  = ["dziesięć","jedenaście","dwanaście","trzynaście","czternaście","piętnaście","szesnaście","siedemnaście","osiemnaście","dziewiętnaście"];
-const TENS   = ["","","dwadzieścia","trzydzieści","czterdzieści","pięćdziesiąt","sześćdziesiąt","siedemdziesiąt","osiemdziesiąt","dziewięćdziesiąt"];
-const HUNDREDS = ["","sto","dwieście","trzysta","czterysta","pięćset","sześćset","siedemset","osiemset","dziewięćset"];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 1: DATA DICTIONARIES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const MONTHS_PL  = ["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
-const MONTHS_EN  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const DAYS_PL    = ["niedziela","poniedziałek","wtorek","środa","czwartek","piątek","sobota"];
-const DAYS_EN    = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const UNITS  = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+const TEENS  = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+const TENS   = ["", "", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+const HUNDREDS = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewięćset"];
 
-const HOURS_ORD_FEM = ["północ","pierwsza","druga","trzecia","czwarta","piąta","szósta","siódma","ósma","dziewiąta","dziesiąta","jedenasta","dwunasta"];
-const HOURS_ORD_GEN = ["północy","pierwszej","drugiej","trzeciej","czwartej","piątej","szóstej","siódmej","ósmej","dziewiątej","dziesiątej","jedenastej","dwunastej"];
+const MONTHS_PL  = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+const MONTHS_EN  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DAYS_PL    = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+const DAYS_EN    = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+const HOURS_ORD_FEM = ["północ", "pierwsza", "druga", "trzecia", "czwarta", "piąta", "szósta", "siódma", "ósma", "dziewiąta", "dziesiąta", "jedenasta", "dwunasta"];
+const HOURS_ORD_GEN = ["północy", "pierwszej", "drugiej", "trzeciej", "czwartej", "piątej", "szóstej", "siódmej", "ósmej", "dziewiątej", "dziesiątej", "jedenastej", "dwunastej"];
+
+// Ordinal numbers (Nominative Masculine — for display and ordinal mode)
+const ORDINAL_NOM = [
+    "", "pierwszy", "drugi", "trzeci", "czwarty", "piąty", "szósty", "siódmy", "ósmy", "dziewiąty", "dziesiąty",
+    "jedenasty", "dwunasty", "trzynasty", "czternasty", "piętnasty", "szesnasty", "siedemnasty", "osiemnasty", "dziewiętnasty",
+    "dwudziesty", "dwudziesty pierwszy", "dwudziesty drugi", "dwudziesty trzeci", "dwudziesty czwarty", "dwudziesty piąty",
+    "dwudziesty szósty", "dwudziesty siódmy", "dwudziesty ósmy", "dwudziesty dziewiąty", "trzydziesty", "trzydziesty pierwszy"
+];
+
+// Ordinal numbers (Genitive Masculine — for "on the Nth" dates)
+const ORDINAL_GEN = [
+    "", "pierwszego", "drugiego", "trzeciego", "czwartego", "piątego", "szóstego", "siódmego", "ósmego", "dziewiątego", "dziesiątego",
+    "jedenastego", "dwunastego", "trzynastego", "czternastego", "piętnastego", "szesnastego", "siedemnastego", "osiemnastego", "dziewiętnastego",
+    "dwudziestego", "dwudziestego pierwszego", "dwudziestego drugiego", "dwudziestego trzeciego", "dwudziestego czwartego", "dwudziestego piątego",
+    "dwudziestego szóstego", "dwudziestego siódmego", "dwudziestego ósmego", "dwudziestego dziewiątego", "trzydziestego", "trzydziestego pierwszego"
+];
+
+// Fraction denominators: [Nom Sg (1), Nom Pl (2-4), Gen Pl (5+)]
 const FRACTIONS = {
-    2:["druga","drugie","drugich"], 3:["trzecia","trzecie","trzecich"],
-    4:["czwarta","czwarte","czwartych"], 5:["piąta","piąte","piątych"],
-    6:["szósta","szóste","szóstych"], 7:["siódma","siódme","siódmych"],
-    8:["ósma","ósme","ósmych"], 9:["dziewiąta","dziewiąte","dziewiątych"],
-    10:["dziesiąta","dziesiąte","dziesiątych"], 100:["setna","setne","setnych"]
+    2:  ["druga",     "drugie",    "drugich"],
+    3:  ["trzecia",   "trzecie",   "trzecich"],
+    4:  ["czwarta",   "czwarte",   "czwartych"],
+    5:  ["piąta",     "piąte",     "piątych"],
+    6:  ["szósta",    "szóste",    "szóstych"],
+    7:  ["siódma",    "siódme",    "siódmych"],
+    8:  ["ósma",      "ósme",      "ósmych"],
+    9:  ["dziewiąta", "dziewiąte", "dziewiątych"],
+    10: ["dziesiąta", "dziesiąte", "dziesiątych"],
+    100: ["setna",    "setne",     "setnych"]
 };
-
-// Counting Rule nouns — used in the dedicated Counting Rule gym mode
-const COUNTING_NOUNS = [
-    { word:"godzina", pl:"godziny", gen:"godzin", en:"hour" },
-    { word:"rok",     pl:"lata",    gen:"lat",    en:"year" },
-    { word:"złoty",   pl:"złote",   gen:"złotych",en:"zloty" },
-    { word:"dzień",   pl:"dni",     gen:"dni",    en:"day" },
-    { word:"miesiąc", pl:"miesiące",gen:"miesięcy",en:"month" },
-    { word:"minuta",  pl:"minuty",  gen:"minut",  en:"minute" },
-    { word:"kilometr",pl:"kilometry",gen:"kilometrów",en:"km" },
-    { word:"kilogram",pl:"kilogramy",gen:"kilogramów",en:"kg" },
-    { word:"litr",    pl:"litry",   gen:"litrów", en:"litre" },
-    { word:"pieróg",  pl:"pierogi", gen:"pierogów",en:"dumpling" },
-    { word:"student", pl:"studentów",gen:"studentów",en:"student" },
-    { word:"punkt",   pl:"punkty",  gen:"punktów",en:"point" },
-];
-
-const GENDER_NOUNS = [
-    { word:"stół",    pl:"stoły",   gen:"stołów",   form:"m", en:"table" },
-    { word:"lampa",   pl:"lampy",   gen:"lamp",     form:"f", en:"lamp" },
-    { word:"okno",    pl:"okna",    gen:"okien",    form:"n", en:"window" },
-    { word:"telefon", pl:"telefony",gen:"telefonów",form:"m", en:"phone" },
-    { word:"książka", pl:"książki", gen:"książek",  form:"f", en:"book" },
-    { word:"piwo",    pl:"piwa",    gen:"piw",      form:"n", en:"beer" },
-    { word:"samochód",pl:"samochody",gen:"samochodów",form:"m",en:"car" },
-    { word:"bilet",   pl:"bilety",  gen:"biletów",  form:"m", en:"ticket" },
-    { word:"kawa",    pl:"kawy",    gen:"kaw",      form:"f", en:"coffee" },
-    { word:"herbata", pl:"herbaty", gen:"herbat",   form:"f", en:"tea" },
-    { word:"jabłko",  pl:"jabłka",  gen:"jabłek",   form:"n", en:"apple" },
-    { word:"jajko",   pl:"jajka",   gen:"jajek",    form:"n", en:"egg" },
-    { word:"krzesło", pl:"krzesła", gen:"krzeseł",  form:"n", en:"chair" },
-    { word:"klucz",   pl:"klucze",  gen:"kluczy",   form:"m", en:"key" },
-    { word:"pies",    pl:"psy",     gen:"psów",     form:"m", en:"dog" },
-    { word:"kot",     pl:"koty",    gen:"kotów",    form:"m", en:"cat" },
-    { word:"kobieta", pl:"kobiety", gen:"kobiet",   form:"f", en:"woman" },
-    { word:"pieróg",  pl:"pierogi", gen:"pierogów", form:"m", en:"dumpling" },
-];
-
-const GRAMMAR = {
-    "years":    { s:"rok",      p:"lata",      g:"lat",       phrase:"[N] [W] temu",         enPhrase:"[N] years ago",     max:1000 },
-    "cost":     { s:"złoty",    p:"złote",      g:"złotych",   phrase:"To kosztuje [N] [W]",  enPhrase:"It costs [N] PLN" },
-    "hours":    { s:"godzina",  p:"godziny",    g:"godzin",    phrase:"Czekam [N] [W]",        enPhrase:"I wait [N] hours",  max:24 },
-    "people":   { s:"osoba",    p:"osoby",      g:"osób",      phrase:"Jest tu [N] [W]",       enPhrase:"[N] people here",   max:50000 },
-    "weight":   { s:"kilogram", p:"kilogramy",  g:"kilogramów",phrase:"Ważę [N] [W]",          enPhrase:"I weigh [N] kg",    max:250 },
-    "distance": { s:"kilometr", p:"kilometry",  g:"kilometrów",phrase:"Biegłem [N] [W]",       enPhrase:"I ran [N] km",      max:80 },
-    "age":      { s:"rok",      p:"lata",       g:"lat",       phrase:"Mam [N] [W]",           enPhrase:"I am [N] years old",max:120 },
-    "days":     { s:"dzień",    p:"dni",        g:"dni",       phrase:"Czekam [N] [W]",        enPhrase:"I wait [N] days",   max:30 },
-    "months":   { s:"miesiąc",  p:"miesiące",   g:"miesięcy",  phrase:"Minęło [N] [W]",        enPhrase:"[N] months passed", max:24 },
-};
-
-// ============================================================
-//  PART 2: CAMPAIGN LEVEL DEFINITIONS
-// ============================================================
-const CAMPAIGN_LEVELS = [
-    {
-        num: 1, name: "Nowicjusz", subtitle: "Units (1–9)",
-        passTarget: 15,
-        generate: () => Math.floor(Math.random() * 9) + 1,
-        // Decoys are other units — the only numbers learned so far
-        decoyPool: () => { let n; do { n = Math.floor(Math.random()*9)+1; } while(false); return n; },
-        desc: "The basic building blocks — jeden, dwa, trzy, cztery, pięć, sześć, siedem, osiem, dziewięć.",
-        newThis: "Numbers 1–9"
-    },
-    {
-        num: 2, name: "Uczeń", subtitle: "Teens (10–19)",
-        passTarget: 15,
-        generate: () => Math.floor(Math.random() * 10) + 10,
-        // Decoys are other teens only — 80 and 27 have NOT been learned yet
-        decoyPool: () => Math.floor(Math.random() * 10) + 10,
-        desc: "The irregular teens — dziesięć, jedenaście, dwanaście... These don't follow the pattern so need memorising.",
-        newThis: "Numbers 10–19"
-    },
-    {
-        num: 3, name: "Czeladnik", subtitle: "Round Tens (20–90)",
-        passTarget: 15,
-        generate: () => (Math.floor(Math.random() * 8) + 2) * 10,
-        // Decoys are other round tens — no compounds yet
-        decoyPool: () => (Math.floor(Math.random() * 8) + 2) * 10,
-        desc: "Round tens only — dwadzieścia, trzydzieści, czterdzieści, pięćdziesiąt, sześćdziesiąt, siedemdziesiąt, osiemdziesiąt, dziewięćdziesiąt.",
-        newThis: "20, 30, 40... 90"
-    },
-    {
-        num: 4, name: "Praktykant", subtitle: "Compound Tens (21–99)",
-        passTarget: 20,
-        generate: () => { let t=(Math.floor(Math.random()*8)+2)*10; let u=Math.floor(Math.random()*9)+1; return t+u; },
-        // Decoys are any 2-digit number including round tens (all learned by now)
-        decoyPool: () => Math.floor(Math.random() * 80) + 20,
-        desc: "Compound tens — combining the tens and units you already know: dwadzieścia pięć, sześćdziesiąt siedem...",
-        newThis: "21–99 (no round tens)"
-    },
-    {
-        num: 5, name: "Setnik", subtitle: "Round Hundreds (100–900)",
-        passTarget: 15,
-        generate: () => (Math.floor(Math.random() * 9) + 1) * 100,
-        // Decoys are other round hundreds only — no 547 style numbers yet
-        decoyPool: () => (Math.floor(Math.random() * 9) + 1) * 100,
-        desc: "Round hundreds only — sto, dwieście, trzysta, czterysta, pięćset, sześćset, siedemset, osiemset, dziewięćset.",
-        newThis: "100, 200... 900"
-    },
-    {
-        num: 6, name: "Ekspert", subtitle: "Compound Hundreds (101–999)",
-        passTarget: 20,
-        generate: () => Math.floor(Math.random() * 899) + 101,
-        // Decoys are any number up to 999 (everything learned so far)
-        decoyPool: () => Math.floor(Math.random() * 899) + 101,
-        desc: "Full three-digit numbers — combining hundreds, tens and units: pięćset dwadzieścia siedem...",
-        newThis: "101–999"
-    },
-    {
-        num: 7, name: "Mistrz", subtitle: "Thousands (1,000–99,999)",
-        passTarget: 25,
-        generate: () => Math.floor(Math.random() * 99000) + 1000,
-        // Decoys are other thousands — scaled to stay plausibly close
-        decoyPool: (target) => {
-            let range = Math.max(2000, Math.ceil(target * 0.4));
-            return Math.max(1000, Math.floor(target - range + Math.random() * range * 2));
-        },
-        desc: "Thousands — tysiąc, dwa tysiące, pięć tysięcy, plus compound thousands up to 99,999.",
-        newThis: "1,000–99,999"
-    },
-    {
-        num: 8, name: "Guru", subtitle: "Large Numbers (100,000+)",
-        passTarget: 30,
-        generate: () => Math.floor(Math.random() * 99900000) + 100000,
-        // Decoys scaled to the same magnitude as the target
-        decoyPool: (target) => {
-            let range = Math.max(50000, Math.ceil(target * 0.3));
-            return Math.max(100000, Math.floor(target - range + Math.random() * range * 2));
-        },
-        desc: "The full range — sto tysięcy, milion, and everything combined. Complete mastery.",
-        newThis: "100,000–99,999,999"
-    }
-];
 
 const RANKS = [
-    { limit:0,     name:"Nowicjusz" },
-    { limit:300,   name:"Uczeń" },
-    { limit:1500,  name:"Czeladnik" },
-    { limit:4000,  name:"Praktykant" },
-    { limit:8000,  name:"Setnik" },
-    { limit:15000, name:"Ekspert" },
-    { limit:30000, name:"Mistrz" },
-    { limit:60000, name:"Guru" }
+    { limit: 0,     name: "Nowicjusz (Novice)" },
+    { limit: 200,   name: "Uczeń (Apprentice)" },
+    { limit: 5000,  name: "Czeladnik (Journeyman)" },
+    { limit: 10000, name: "Ekspert (Expert)" },
+    { limit: 20000, name: "Mistrz (Master)" },
+    { limit: 50000, name: "Guru (Guru)" }
 ];
 
 const PRACTICE_RANKS = [
-    { limit:0,     name:"Turysta" },
-    { limit:500,   name:"Stażysta" },
-    { limit:3000,  name:"Wyjadacz" },
-    { limit:10000, name:"Weteran" },
-    { limit:30000, name:"Legenda" }
+    { limit: 0,     name: "Turysta (Tourist)" },
+    { limit: 500,   name: "Stażysta (Trainee)" },
+    { limit: 5000,  name: "Wyjadacz (Grinder)" },
+    { limit: 10000, name: "Stały Bywalec (Gym Rat)" },
+    { limit: 25000, name: "Weteran (Veteran)" },
+    { limit: 50000, name: "Legenda (Legend)" }
 ];
 
-// ============================================================
-//  PART 3: GLOBAL STATE
-// ============================================================
-let state = {
-    // Mode
-    mode: 'numbers',           // current game mode
-    isCampaign: true,          // campaign vs gym
+const GENDER_NOUNS = [
+    { word: "pies",             pl: "psy",           gen: "psów",           form: "m", en: "dog",             logic: "living" },
+    { word: "kot",              pl: "koty",           gen: "kotów",          form: "m", en: "cat",             logic: "living" },
+    { word: "kobieta",          pl: "kobiety",        gen: "kobiet",         form: "f", en: "woman",           logic: "living" },
+    { word: "gwóźdź",           pl: "gwoździe",       gen: "gwoździ",        form: "m", en: "nail",            logic: "bulk" },
+    { word: "śruba",            pl: "śruby",          gen: "śrub",           form: "f", en: "screw",           logic: "bulk" },
+    { word: "stół",             pl: "stoły",          gen: "stołów",         form: "m", en: "table" },
+    { word: "lampa",            pl: "lampy",          gen: "lamp",           form: "f", en: "lamp" },
+    { word: "okno",             pl: "okna",           gen: "okien",          form: "n", en: "window" },
+    { word: "telefon",          pl: "telefony",       gen: "telefonów",      form: "m", en: "phone" },
+    { word: "książka",          pl: "książki",        gen: "książek",        form: "f", en: "book" },
+    { word: "piwo",             pl: "piwa",           gen: "piw",            form: "n", en: "beer" },
+    { word: "samochód",         pl: "samochody",      gen: "samochodów",     form: "m", en: "car" },
+    { word: "bilet",            pl: "bilety",         gen: "biletów",        form: "m", en: "ticket" },
+    { word: "kawa",             pl: "kawy",           gen: "kaw",            form: "f", en: "coffee" },
+    { word: "herbata",          pl: "herbaty",        gen: "herbat",         form: "f", en: "tea" },
+    { word: "bułka",            pl: "bułki",          gen: "bułek",          form: "f", en: "bread roll" },
+    { word: "jabłko",           pl: "jabłka",         gen: "jabłek",         form: "n", en: "apple" },
+    { word: "jajko",            pl: "jajka",          gen: "jajek",          form: "n", en: "egg" },
+    { word: "pudełko",          pl: "pudełka",        gen: "pudełek",        form: "n", en: "box" },
+    { word: "krzesło",          pl: "krzesła",        gen: "krzeseł",        form: "n", en: "chair" },
+    { word: "klucz",            pl: "klucze",         gen: "kluczy",         form: "m", en: "key" },
+    { word: "talerz",           pl: "talerze",        gen: "talerzy",        form: "m", en: "plate" },
+    { word: "pieróg",           pl: "pierogi",        gen: "pierogów",       form: "m", en: "dumpling" },
+    { word: "grosz",            pl: "grosze",         gen: "groszy",         form: "m", en: "penny" },
+    { word: "litr paliwa",      pl: "litry paliwa",   gen: "litrów paliwa",  form: "m", en: "litre of petrol" },
+    { word: "kilogram ciasta",  pl: "kilogramy ciasta", gen: "kilogramów ciasta", form: "m", en: "kg of cake" }
+];
 
-    // Campaign progress
-    campLevel: 1,              // 1–8
-    campCorrect: 0,            // correct answers this level
-
-    // Content
-    currentPL: '', currentEN: '', speechText: null,
-    rawData: null, currentContextKey: null, genderTarget: null,
-
-    // XP
-    campaignXP: 0, practiceXP: 0,
-    dailyXP: 0, dailyGoal: 300, goalMet: false,
-
-    // Session
-    streak: 0, solved: false, btnCount: 8,
-    isReview: false, audioClicks: 0, audioPlaying: false,
-    startTime: 0, wrongGuesses: 0, history: [],
-    handsfree: false
+const GRAMMAR = {
+    "years":    { s: "rok",      p: "lata",     g: "lat",       phrase: "[N] [W] temu",          enPhrase: "[N] years ago",    max: 1000 },
+    "cost":     { s: "złoty",    p: "złote",    g: "złotych",   phrase: "To kosztuje [N] [W]",   enPhrase: "It costs [N] PLN" },
+    "hours":    { s: "godzina",  p: "godziny",  g: "godzin",    phrase: "Czekam [N] [W]",        enPhrase: "I wait [N] hours", max: 24 },
+    "people":   { s: "osoba",    p: "osoby",    g: "osób",      phrase: "Jest tu [N] [W]",       enPhrase: "Here are [N] people", max: 50000 },
+    "weight":   { s: "kilogram", p: "kilogramy",g: "kilogramów",phrase: "Ważę [N] [W]",          enPhrase: "I weigh [N] kg",   max: 250 },
+    "distance": { s: "kilometr", p: "kilometry",g: "kilometrów",phrase: "Biegłem [N] [W]",       enPhrase: "I ran [N] km",     max: 80 },
+    "age":      { s: "rok",      p: "lata",     g: "lat",       phrase: "Mam [N] [W]",           enPhrase: "I am [N] years old", max: 120 }
 };
 
-let mistakes      = JSON.parse(localStorage.getItem('mistakes') || '[]');
-let categoryStats = JSON.parse(localStorage.getItem('catStats')  || '{}');
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 2: GLOBAL STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Audio
-let autoNextTimer = null, audioCtx = null, audioKeepAliveTimer = null;
-let speakerTaps = 0, speakerTapTimer = null;
-let currentUtterance = null, availableVoices = [];
-let isListening = false, userInteracted = false;
+let state = {
+    mode: 'numbers', currentPL: '', currentEN: '',
+    campaignXP: 0, practiceXP: 0,
+    dailyXP: 0, dailyGoal: 300, goalMet: false,
+    streak: 0, solved: false, btnCount: 8, rawData: null, isReview: false,
+    audioClicks: 0, audioPlaying: false, startTime: 0, needsWork: false,
+    handsfree: false, speechText: null, wrongGuesses: 0, history: [],
+    genderTarget: null, currentContextKey: null, campLevel: 1
+};
+
+let mistakes        = JSON.parse(localStorage.getItem('mistakes') || "[]");
+let categoryStats   = JSON.parse(localStorage.getItem('catStats') || '{"numbers":0,"context":0,"prices":0,"dates":0,"time":0,"gender":0,"ordinal":0,"phone":0}');
+
+let autoNextTimer   = null;
+let audioCtx        = null;
+let speakerTaps     = 0;
+let speakerTapTimer = null;
+let currentUtterance= null;
+let availableVoices = [];
+let isListening     = false;
+let userInteracted  = false;
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 
-// ============================================================
-//  PART 4: INIT
-// ============================================================
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 3: INITIALIZATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 function init() {
     // Load XP
     state.campaignXP = parseInt(localStorage.getItem('campaignXP') || 0);
     state.practiceXP = parseInt(localStorage.getItem('practiceXP') || 0);
-    // Legacy migration
+    state.campLevel  = parseInt(localStorage.getItem('campLevel') || 1);
+
+    // Backward compatibility: migrate old 'xp' key
     let oldXP = localStorage.getItem('xp');
-    if (oldXP) { state.campaignXP += parseInt(oldXP); localStorage.removeItem('xp'); }
+    if (oldXP) { state.campaignXP = parseInt(oldXP); localStorage.removeItem('xp'); }
 
-    // Load campaign level + progress
-    state.campLevel   = parseInt(localStorage.getItem('campLevel') || 1);
-    state.campCorrect = parseInt(localStorage.getItem('campCorrect') || 0);
-    if (state.campLevel < 1) state.campLevel = 1;
-    if (state.campLevel > 8) state.campLevel = 8;
+    // Shared XP across suite
+    updateSharedXP();
 
-    // Daily XP
+    // Daily goal
     let todayStr = new Date().toDateString();
-    if (localStorage.getItem('lastPlayDate') !== todayStr) {
+    let lastPlay = localStorage.getItem('lastPlayDate');
+    if (lastPlay !== todayStr) {
         state.dailyXP = 0; state.goalMet = false;
         localStorage.setItem('lastPlayDate', todayStr);
         localStorage.setItem('dailyXP', 0);
@@ -608,194 +573,174 @@ function init() {
 
     // Campaign toggle
     const savedCamp = localStorage.getItem('campaignMode');
-    state.isCampaign = savedCamp !== null ? savedCamp === 'true' : true;
+    const isCamp = savedCamp !== null ? savedCamp === 'true' : true;
     const campToggle = document.getElementById('campaign-toggle');
-    if (campToggle) { campToggle.checked = state.isCampaign; toggleCampaign(); }
+    if (campToggle) { campToggle.checked = isCamp; toggleCampaign(); }
 
-    // Speech recognition
+    // Speech Recognition (Polish only)
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.lang = 'pl-PL';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
-        recognition.onstart = () => {
+
+        recognition.onstart = function() {
             isListening = true;
-            document.getElementById('mic-btn').style.background = '#34a853';
+            document.getElementById('mic-btn').style.background = "#34a853";
             document.getElementById('mc-area').style.display = 'none';
             document.getElementById('type-area').style.display = 'flex';
-            document.getElementById('type-input').placeholder = 'Listening...';
+            document.getElementById('type-input').placeholder = "Listening...";
+            const vCtrl = document.getElementById('voice-controls');
+            if (vCtrl) { vCtrl.style.display = 'block'; vCtrl.innerHTML = "<p style='font-size:1.2rem; font-weight:bold; color:var(--primary); margin:0;'>🎙️ Listening...</p>"; }
         };
-        recognition.onend = () => {
+
+        recognition.onend = function() {
             isListening = false;
-            document.getElementById('mic-btn').style.background = '#ea4335';
-            document.getElementById('type-input').placeholder = 'Type answer...';
+            document.getElementById('mic-btn').style.background = "#ea4335";
+            document.getElementById('type-input').placeholder = "Type answer...";
             setTimeout(() => { if (!state.solved) applySettings(); }, 500);
         };
-        recognition.onresult = (e) => checkVoiceAnswer(e.results[0][0].transcript);
-        recognition.onerror  = (e) => console.error('Speech error:', e.error);
+
+        recognition.onerror = function(e) { console.error("Speech Error:", e.error); };
+        recognition.onresult = function(e) { checkVoiceAnswer(e.results[0][0].transcript); };
     } else {
         document.getElementById('mic-btn').style.display = 'none';
     }
 
     // Voices
     loadVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined)
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
 
     // Keyboard
     document.addEventListener('keydown', (e) => {
         if (state.audioPlaying) return;
         if (state.mode === 'translator' && e.key === 'Enter') { runTranslator(); return; }
         if (state.solved && state.mode !== 'translator') { if (e.key === 'Enter') generate(); return; }
-        if (e.key >= '1' && e.key <= '8') {
+        if (!isNaN(e.key) && e.key >= '1' && e.key <= '8') {
             const btns = document.querySelectorAll('.mc-btn');
-            const idx = parseInt(e.key) - 1;
-            if (btns[idx]) btns[idx].click();
+            if (btns[e.key - 1]) btns[e.key - 1].click();
         }
     });
 
-    // Audio unlock
-    audioKeepAliveTimer = setInterval(keepAudioAwake, 8000);
-    const unlockFn = () => {
+    // Audio heartbeat
+    setInterval(keepAudioAwake, 8000);
+
+    // Unlock audio on first interaction
+    const unlockEvents = ['click', 'touchstart', 'keydown'];
+    const unlockAudio = () => {
         if (userInteracted) return;
         userInteracted = true;
         initAudio();
         let u = new SpeechSynthesisUtterance(' '); u.volume = 0;
         window.speechSynthesis.speak(u);
-        ['click','touchstart','keydown'].forEach(ev => document.removeEventListener(ev, unlockFn, true));
+        unlockEvents.forEach(ev => document.removeEventListener(ev, unlockAudio, { capture: true }));
     };
-    ['click','touchstart','keydown'].forEach(ev => document.addEventListener(ev, unlockFn, true));
+    unlockEvents.forEach(ev => document.addEventListener(ev, unlockAudio, { capture: true }));
 
-    updateLevelDisplay();
-    updateRange();
+    // Apply theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) { document.getElementById('theme-select').value = savedTheme; applyTheme(); }
+
+    // Load button style pref
+    const savedBtnStyle = localStorage.getItem('btnStyle');
+    if (savedBtnStyle) document.getElementById('btn-style-sel').value = savedBtnStyle;
+
     updateUI();
-    generate();
+    updateRange();
+    switchMode('numbers');
 }
 
 function loadVoices() { availableVoices = window.speechSynthesis.getVoices(); }
 
-// ============================================================
-//  PART 5: CAMPAIGN HELPERS
-// ============================================================
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 4: SHARED SUITE XP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function updateSharedXP() {
+    // Read XP written by other suite apps too (they use 'polishSuiteXP')
+    let suiteXP = parseInt(localStorage.getItem('polishSuiteXP') || 0);
+    let localTotal = state.campaignXP + state.practiceXP;
+    // Write the highest known value to the shared key
+    let sharedTotal = Math.max(suiteXP, localTotal);
+    localStorage.setItem('polishSuiteXP', sharedTotal);
+    const el = document.getElementById('hub-xp-val');
+    if (el) el.innerText = sharedTotal.toLocaleString();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 5: CAMPAIGN CONTROLS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 function toggleCampaign() {
     const isCamp = document.getElementById('campaign-toggle').checked;
-    state.isCampaign = isCamp;
+    const controls = document.getElementById('campaign-controls');
+    const sliders  = document.getElementById('manual-sliders');
+    if (isCamp) { if (controls) controls.style.display = 'block'; if (sliders) sliders.style.display = 'none'; updateLevelDisplay(); }
+    else        { if (controls) controls.style.display = 'none';  if (sliders) sliders.style.display = 'block'; }
     localStorage.setItem('campaignMode', isCamp);
-
-    document.getElementById('campaign-controls').style.display = isCamp ? 'block' : 'none';
-    document.getElementById('camp-progress-bar').style.display  = isCamp ? 'block' : 'none';
-    document.getElementById('set-range').style.display          = isCamp ? 'none'  : 'block';
-
-    // In campaign mode, hide the gym mode buttons' active state
-    if (isCamp) {
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    }
-
-    updateLevelDisplay();
     updateUI();
 }
 
 function adjustLevel(dir) {
-    state.campLevel = Math.max(1, Math.min(8, state.campLevel + dir));
-    state.campCorrect = 0;
+    state.campLevel = Math.max(1, Math.min(6, state.campLevel + dir));
     localStorage.setItem('campLevel', state.campLevel);
-    localStorage.setItem('campCorrect', 0);
     updateLevelDisplay();
 }
 
 function updateLevelDisplay() {
-    const lvl = CAMPAIGN_LEVELS[state.campLevel - 1];
-    if (!lvl) return;
     const numEl  = document.getElementById('lvl-num');
     const descEl = document.getElementById('lvl-desc');
-    if (numEl)  numEl.innerText  = state.campLevel;
-    if (descEl) descEl.innerText = `${lvl.name} — ${lvl.subtitle}`;
-
-    // Progress bar
-    const fillEl  = document.getElementById('camp-progress-fill');
-    const passEl  = document.getElementById('camp-pass-label');
-    const labelEl = document.getElementById('camp-level-label');
-    if (fillEl) fillEl.style.width = Math.min(100, (state.campCorrect / lvl.passTarget) * 100) + '%';
-    if (passEl) passEl.innerText   = `${state.campCorrect} / ${lvl.passTarget} correct`;
-    if (labelEl) labelEl.innerText = `Level ${state.campLevel} — ${lvl.name}: ${lvl.subtitle}`;
+    if (!numEl || !descEl) return;
+    numEl.innerText = state.campLevel;
+    const desc = ["Novice (1–20)", "Apprentice (1–100)", "Journeyman (1–1,000)", "Expert (1–10,000)", "Master (1–100,000)", "Guru (1–100M)"];
+    descEl.innerText = desc[state.campLevel - 1] || desc[0];
 }
 
-function checkLevelUp() {
-    const lvl = CAMPAIGN_LEVELS[state.campLevel - 1];
-    if (!lvl) return;
-    if (state.campCorrect >= lvl.passTarget) {
-        if (state.campLevel < 8) {
-            state.campLevel++;
-            state.campCorrect = 0;
-            localStorage.setItem('campLevel', state.campLevel);
-            localStorage.setItem('campCorrect', 0);
-            showLevelUp();
-        } else {
-            // Already at max — keep earning XP, don't reset
-        }
-    }
-    updateLevelDisplay();
+function savePrefs() {
+    const minP = document.getElementById('minP');
+    const maxP = document.getElementById('maxP');
+    if (minP) localStorage.setItem('minP', minP.value);
+    if (maxP) localStorage.setItem('maxP', maxP.value);
+    const btnStyle = document.getElementById('btn-style-sel');
+    if (btnStyle) localStorage.setItem('btnStyle', btnStyle.value);
+    const theme = document.getElementById('theme-select');
+    if (theme) localStorage.setItem('theme', theme.value);
 }
 
-function showLevelUp() {
-    const lvl = CAMPAIGN_LEVELS[state.campLevel - 1];
-    document.getElementById('levelup-title').innerText = `Level ${state.campLevel}: ${lvl.name} — ${lvl.subtitle}`;
-    document.getElementById('levelup-desc').innerText  = `${lvl.desc}\n\nPass target: ${lvl.passTarget} correct answers.`;
-    document.getElementById('levelup-overlay').style.display = 'flex';
-    fireConfetti(80);
-}
+function saveAndGenerate() { savePrefs(); toggleSettings(); generate(); }
 
-function dismissLevelUp() {
-    document.getElementById('levelup-overlay').style.display = 'none';
-    generate();
-}
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 6: MAIN GENERATOR
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// ============================================================
-//  PART 6: GYM MODE SELECTION
-// ============================================================
-function selectGymMode(m) {
-    // Switching to a gym mode automatically disables campaign
-    if (state.isCampaign) {
-        document.getElementById('campaign-toggle').checked = false;
-        toggleCampaign();
-    }
-    state.mode = m;
-    updateModeUI(m);
-    generate();
-}
-
-// ============================================================
-//  PART 7: MAIN GENERATOR
-// ============================================================
 function generate() {
     if (autoNextTimer) clearTimeout(autoNextTimer);
-    state.solved = false;
-    state.audioClicks = 0;
-    state.wrongGuesses = 0;
-    document.getElementById('voice-feedback').innerText = '';
+    state.solved = false; state.audioClicks = 0; state.wrongGuesses = 0;
+    document.getElementById('voice-feedback').innerText = "";
 
+    // Reset display
     const plBox = document.getElementById('pl-text');
     const enBox = document.getElementById('en-text');
     plBox.classList.remove('visible'); enBox.classList.remove('visible');
     plBox.innerHTML = '---'; enBox.innerText = '???';
-    document.getElementById('badge-score').style.display = 'none';
-    document.getElementById('main-btn').innerText = 'SKIP ➡️';
+    document.getElementById('main-btn').innerText = "SKIP ➡️";
     document.getElementById('main-btn').classList.remove('ready');
+    if (document.getElementById('type-input')) {
+        document.getElementById('type-input').style.borderColor = '';
+    }
 
     // Review mode
     if (state.isReview) {
-        if (mistakes.length === 0) {
-            state.isReview = false;
-            alert('Review Complete! Returning to normal mode.');
-        } else {
+        if (mistakes.length === 0) { state.isReview = false; alert("Review Complete! Returning to normal mode."); }
+        else {
             document.getElementById('badge-review').style.display = 'block';
             let m = mistakes[0];
-            state.currentPL = m.val; state.currentEN = m.en;
-            state.mode = m.mode || 'numbers';
+            state.currentPL = m.val; state.currentEN = m.en; state.mode = m.mode || 'numbers';
             plBox.innerText = state.currentPL; enBox.innerText = state.currentEN;
-            updateModeUI(state.mode); applySettings();
-            state.startTime = Date.now();
+            updateModeUI(state.mode); applySettings(); state.startTime = Date.now();
             if (!state.handsfree) setTimeout(() => speak(1.0), 250);
             return;
         }
@@ -806,117 +751,165 @@ function generate() {
     if (state.mode === 'translator') {
         document.getElementById('display-box').classList.add('trans-active');
         applySettings();
-        const inp = document.getElementById('type-input');
-        inp.value = ''; inp.placeholder = 'np. 1250';
-        inp.setAttribute('type', 'number');
-        enBox.innerText = '';
-        plBox.innerText = 'Wpisz liczbę...'; plBox.classList.add('visible');
-        const actionBtn = document.getElementById('action-btn');
-        actionBtn.innerText = 'TRANSLATE 🔊'; actionBtn.onclick = runTranslator;
-        setTimeout(() => inp.focus(), 50);
+        const typeInput = document.getElementById('type-input');
+        typeInput.value = ""; typeInput.placeholder = "np. 1250";
+        typeInput.setAttribute('type', 'number');
+        typeInput.onclick = null;
+        document.getElementById('action-btn').innerText = "TRANSLATE 🔊";
+        document.getElementById('action-btn').onclick = runTranslator;
+        plBox.innerText = "Wpisz liczbę..."; plBox.classList.add('visible');
+        enBox.innerText = ""; enBox.classList.remove('visible');
+        setTimeout(() => typeInput.focus(), 50);
         return;
     } else {
         document.getElementById('display-box').classList.remove('trans-active');
-        const actionBtn = document.getElementById('action-btn');
-        actionBtn.innerText = 'CHECK ANSWER'; actionBtn.onclick = checkTyped;
+        document.getElementById('action-btn').innerText = "CHECK ANSWER";
+        document.getElementById('action-btn').onclick = checkTyped;
+        const inp = document.getElementById('type-input');
+        if (inp) { inp.setAttribute('type', 'text'); }
     }
 
-    // Generate value
-    let rawVal;
-    if (state.isCampaign) {
-        const lvl = CAMPAIGN_LEVELS[state.campLevel - 1];
-        state.mode = 'numbers';
-        updateModeUI('numbers');
-        let safety = 0;
-        do { rawVal = lvl.generate(); safety++; } while (isRepeated(rawVal) && safety < 15);
+    // Determine difficulty
+    let min = 1, max = 20;
+    const isCampaign = document.getElementById('campaign-toggle').checked;
+
+    if (isCampaign) {
+        const lvl = state.campLevel;
+        let allowedModes = ['numbers'];
+
+        // Reset challenge toggles for numbers mode
+        if (state.mode === 'numbers') {
+            ['negatives-toggle','decimal-toggle','fractions-toggle','mixed-numbers-toggle'].forEach(id => {
+                document.getElementById(id).checked = false;
+            });
+            document.getElementById('decimal-opts').style.display  = 'none';
+            document.getElementById('fraction-opts').style.display = 'none';
+        }
+
+        if      (lvl === 1) { min = 1; max = 20;        allowedModes = ['numbers']; }
+        else if (lvl === 2) { min = 1; max = 100;       allowedModes = ['numbers','gender','prices']; }
+        else if (lvl === 3) {
+            min = 1; max = 1000;
+            allowedModes = ['numbers','gender','prices','time'];
+            if (state.mode === 'numbers') document.getElementById('negatives-toggle').checked = true;
+        }
+        else if (lvl === 4) {
+            min = 1; max = 10000;
+            allowedModes = ['numbers','gender','prices','time','dates'];
+            if (state.mode === 'numbers') {
+                document.getElementById('negatives-toggle').checked = true;
+                document.getElementById('decimal-toggle').checked   = true;
+                document.getElementById('decimal-opts').style.display = 'flex';
+            }
+        }
+        else if (lvl === 5) {
+            min = 1; max = 100000;
+            allowedModes = ['numbers','gender','prices','time','dates','context'];
+            if (state.mode === 'numbers') {
+                document.getElementById('negatives-toggle').checked = true;
+                document.getElementById('decimal-toggle').checked   = true;
+                document.getElementById('decimal-opts').style.display = 'flex';
+            }
+        }
+        else {
+            min = 1; max = 100000000;
+            allowedModes = ['numbers','gender','prices','time','dates','context'];
+            if (state.mode === 'numbers') {
+                document.getElementById('negatives-toggle').checked  = true;
+                document.getElementById('decimal-toggle').checked    = true;
+                document.getElementById('fractions-toggle').checked  = true;
+                document.getElementById('mixed-numbers-toggle').checked = true;
+                document.getElementById('decimal-opts').style.display  = 'flex';
+                document.getElementById('fraction-opts').style.display = 'flex';
+            }
+        }
+
+        document.getElementById('lbl-min').innerText = min.toLocaleString();
+        document.getElementById('lbl-max').innerText = max.toLocaleString() + " (Lvl " + lvl + ")";
+
+        // Weighted mode switching: 60% newest, 40% review older
+        let targetMode = allowedModes[allowedModes.length - 1];
+        if (allowedModes.length > 1 && Math.random() < 0.4) {
+            targetMode = allowedModes[Math.floor(Math.random() * (allowedModes.length - 1))];
+        }
+        if (state.mode !== targetMode) { state.mode = targetMode; updateModeUI(targetMode); }
+
     } else {
-        let min = Math.pow(10, document.getElementById('minP').value);
-        let max = Math.pow(10, document.getElementById('maxP').value);
-        let safety = 0;
-        do { rawVal = generateRawValue(min, max, state.mode); safety++; } while (isRepeated(rawVal) && safety < 15);
+        min = Math.pow(10, parseInt(document.getElementById('minP').value));
+        max = Math.pow(10, parseInt(document.getElementById('maxP').value));
     }
 
-    addToHistory(rawVal);
-    processValue(rawVal, state.mode);
+    // Generate value (avoid repeats)
+    let newVal, safety = 0;
+    do { newVal = generateRawValue(min, max, state.mode); safety++; }
+    while (isRepeated(newVal) && safety < 15);
+    addToHistory(newVal);
+    processValue(newVal, state.mode);
 
     // Render
-    const badge = document.getElementById('grammar-badge');
-    badge.classList.remove('visible');
-
-    // All modes: both boxes stay hidden until the player answers.
-    // The listening element IS the question — nothing is shown upfront.
-    if (state.mode === 'gender') {
-        // Exception: show the noun so the player knows what they're counting
-        plBox.innerHTML = `<span style="color:#ccc">... </span><span style="color:var(--text)">${state.rawData.noun.pl}</span>`;
-        plBox.classList.add('visible');
-        badge.classList.add('visible');
-    } else if (state.mode === 'counting') {
-        // Exception: show the noun so the player knows which word to inflect
-        plBox.innerHTML = `<span style="color:#ccc">... </span><span style="color:var(--text)">${state.rawData.noun.word}?</span>`;
-        plBox.classList.add('visible');
-        badge.classList.add('visible');
-    } else if (state.mode === 'context') {
-        badge.classList.add('visible');
-        // Both boxes hidden — player picks full sentence by ear
-    } else {
-        // Numbers, prices, time, dates, ordinals etc.
-        // Both boxes hidden — audio is the only clue
+    if (state.mode !== 'gender') {
+        if (state.mode === 'context') plBox.innerHTML = state.currentPL;
+        else plBox.innerText = state.currentPL;
     }
+    enBox.innerText = state.currentEN;
 
+    // Grammar badge
+    const badge = document.getElementById('grammar-badge');
+    if (badge) badge.classList.remove('visible');
+
+    if (state.mode === 'context') { enBox.innerText = "???"; if (badge) badge.classList.add('visible'); }
+    else if (state.mode === 'gender') { plBox.classList.add('visible'); if (badge) badge.classList.add('visible'); }
+    else if (state.mode === 'dates') { if (badge) badge.classList.add('visible'); }
+
+    // Blind mode
     document.getElementById('badge-blind').style.display =
         document.getElementById('blind-toggle').checked ? 'block' : 'none';
+    document.getElementById('badge-score').style.display = 'none';
 
     applySettings();
     state.startTime = Date.now();
-
     if (state.handsfree) generateHandsfree();
     else setTimeout(() => speak(1.0), 250);
 }
 
-// ============================================================
-//  PART 8: RAW VALUE GENERATORS (Gym modes)
-// ============================================================
-function generateRawValue(min, max, mode) {
-    if (mode === 'numbers') {
-        let types = [];
-        if (document.getElementById('fractions-toggle').checked)  types.push('fraction');
-        if (document.getElementById('decimal-toggle').checked)    types.push('decimal');
-        if (document.getElementById('negatives-toggle').checked)  types.push('negative');
-        if (!types.length) types.push('integer');
-        let type = types[Math.floor(Math.random() * types.length)];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 7: RAW VALUE GENERATORS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function generateRawValue(min, max, activeMode) {
+    let m = activeMode || state.mode;
+
+    if (m === 'numbers') {
+        let allowedTypes = [];
+        if (document.getElementById('fractions-toggle').checked)  allowedTypes.push('fraction');
+        if (document.getElementById('decimal-toggle').checked)    allowedTypes.push('decimal');
+        if (document.getElementById('negatives-toggle').checked)  allowedTypes.push('negative');
+        if (allowedTypes.length === 0) allowedTypes.push('integer');
+
+        let type = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
 
         if (type === 'fraction') {
-            const denoms = [2,3,4,5,6,8,10,100];
+            const denoms = [2, 3, 4, 5, 6, 8, 10, 100];
             let d = denoms[Math.floor(Math.random() * denoms.length)];
-            let n = Math.floor(Math.random() * (d-1)) + 1;
-            let integer = (document.getElementById('mixed-numbers-toggle').checked && Math.random() < 0.5)
-                ? Math.floor(Math.random() * 50) + 1 : 0;
+            let n = Math.floor(Math.random() * (d - 1)) + 1;
+            let integer = 0;
+            if (document.getElementById('mixed-numbers-toggle').checked && Math.random() < 0.5) {
+                integer = Math.floor(Math.random() * 50) + 1;
+            }
             return { n, d, int: integer, type: 'fraction' };
         }
         if (type === 'decimal') {
-            let places = parseInt(document.getElementById('decimal-places').value);
-            return parseFloat((Math.random() * (max - min) + min).toFixed(places));
+            let places = parseInt(document.getElementById('decimal-places').value) || 1;
+            let raw = Math.random() * (max - min) + min;
+            return parseFloat(raw.toFixed(places));
         }
-        if (type === 'negative') return -(Math.floor(Math.random() * max) + 1);
+        if (type === 'negative') {
+            return -(Math.floor(Math.random() * max) + 1);
+        }
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    if (mode === 'counting') {
-        let noun = COUNTING_NOUNS[Math.floor(Math.random() * COUNTING_NOUNS.length)];
-        // Weight towards numbers that test the rule well: 1, 2-4, 5-21, 12-14 (teen exception)
-        let pools = [
-            [1],
-            [2,3,4],
-            [5,6,7,8,9,10,11],
-            [12,13,14],
-            [15,16,17,18,19,20,21,22,23,24,25],
-        ];
-        let pool = pools[Math.floor(Math.random() * pools.length)];
-        let n = pool[Math.floor(Math.random() * pool.length)];
-        return { num: n, noun };
-    }
-
-    if (mode === 'context') {
+    if (m === 'context') {
         const keys = Object.keys(GRAMMAR);
         const k = keys[Math.floor(Math.random() * keys.length)];
         state.currentContextKey = k;
@@ -926,99 +919,117 @@ function generateRawValue(min, max, mode) {
         return { val: n, key: k };
     }
 
-    if (mode === 'prices') {
-        let n = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (m === 'prices') {
+        let n  = Math.floor(Math.random() * (max - min + 1)) + min;
         let gr = document.getElementById('grosze-toggle').checked ? Math.floor(Math.random() * 99) + 1 : 0;
         return n + (gr / 100);
     }
 
-    if (mode === 'time') {
+    if (m === 'time') {
         return { h: Math.floor(Math.random() * 24), m: Math.floor(Math.random() * 12) * 5 };
     }
 
-    if (mode === 'dates') {
-        return { d: Math.floor(Math.random()*30)+1, m: Math.floor(Math.random()*12), y: Math.floor(Math.random()*25)+2000, dow: Math.floor(Math.random()*7) };
+    if (m === 'dates') {
+        let d   = Math.floor(Math.random() * 28) + 1; // 1–28 safe for all months
+        let mon = Math.floor(Math.random() * 12);
+        let y   = Math.floor(Math.random() * 25) + 2000;
+        let dow = Math.floor(Math.random() * 7);
+        return { d, m: mon, y, dow };
     }
 
-    if (mode === 'phone') {
-        return { p1: Math.floor(Math.random()*400)+500, p2: Math.floor(Math.random()*900)+100, p3: Math.floor(Math.random()*900)+100 };
+    if (m === 'phone') {
+        let p1 = Math.floor(Math.random() * 400) + 500;
+        let p2 = Math.floor(Math.random() * 900) + 100;
+        let p3 = Math.floor(Math.random() * 900) + 100;
+        return { p1, p2, p3 };
     }
 
-    if (mode === 'ordinal') return Math.floor(Math.random() * 20) + 1;
+    if (m === 'ordinal') {
+        return Math.floor(Math.random() * 20) + 1;
+    }
 
-    if (mode === 'gender') {
+    if (m === 'gender') {
         let noun = GENDER_NOUNS[Math.floor(Math.random() * GENDER_NOUNS.length)];
-        let n = Math.floor(Math.random() * Math.min(20, max-min+1)) + Math.max(1, min);
+        let n = 0;
+        if (noun.logic === 'living')    n = Math.floor(Math.random() * 12) + 1;
+        else if (noun.logic === 'bulk') {
+            let roll = Math.random();
+            if (roll < 0.4)       n = Math.floor(Math.random() * 50) + 1;
+            else if (roll < 0.8)  n = (Math.floor(Math.random() * 9) + 1) * 50;
+            else                  n = (Math.floor(Math.random() * 5) + 1) * 1000;
+        } else {
+            n = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (n > 20 && Math.random() < 0.3) n = Math.floor(Math.random() * 20) + 1;
+        }
         return { num: n, noun };
     }
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// ============================================================
-//  PART 9: PROCESS VALUE → currentPL / currentEN
-// ============================================================
-function processValue(val, mode) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 8: VALUE PROCESSOR
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function processValue(val, activeMode) {
     state.rawData = val;
+    let m = activeMode || state.mode;
 
-    const badge = document.getElementById('grammar-badge');
-
-    if (mode === 'counting') {
-        let n = val.num, noun = val.noun;
-        let form = getPlural(n, noun.word, noun.pl, noun.gen);
-        let numStr = numToPl(n);
-        state.currentPL = `${numStr} ${form}`;
-        state.currentEN = `${n} ${noun.en}`;
-        state.speechText = state.currentPL;
+    // GENDER
+    if (m === 'gender') {
+        let n = val.num;
         updateGrammarBadge(n);
-        badge.classList.add('visible');
-        return;
-    }
-
-    if (mode === 'gender') {
-        let n = val.num, noun = val.noun;
-        updateGrammarBadge(n);
-        let numStr = '';
-        if      (n === 1 && noun.form === 'f') numStr = 'jedna';
-        else if (n === 1 && noun.form === 'n') numStr = 'jedno';
-        else if (n === 1)                       numStr = 'jeden';
-        else if (n === 2 && noun.form === 'f') numStr = 'dwie';
-        else                                   numStr = numToPl(n);
-        let nounStr = getPolishForm(n, noun);
-        state.currentEN = `${n} ${noun.en}`;
+        let nounObj = val.noun;
+        let numStr = "";
+        if      (n === 1 && nounObj.form === 'f') numStr = "jedna";
+        else if (n === 1 && nounObj.form === 'n') numStr = "jedno";
+        else if (n === 2 && nounObj.form === 'f') numStr = "dwie";
+        else numStr = numToPl(n);
+        let nounStr = getPolishForm(n, nounObj);
+        state.currentEN = `${n} ${nounObj.en}`;
         state.currentPL = `${numStr} ${nounStr}`;
         state.genderTarget = numStr;
-        badge.classList.add('visible');
+        document.getElementById('pl-text').innerHTML =
+            `<span style="color:#ccc">...</span> <span style="color:var(--text)">${nounStr}</span>`;
         return;
     }
 
-    if (mode === 'context') {
-        let g = GRAMMAR[val.key], n = val.val;
+    // CONTEXT
+    if (m === 'context') {
+        let g = GRAMMAR[val.key];
+        let n = val.val;
         updateGrammarBadge(n);
         let word = getPlural(n, g.s, g.p, g.g);
         let numTxt = numToPl(n);
         let fullPhrase = g.phrase.replace('[N]', numTxt).replace('[W]', word);
         state.currentEN = g.enPhrase.replace('[N]', n);
-        let visual = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
-        state.currentPL = visual;
+        state.currentPL = g.phrase.replace('[N]', `<span class="ctx-highlight">${n}</span>`).replace('[W]', word);
         state.speechText = fullPhrase;
-        badge.classList.add('visible');
         return;
     }
 
+    // FRACTIONS
     if (val && val.type === 'fraction') {
-        state.currentEN = val.int > 0 ? `${val.int} ${val.n}/${val.d}` : `${val.n}/${val.d}`;
-        let numText = val.n === 1 ? 'jedna' : val.n === 2 ? 'dwie' : numToPl(val.n);
-        let denArr  = FRACTIONS[val.d];
-        let denText = getPlural(val.n, denArr[0], denArr[1], denArr[2]);
-        state.currentPL = val.int > 0 ? `${numToPl(val.int)} i ${numText} ${denText}` : `${numText} ${denText}`;
-        if (badge) { badge.innerText = 'Fraction'; badge.classList.add('visible'); }
+        let numText = val.n === 1 ? "jedna" : val.n === 2 ? "dwie" : numToPl(val.n);
+        let denArray = FRACTIONS[val.d];
+        if (!denArray) { state.currentPL = `${numText}/${val.d}`; state.currentEN = `${val.n}/${val.d}`; return; }
+        let denText = getPlural(val.n, denArray[0], denArray[1], denArray[2]);
+        if (val.int > 0) {
+            state.currentEN = `${val.int} ${val.n}/${val.d}`;
+            state.currentPL = `${numToPl(val.int)} i ${numText} ${denText}`;
+        } else {
+            state.currentEN = `${val.n}/${val.d}`;
+            state.currentPL = `${numText} ${denText}`;
+        }
+        const badge = document.getElementById('grammar-badge');
+        if (badge) { badge.innerText = "FRACTION (Żeński)"; badge.classList.add('visible'); }
         return;
     }
 
-    if (mode === 'numbers') {
-        if (document.getElementById('decimal-toggle').checked && typeof val === 'number' && !Number.isInteger(val)) {
-            let s = val.toString(); if (!s.includes('.')) s += '.0';
+    // NUMBERS
+    if (m === 'numbers') {
+        if (typeof val === 'number' && !Number.isInteger(val)) {
+            let s = val.toString(); if (!s.includes('.')) s += ".0";
             let parts = s.split('.');
             state.currentEN = s.replace('.', ',');
             state.currentPL = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
@@ -1029,77 +1040,165 @@ function processValue(val, mode) {
         return;
     }
 
-    if (mode === 'prices') {
-        let n = Math.floor(val), gr = Math.round((val % 1) * 100);
+    // PRICES
+    if (m === 'prices') {
+        let n  = Math.floor(val);
+        let gr = Math.round((val % 1) * 100);
         state.currentEN = `${n},${gr.toString().padStart(2,'0')} zł`;
-        if (n === 0)       state.currentPL = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
-        else if (gr === 0) state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
-        else {
-            let grText = numToPl(gr); if (gr < 10) grText = 'zero ' + grText;
+        if (n === 0) {
+            state.currentPL = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
+        } else if (gr === 0) {
+            state.currentPL = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
+        } else {
+            let grText = numToPl(gr); if (gr < 10) grText = "zero " + grText;
             state.currentPL = `${numToPl(n)} ${grText}`;
         }
         return;
     }
 
-    if (mode === 'time') {
-        state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
-        state.currentPL = timeToPl(val.h, val.m, document.getElementById('time-style-sel').value === 'formal');
-        return;
-    }
-
-    if (mode === 'dates') {
-        const ordNom = ["","pierwszy","drugi","trzeci","czwarty","piąty","szósty","siódmy","ósmy","dziewiąty","dziesiąty","jedenasty","dwunasty","trzynasty","czternasty","piętnasty","szesnasty","siedemnasty","osiemnasty","dziewiętnasty","dwudziesty","dwudziesty pierwszy","dwudziesty drugi","dwudziesty trzeci","dwudziesty czwarty","dwudziesty piąty","dwudziesty szósty","dwudziesty siódmy","dwudziesty ósmy","dwudziesty dziewiąty","trzydziesty","trzydziesty pierwszy"];
-        const ordGen = ["","pierwszego","drugiego","trzeciego","czwartego","piątego","szóstego","siódmego","ósmego","dziewiątego","dziesiątego","jedenastego","dwunastego","trzynastego","czternastego","piętnastego","szesnastego","siedemnastego","osiemnastego","dziewiętnastego","dwudziestego","dwudziestego pierwszego","dwudziestego drugiego","dwudziestego trzeciego","dwudziestego czwartego","dwudziestego piątego","dwudziestego szóstego","dwudziestego siódmego","dwudziestego ósmego","dwudziestego dziewiątego","trzydziestego","trzydziestego pierwszego"];
-        let ctxType = Math.random() < 0.5 ? 0 : 1;
-        let incYear = document.getElementById('year-toggle').checked;
-        let incDay  = document.getElementById('day-toggle').checked;
-        let enStr = ctxType === 1 ? 'On ' : '';
-        let plStr = '';
-        if (incDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
-        enStr += `${MONTHS_EN[val.m]} ${val.d}`;
-        plStr += `${(ctxType===1?ordGen:ordNom)[val.d] || val.d} ${MONTHS_PL[val.m]}`;
-        if (incYear) { enStr += ` ${val.y}`; plStr += ` ${numToPl(val.y)} roku`; }
-        state.currentEN = enStr; state.currentPL = plStr;
-        if (badge) {
-            badge.innerText = ctxType === 1 ? 'Kiedy? (Genitive)' : 'Jaki dzień? (Nominative)';
-            badge.classList.add('visible');
-        }
-        return;
-    }
-
-    if (mode === 'ordinal') {
-        state.currentEN = val + '.';
-        state.currentPL = getOrdinalPL(val);
-        return;
-    }
-
-    if (mode === 'phone') {
+    // PHONE
+    if (m === 'phone') {
         state.currentEN = `${val.p1} ${val.p2} ${val.p3}`;
         state.currentPL = `${numToPl(val.p1)}, ${numToPl(val.p2)}, ${numToPl(val.p3)}`;
         return;
     }
+
+    // ORDINAL
+    if (m === 'ordinal') {
+        state.currentEN = `${val}.`;
+        state.currentPL = ORDINAL_NOM[val] || val + ".";
+        return;
+    }
+
+    // TIME
+    if (m === 'time') {
+        state.currentEN = `${val.h.toString().padStart(2,'0')}:${val.m.toString().padStart(2,'0')}`;
+        let style = document.getElementById('time-style-sel').value;
+        state.currentPL = timeToPl(val.h, val.m, style === 'formal');
+        return;
+    }
+
+    // DATES
+    if (m === 'dates') {
+        let contextType = Math.random() < 0.5 ? 0 : 1; // 0=Naming, 1=Event
+        let includeYear = document.getElementById('year-toggle').checked;
+        let includeDay  = document.getElementById('day-toggle').checked;
+
+        let enStr = "", plStr = "";
+        if (contextType === 1) enStr += "On ";
+        if (includeDay) { enStr += `${DAYS_EN[val.dow]}, `; plStr += `${DAYS_PL[val.dow]}, `; }
+
+        enStr += `${MONTHS_EN[val.m]} ${val.d}`;
+
+        let dayText = (contextType === 1) ? ORDINAL_GEN[val.d] : ORDINAL_NOM[val.d];
+        if (!dayText) dayText = val.d.toString();
+        plStr += `${dayText} ${MONTHS_PL[val.m]}`;
+
+        if (includeYear) {
+            enStr += ` ${val.y}`;
+            plStr += ` ${numToPl(val.y)} roku`;
+        }
+
+        state.currentEN = enStr;
+        state.currentPL = plStr;
+
+        const badge = document.getElementById('grammar-badge');
+        if (badge) {
+            badge.innerText = contextType === 1 ? "Event → Genitive (-ego)" : "Naming → Nominative";
+            badge.classList.add('visible');
+        }
+    }
 }
 
-// ============================================================
-//  PART 10: UI / GRID
-// ============================================================
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 9: LANGUAGE HELPERS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function numToPl(n) {
+    if (isNaN(n)) return "...";
+    if (n === 0) return "zero";
+    if (n < 0) return "minus " + numToPl(Math.abs(n));
+    let s = "";
+    if (n >= 1000000) { let m = Math.floor(n / 1000000); s += (m === 1 ? "" : numToPl(m) + " ") + getPlural(m, "milion", "miliony", "milionów") + " "; n %= 1000000; }
+    if (n >= 1000)    { let t = Math.floor(n / 1000);    s += (t === 1 ? "tysiąc" : numToPl(t) + " " + getPlural(t, "tysiąc", "tysiące", "tysięcy")) + " "; n %= 1000; }
+    if (n >= 100)     { s += HUNDREDS[Math.floor(n / 100)] + " "; n %= 100; }
+    if (n >= 20)      { s += TENS[Math.floor(n / 10)] + " "; n %= 10; }
+    if (n >= 10)      { s += TEENS[n - 10] + " "; n = 0; }
+    if (n > 0)        s += UNITS[n];
+    return s.trim();
+}
+
+function getPlural(n, s, pa, pb) {
+    n = Math.abs(n);
+    if (n === 1) return s;
+    let r10 = n % 10, r100 = n % 100;
+    if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return pa;
+    return pb;
+}
+
+function getPolishForm(n, nounObj) {
+    if (n === 1) return nounObj.word;
+    let r10 = n % 10, r100 = n % 100;
+    if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) return nounObj.pl;
+    return nounObj.gen;
+}
+
+function readDecimalPart(str) {
+    return str.split('').map(d => numToPl(parseInt(d))).join(' ');
+}
+
+function timeToPl(h, m, formal) {
+    if (formal) {
+        let hStr = (h === 0) ? "zero zero" : (HOURS_ORD_FEM[h] || numToPl(h));
+        let mStr = m === 0 ? "" : (m < 10 ? "zero " + UNITS[m] : numToPl(m));
+        return `${hStr} ${mStr}`.trim();
+    } else {
+        let dispH = h % 12;
+        let nextIdx = (dispH === 0 ? 0 : dispH) + 1;
+        if (nextIdx >= HOURS_ORD_GEN.length) nextIdx = 1;
+        let hNext = HOURS_ORD_GEN[nextIdx];
+        let hCurr = HOURS_ORD_GEN[dispH === 0 ? 12 : dispH] || HOURS_ORD_GEN[1];
+        let hFem  = HOURS_ORD_FEM[dispH === 0 ? 12 : dispH] || HOURS_ORD_FEM[1];
+        if (m === 0)  return hFem;
+        if (m === 30) return `wpół do ${hNext}`;
+        if (m < 30)   return `${numToPl(m)} po ${hCurr}`;
+        return `za ${numToPl(60 - m)} ${hNext}`;
+    }
+}
+
+function updateGrammarBadge(n) {
+    const el = document.getElementById('grammar-badge');
+    if (!el) return;
+    let r10 = n % 10, r100 = n % 100;
+    if (n === 1) el.innerText = "Rule: 1 (Singular)";
+    else if (r10 >= 2 && r10 <= 4 && (r100 < 10 || r100 > 20)) el.innerText = "Rule: 2–4 (Nominative Pl)";
+    else el.innerText = "Rule: 5+ (Genitive Pl)";
+}
+
+function addToHistory(val) { state.history.push(val); if (state.history.length > 5) state.history.shift(); }
+function isRepeated(val)  { return state.history.some(h => JSON.stringify(h) === JSON.stringify(val)); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 10: UI & GRID
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 function applySettings() {
     if (state.mode === 'translator') {
-        document.getElementById('mc-area').style.display = 'none';
+        document.getElementById('mc-area').style.display   = 'none';
         document.getElementById('type-area').style.display = 'flex';
-        document.getElementById('type-input').setAttribute('type','number');
+        document.getElementById('type-input').setAttribute('type', 'number');
         return;
     }
     document.getElementById('voice-controls').style.display = 'none';
     let style = document.getElementById('input-style').value;
     if (style === 'type') {
-        document.getElementById('mc-area').style.display = 'none';
+        document.getElementById('mc-area').style.display   = 'none';
         document.getElementById('type-area').style.display = 'flex';
-        document.getElementById('type-input').setAttribute('type','number');
+        document.getElementById('type-input').setAttribute('type', 'text');
         document.getElementById('type-input').focus();
     } else {
         state.btnCount = parseInt(style);
-        document.getElementById('mc-area').style.display = 'grid';
+        document.getElementById('mc-area').style.display   = 'grid';
         document.getElementById('type-area').style.display = 'none';
         let grid = document.getElementById('mc-area');
         grid.className = 'mc-grid';
@@ -1108,258 +1207,282 @@ function applySettings() {
     }
 }
 
-function updateModeUI(m) {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('nav-'+m);
-    if (btn) btn.classList.add('active');
-
-    let label = m.toUpperCase();
-    if (m === 'context')  label = 'SENTENCES';
-    if (m === 'counting') label = 'COUNTING RULE';
-    if (m === 'translator') label = 'TRANSLATOR';
-    document.getElementById('mode-label').innerText = label;
-
-    ['range','prices','time','dates'].forEach(id => {
-        const el = document.getElementById('set-'+id);
-        if (el) el.style.display = 'none';
-    });
-
-    if (m === 'numbers' || m === 'context' || m === 'gender' || m === 'counting')
-        document.getElementById('set-range').style.display = 'block';
-    if (m === 'prices') {
-        document.getElementById('set-range').style.display = 'block';
-        document.getElementById('set-prices').style.display = 'block';
-    }
-    if (m === 'time')  document.getElementById('set-time').style.display = 'block';
-    if (m === 'dates') document.getElementById('set-dates').style.display = 'block';
-
-    const modBox = document.getElementById('modifiers-box');
-    if (modBox) modBox.style.display = m === 'numbers' ? 'block' : 'none';
-
-    document.getElementById('input-row').style.display =
-        (m === 'translator' || m === 'gender' || m === 'context' || m === 'counting') ? 'none' : 'flex';
-}
-
 function generateGrid() {
     const grid = document.getElementById('mc-area');
     grid.innerHTML = '';
-    const count = state.btnCount;
+    let count   = state.btnCount;
     let answers = [];
 
-    let showDigits = document.getElementById('btn-style-sel').value === 'digits'
-        && !['gender','context','counting'].includes(state.mode);
+    let style     = document.getElementById('btn-style-sel').value;
+    let showDigits = (style === 'digits') && (state.mode !== 'gender' && state.mode !== 'context');
 
-    // --- COUNTING RULE MODE ---
-    if (state.mode === 'counting') {
-        let noun = state.rawData.noun;
-        let target = state.rawData.num;
-        answers.push({ text: state.currentPL, val: target });
-
-        // Generate decoys with different numbers that test different forms
-        let safety = 0;
-        let testNums = [1,2,3,4,5,6,12,13,14,21,22,25];
-        while (answers.length < count && safety < 200) {
-            safety++;
-            let decoy = testNums[Math.floor(Math.random() * testNums.length)];
-            if (answers.some(a => a.val === decoy)) continue;
-            let form = getPlural(decoy, noun.word, noun.pl, noun.gen);
-            answers.push({ text: `${numToPl(decoy)} ${form}`, val: decoy });
-        }
-    }
-
-    // --- GENDER MODE ---
-    else if (state.mode === 'gender') {
+    // ── GENDER MODE ──────────────────────────────────────
+    if (state.mode === 'gender') {
         answers.push({ text: state.currentPL, val: state.rawData.num });
         let noun = state.rawData.noun;
         let safety = 0;
         while (answers.length < count && safety < 200) {
             safety++;
-            let decoy = Math.floor(Math.random() * 20) + 1;
+            let maxDecoy = (noun.logic === 'living') ? 20 : (noun.logic === 'bulk') ? 5000 : 100;
+            let decoy = Math.floor(Math.random() * maxDecoy) + 1;
             if (answers.some(a => a.val === decoy)) continue;
-            let ns = decoy === 1 ? (noun.form==='f'?'jedna':noun.form==='n'?'jedno':'jeden')
-                   : decoy === 2 && noun.form==='f' ? 'dwie' : numToPl(decoy);
-            answers.push({ text: `${ns} ${getPolishForm(decoy,noun)}`, val: decoy });
+            let numStr = decoy === 1 ? (noun.form === 'm' ? "jeden" : noun.form === 'f' ? "jedna" : "jedno")
+                       : (decoy === 2 && noun.form === 'f') ? "dwie" : numToPl(decoy);
+            let nounStr = getPolishForm(decoy, noun);
+            answers.push({ text: `${numStr} ${nounStr}`, val: decoy });
         }
     }
 
-    // --- CONTEXT MODE ---
+    // ── CONTEXT MODE ─────────────────────────────────────
     else if (state.mode === 'context') {
         answers.push({ text: state.speechText, val: state.rawData.val });
-        let g = GRAMMAR[state.rawData.key], target = state.rawData.val;
+        let g = GRAMMAR[state.rawData.key];
+        let target = state.rawData.val;
         let safety = 0;
         while (answers.length < count && safety < 200) {
             safety++;
             let range = Math.max(5, Math.ceil(target * 0.5));
-            let lo = Math.max(1, target - range);
-            let hi = Math.max(target + range, lo + count + 2);
-            let decoy = Math.floor(Math.random() * (hi - lo + 1)) + lo;
+            let dMin  = Math.max(1, target - range);
+            let dMax  = Math.max(target + range, dMin + count + 2);
+            let decoy = Math.floor(Math.random() * (dMax - dMin + 1)) + dMin;
             if (answers.some(a => a.val === decoy)) continue;
-            let word = getPlural(decoy, g.s, g.p, g.g);
+            let word   = getPlural(decoy, g.s, g.p, g.g);
             let phrase = g.phrase.replace('[N]', numToPl(decoy)).replace('[W]', word);
             answers.push({ text: phrase, val: decoy });
         }
     }
 
-    // --- ALL OTHER MODES ---
+    // ── ALL OTHER MODES ──────────────────────────────────
     else {
         let correctText = showDigits ? state.currentEN : state.currentPL;
         answers.push({ text: correctText, val: state.rawData });
-        let target = state.rawData;
-        let safety = 0;
-
-        // In campaign mode, pull decoys exclusively from the level's decoyPool
-        // so learners never see numbers outside their current level
-        const campLvl = state.isCampaign ? CAMPAIGN_LEVELS[state.campLevel - 1] : null;
+        let target  = state.rawData;
+        let safety  = 0;
 
         while (answers.length < count && safety < 200) {
             safety++;
-            let fakeVal = null;
-            let fakeText = '---';
+            let fakeVal  = null;
+            let fakeText = "---";
 
-            if (campLvl && typeof target === 'number') {
-                // Campaign: constrained decoy pool for this level
-                let attempts = 0;
-                do { fakeVal = campLvl.decoyPool(target); attempts++; }
-                while (fakeVal === target && attempts < 20);
-
-            } else if (typeof target === 'number') {
-                // Gym/manual: confusion pairs + neighbour logic
-                if (answers.length === 1) {
-                    if (target >= 100000)     fakeVal = target + (target % 100000 >= 40000 ? -10000 : 10000);
-                    else if (target >= 10000) fakeVal = target + (target % 10000 >= 4000 ? -1000 : 1000);
-                    else if (target >= 1000)  fakeVal = target + (target % 1000 >= 400 ? -100 : 100);
-                    else if (target >= 100)   fakeVal = target + (target % 100 >= 40 ? -10 : 10);
-                    else if (target >= 30 && target <= 49) fakeVal = target >= 40 ? target-10 : target+10;
-                    else if ([13,14,15,16,17,18,19].includes(target)) fakeVal = (target-10)*10;
-                    else if ([30,40,50,60,70,80,90].includes(target)) fakeVal = (target/10)+10;
-                    else if (target === 6) fakeVal = 7;
-                    else if (target === 7) fakeVal = 6;
-                }
-                if (fakeVal === null) {
-                    let range = Math.max(15, Math.ceil(Math.abs(target) * 0.4));
-                    let lo = Math.floor(target - range), hi = Math.ceil(target + range);
-                    if (!document.getElementById('negatives-toggle').checked && lo < 0) lo = 0;
-                    if (state.mode === 'prices') {
-                        let n = Math.floor(Math.random() * (hi-lo+1)) + lo;
-                        let gr = target%1 !== 0 ? Math.floor(Math.random()*99)+1 : 0;
-                        fakeVal = n + (gr/100);
-                    } else if (target % 1 !== 0) {
-                        fakeVal = parseFloat((Math.random()*(hi-lo)+lo).toFixed(1));
-                    } else {
-                        fakeVal = Math.floor(Math.random() * (hi-lo+1)) + lo;
-                    }
-                }
-            } else if (typeof target === 'object' && fakeVal === null) {
-                fakeVal = generateRawValue(1, 100, state.mode);
+            // Targeted confusion pair for integers
+            if (fakeVal === null && typeof target === 'number' && Number.isInteger(target)) {
+                let t = Math.abs(target);
+                if      (t >= 100000 && t < 1000000) fakeVal = target % 100000 >= 40000 ? target - 10000 : target + 10000;
+                else if (t >= 10000)                 fakeVal = target % 10000  >= 4000  ? target - 1000  : target + 1000;
+                else if (t >= 1000)                  fakeVal = target % 1000   >= 400   ? target - 100   : target + 100;
+                else if (t >= 100)                   fakeVal = target % 100    >= 40    ? target - 10    : target + 10;
+                else if (t >= 30 && t <= 49)         fakeVal = t >= 40 ? target - 10 : target + 10;
+                else if ([13,14,15,16,17,18,19].includes(t)) fakeVal = (t - 10) * 10 * Math.sign(target || 1);
+                else if ([30,40,50,60,70,80,90].includes(t)) fakeVal = (t / 10 + 10) * Math.sign(target || 1);
+                else if (t === 6) fakeVal = target < 0 ? -7 : 7;
+                else if (t === 7) fakeVal = target < 0 ? -6 : 6;
+                // Make sure confusion pair isn't already used
+                if (answers.some(a => JSON.stringify(a.val) === JSON.stringify(fakeVal))) fakeVal = null;
             }
 
+            // Fallback: random neighbour
+            if (fakeVal === null) {
+                if (state.mode === 'time') {
+                    fakeVal = generateRawValue(1, 100, 'time');
+                } else if (state.mode === 'dates') {
+                    fakeVal = generateRawValue(1, 100, 'dates');
+                } else if (state.mode === 'phone') {
+                    fakeVal = generateRawValue(1, 100, 'phone');
+                } else if (state.mode === 'ordinal') {
+                    let decoy = Math.floor(Math.random() * 20) + 1;
+                    fakeVal = decoy;
+                } else if (typeof target === 'number') {
+                    let range = Math.max(15, Math.ceil(Math.abs(target) * 0.4));
+                    let fMin  = Math.floor(target - range);
+                    let fMax  = Math.ceil(target + range);
+                    if (!document.getElementById('negatives-toggle').checked && fMin < 0) fMin = 0;
+                    if (state.mode === 'prices') {
+                        let gr = (target % 1 !== 0) ? Math.floor(Math.random() * 99) + 1 : 0;
+                        fakeVal = Math.floor(Math.random() * (fMax - fMin + 1)) + fMin + (gr / 100);
+                    } else if (target % 1 !== 0) {
+                        let places = parseInt(document.getElementById('decimal-places').value) || 1;
+                        fakeVal = parseFloat((Math.random() * (fMax - fMin) + fMin).toFixed(places));
+                    } else {
+                        fakeVal = Math.floor(Math.random() * (fMax - fMin + 1)) + fMin;
+                    }
+                } else {
+                    fakeVal = generateRawValue(1, 100, state.mode);
+                }
+            }
+
+            // Convert decoy to display text
             try {
                 if (fakeVal && fakeVal.type === 'fraction') {
-                    fakeText = showDigits
-                        ? (fakeVal.int>0?`${fakeVal.int} ${fakeVal.n}/${fakeVal.d}`:`${fakeVal.n}/${fakeVal.d}`)
-                        : (() => {
-                            let nt = fakeVal.n===1?'jedna':fakeVal.n===2?'dwie':numToPl(fakeVal.n);
-                            let da = FRACTIONS[fakeVal.d];
-                            let dt = getPlural(fakeVal.n,da[0],da[1],da[2]);
-                            return fakeVal.int>0?`${numToPl(fakeVal.int)} i ${nt} ${dt}`:`${nt} ${dt}`;
-                        })();
-                } else if (state.mode === 'prices') {
-                    let n=Math.floor(fakeVal), gr=Math.round((fakeVal%1)*100);
-                    fakeText = showDigits ? `${n},${gr.toString().padStart(2,'0')} zł`
-                        : n===0 ? `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`
-                        : gr===0 ? `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`
-                        : (() => { let g=numToPl(gr); if(gr<10)g='zero '+g; return `${numToPl(n)} ${g}`; })();
-                } else if (state.mode === 'ordinal') {
-                    fakeText = showDigits ? fakeVal+'.' : getOrdinalPL(fakeVal);
-                } else if (state.mode === 'phone') {
-                    fakeText = showDigits ? `${fakeVal.p1} ${fakeVal.p2} ${fakeVal.p3}`
-                        : `${numToPl(fakeVal.p1)}, ${numToPl(fakeVal.p2)}, ${numToPl(fakeVal.p3)}`;
-                } else if (state.mode === 'time') {
-                    fakeText = showDigits
-                        ? `${fakeVal.h.toString().padStart(2,'0')}:${fakeVal.m.toString().padStart(2,'0')}`
-                        : timeToPl(fakeVal.h, fakeVal.m, document.getElementById('time-style-sel').value==='formal');
-                } else if (state.mode === 'dates' && fakeVal && fakeVal.d) {
-                    const ordNom=["","pierwszy","drugi","trzeci","czwarty","piąty","szósty","siódmy","ósmy","dziewiąty","dziesiąty","jedenasty","dwunasty","trzynasty","czternasty","piętnasty","szesnasty","siedemnasty","osiemnasty","dziewiętnasty","dwudziesty","dwudziesty pierwszy","dwudziesty drugi","dwudziesty trzeci","dwudziesty czwarty","dwudziesty piąty","dwudziesty szósty","dwudziesty siódmy","dwudziesty ósmy","dwudziesty dziewiąty","trzydziesty","trzydziesty pierwszy"];
-                    fakeText = showDigits ? `${MONTHS_EN[fakeVal.m]} ${fakeVal.d}`
-                        : `${ordNom[fakeVal.d]||fakeVal.d} ${MONTHS_PL[fakeVal.m]}`;
-                } else if (typeof fakeVal === 'number') {
                     if (showDigits) {
-                        fakeText = Number.isInteger(fakeVal) ? fakeVal.toLocaleString() : fakeVal.toString().replace('.',',');
+                        fakeText = fakeVal.int > 0 ? `${fakeVal.int} ${fakeVal.n}/${fakeVal.d}` : `${fakeVal.n}/${fakeVal.d}`;
                     } else {
-                        if (!Number.isInteger(fakeVal)) {
-                            let s=fakeVal.toString(); if(!s.includes('.'))s+='.0';
-                            let p=s.split('.');
-                            fakeText=`${numToPl(parseInt(p[0]))} przecinek ${readDecimalPart(p[1])}`;
-                        } else {
-                            fakeText = numToPl(fakeVal);
-                        }
+                        let nt  = fakeVal.n === 1 ? "jedna" : fakeVal.n === 2 ? "dwie" : numToPl(fakeVal.n);
+                        let da  = FRACTIONS[fakeVal.d];
+                        let dt  = da ? getPlural(fakeVal.n, da[0], da[1], da[2]) : `/${fakeVal.d}`;
+                        fakeText = fakeVal.int > 0 ? `${numToPl(fakeVal.int)} i ${nt} ${dt}` : `${nt} ${dt}`;
+                    }
+                } else if (state.mode === 'prices' && typeof fakeVal === 'number') {
+                    let n  = Math.floor(fakeVal); let gr = Math.round((fakeVal % 1) * 100);
+                    if (showDigits) { fakeText = `${n},${gr.toString().padStart(2,'0')} zł`; }
+                    else if (n === 0) fakeText = `${numToPl(gr)} ${getPlural(gr,'grosz','grosze','groszy')}`;
+                    else if (gr === 0) fakeText = `${numToPl(n)} ${getPlural(n,'złoty','złote','złotych')}`;
+                    else { let gt = numToPl(gr); if (gr < 10) gt = "zero " + gt; fakeText = `${numToPl(n)} ${gt}`; }
+                } else if (state.mode === 'ordinal' && typeof fakeVal === 'number') {
+                    fakeText = showDigits ? fakeVal + "." : (ORDINAL_NOM[fakeVal] || fakeVal + ".");
+                } else if (state.mode === 'phone' && fakeVal && fakeVal.p1) {
+                    fakeText = showDigits
+                        ? `${fakeVal.p1} ${fakeVal.p2} ${fakeVal.p3}`
+                        : `${numToPl(fakeVal.p1)}, ${numToPl(fakeVal.p2)}, ${numToPl(fakeVal.p3)}`;
+                } else if (state.mode === 'time' && fakeVal && fakeVal.h !== undefined) {
+                    if (showDigits) fakeText = `${fakeVal.h.toString().padStart(2,'0')}:${fakeVal.m.toString().padStart(2,'0')}`;
+                    else { let sty = document.getElementById('time-style-sel').value; fakeText = timeToPl(fakeVal.h, fakeVal.m, sty === 'formal'); }
+                } else if (state.mode === 'dates' && fakeVal && fakeVal.d !== undefined) {
+                    if (showDigits) {
+                        let es = `${MONTHS_EN[fakeVal.m]} ${fakeVal.d}`;
+                        if (document.getElementById('year-toggle').checked) es += ` ${fakeVal.y}`;
+                        fakeText = es;
+                    } else {
+                        // Use Nominative for date decoys (safe default)
+                        let dt  = ORDINAL_NOM[fakeVal.d] || fakeVal.d.toString();
+                        let ps  = `${dt} ${MONTHS_PL[fakeVal.m]}`;
+                        if (document.getElementById('year-toggle').checked) ps += ` ${numToPl(fakeVal.y)} roku`;
+                        fakeText = ps;
+                    }
+                } else if (typeof fakeVal === 'number') {
+                    if (!Number.isInteger(fakeVal)) {
+                        if (showDigits) { fakeText = fakeVal.toString().replace('.', ','); }
+                        else { let s = fakeVal.toString(); let p = s.split('.'); fakeText = `${numToPl(parseInt(p[0]))} przecinek ${readDecimalPart(p[1] || '0')}`; }
+                    } else {
+                        fakeText = showDigits ? fakeVal.toLocaleString() : numToPl(fakeVal);
                     }
                 }
-            } catch(e) { fakeText = '---'; }
+            } catch (e) { console.warn("Grid decoy error:", e); fakeText = "---"; }
 
-            if (fakeText !== '---' && !answers.some(a => a.text === fakeText))
+            if (fakeText !== "---" && fakeText !== correctText && !answers.some(a => a.text === fakeText)) {
                 answers.push({ text: fakeText, val: fakeVal });
+            }
         }
     }
 
+    // Shuffle and render
     answers.sort(() => Math.random() - 0.5);
     answers.forEach((item, idx) => {
         const btn = document.createElement('button');
         btn.className = 'mc-btn';
-        btn.innerHTML = `<span class="mc-key-hint">${idx+1}</span>${item.text}`;
+        btn.innerHTML = `<span class="mc-key-hint">${idx + 1}</span>${item.text}`;
         btn.onclick = () => {
-            let correct = state.mode === 'context' ? state.speechText
-                        : state.mode === 'counting' ? state.currentPL
-                        : state.currentPL;
-            if (item.text === correct || item.text === state.currentEN) win(btn); else lose(btn);
+            if (state.solved) return;
+            let isCorrect = (item.text === state.currentPL || item.text === state.currentEN ||
+                             (state.mode === 'context' && item.text === state.speechText));
+            if (isCorrect) win(btn); else lose(btn);
         };
         grid.appendChild(btn);
     });
 }
 
-// ============================================================
-//  PART 11: WIN / LOSE
-// ============================================================
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 11: CHECKERS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function checkTyped() {
+    if (state.mode === 'translator') { runTranslator(); return; }
+    if (state.solved) return;
+    let val     = document.getElementById('type-input').value.trim().toLowerCase();
+    let correct = state.currentEN.toString().toLowerCase();
+    if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') ||
+        val.replace(/\s/g,'') === state.currentPL.toLowerCase().replace(/\s/g,'')) win(null);
+    else lose(null);
+}
+
+function checkVoiceAnswer(spoken) {
+    if (state.solved) return;
+    let clean = spoken.toLowerCase().trim().replace(/[.,!?]/g, '');
+    let target = state.mode === 'context' ? state.speechText.toLowerCase() : state.currentPL.toLowerCase();
+    let isCorrect = (clean === target) || (clean === state.currentEN.toLowerCase());
+    const fb = document.getElementById('voice-feedback');
+    if (isCorrect) {
+        fb.innerText = "✓ Correct! " + spoken; fb.style.color = "var(--secondary)";
+        win(document.getElementById('mic-btn'));
+    } else {
+        fb.innerText = "Heard: " + spoken; fb.style.color = "var(--error)";
+        document.getElementById('mic-btn').classList.add('wrong');
+        setTimeout(() => document.getElementById('mic-btn').classList.remove('wrong'), 500);
+    }
+}
+
+function toggleMic() {
+    if (!recognition) { alert("Voice input not supported in this browser."); return; }
+    if (isListening) recognition.stop(); else { initAudio(); recognition.start(); }
+}
+
+function runTranslator() {
+    let inputVal = document.getElementById('type-input').value;
+    if (!inputVal) return;
+    inputVal = inputVal.replace(',', '.');
+    let n = parseFloat(inputVal);
+    if (isNaN(n)) return;
+    let txt = "";
+    if (inputVal.includes('.')) {
+        let parts = inputVal.split('.');
+        if (!parts[1]) parts[1] = "0";
+        txt = `${numToPl(parseInt(parts[0]))} przecinek ${readDecimalPart(parts[1])}`;
+    } else {
+        txt = numToPl(n);
+    }
+    state.currentPL = txt;
+    const plBox = document.getElementById('pl-text');
+    plBox.innerText = txt; plBox.classList.add('visible');
+    const enBox = document.getElementById('en-text');
+    enBox.innerText = n.toLocaleString(); enBox.classList.add('visible');
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+        let u = new SpeechSynthesisUtterance(" " + txt);
+        u.lang = 'pl-PL'; window.speechSynthesis.speak(u);
+    }, 50);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 12: WIN / LOSE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 function win(btn) {
-    playSound('correct');
-    state.solved = true;
+    playSound('correct'); state.solved = true;
     let timeTaken = (Date.now() - state.startTime) / 1000;
     let score = 10;
 
     if (state.isReview) {
-        mistakes.shift();
-        localStorage.setItem('mistakes', JSON.stringify(mistakes));
-        score = 5;
+        mistakes.shift(); localStorage.setItem('mistakes', JSON.stringify(mistakes)); score = 5;
     } else {
-        if (typeof state.rawData === 'number' && state.rawData >= 1000) score += 2;
-        if (state.mode === 'context' || state.mode === 'counting') score += 5;
+        if (typeof state.rawData === 'number') {
+            let val = state.rawData;
+            if (!Number.isInteger(val)) score += 3;
+            if (Math.abs(val) >= 1000) score += 2;
+        }
+        if (state.mode === 'context') score += 5;
         if (timeTaken > 7 && timeTaken <= 20) {
-            mistakes.push({ mode:state.mode, val:state.currentPL, en:state.currentEN, reason:'Slow' });
+            mistakes.push({ mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Slow" });
             if (mistakes.length > 50) mistakes.shift();
             localStorage.setItem('mistakes', JSON.stringify(mistakes));
         }
     }
 
-    let timePenalty = timeTaken > 20 ? 0 : timeTaken > 13 ? 4 : timeTaken > 7 ? 2 : 0;
-    let speedBonus  = timeTaken < 3 ? 5 : 0;
+    // Time bonuses/penalties
     let audioPenalty = state.audioClicks * 2;
-    score = Math.max(1, score + speedBonus - timePenalty - audioPenalty);
+    let timePenalty  = 0;
+    if (timeTaken < 3)        score += 5;
+    else if (timeTaken <= 7)  timePenalty = 0;
+    else if (timeTaken <= 13) timePenalty = 2;
+    else if (timeTaken <= 20) timePenalty = 4;
+    else { score = 0; } // Distracted — no points
+    let totalPenalty = Math.min(audioPenalty + timePenalty, score - 1);
+    if (score > 0) score -= totalPenalty;
 
-    // XP split
-    if (state.isCampaign) {
-        state.campaignXP += score;
-        state.campCorrect++;
-        localStorage.setItem('campCorrect', state.campCorrect);
-        checkLevelUp();
-    } else {
-        state.practiceXP += score;
-    }
-
-    // Category stats
+    // Split XP
+    const isCamp = document.getElementById('campaign-toggle').checked;
+    if (isCamp) state.campaignXP += score; else state.practiceXP += score;
+    state.streak++;
     if (!categoryStats[state.mode]) categoryStats[state.mode] = 0;
     categoryStats[state.mode] += score;
-
-    state.streak++;
 
     // Daily goal
     if (!state.goalMet) {
@@ -1367,191 +1490,63 @@ function win(btn) {
         localStorage.setItem('dailyXP', state.dailyXP);
         if (state.dailyXP >= state.dailyGoal) {
             state.goalMet = true;
-            setTimeout(() => { fireConfetti(); document.getElementById('success-modal').style.display='flex'; }, 500);
+            setTimeout(() => { fireConfetti(); document.getElementById('success-modal').style.display = 'flex'; }, 500);
         }
     }
 
     saveAllStats();
+    updateSharedXP();
 
     // Score badge
     document.getElementById('badge-score').innerText = `+${score}`;
     document.getElementById('badge-score').style.display = 'block';
 
-    // Streak celebrations
-    if      (state.streak === 100) { fireConfetti(250); playFanfare(100); }
-    else if (state.streak === 50)  { fireConfetti(150); playFanfare(50); }
+    // Milestones
+    if (state.streak === 100) fireConfetti(250);
+    else if (state.streak === 50) fireConfetti(150);
     else if (state.streak % 10 === 0 || state.streak === 5) fireConfetti(40);
 
     if (state.streak === 50 || state.streak === 100) {
         const fb = document.getElementById('voice-feedback');
-        fb.innerText = `🏆 AMAZING! ${state.streak} STREAK!`;
-        fb.style.color = 'var(--rank-color)';
+        fb.innerText = `🏆 ${state.streak} STREAK! Niesamowite!`;
+        fb.style.color = "var(--rank-color)";
     }
 
-    // Reveal answer
     if (btn) btn.classList.add('correct');
-    else if (document.getElementById('type-input'))
-        document.getElementById('type-input').style.borderColor = 'var(--secondary)';
+    else if (document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "var(--secondary)";
 
-    const plBox = document.getElementById('pl-text');
-    const enBox = document.getElementById('en-text');
+    const plBox = document.getElementById('pl-text'); const enBox = document.getElementById('en-text');
     plBox.classList.add('visible'); enBox.classList.add('visible');
-    if (state.mode === 'context') {
-        enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText;
-    } else if (state.mode === 'counting' || state.mode === 'gender') {
-        plBox.innerText = state.currentPL; enBox.innerText = state.currentEN;
-    } else {
-        plBox.innerText = state.currentPL; enBox.innerText = state.currentEN;
-    }
+    if (state.mode === 'context') { enBox.innerText = state.currentEN; plBox.innerHTML = state.speechText; }
+    else { plBox.innerText = state.currentPL; enBox.innerText = state.currentEN; }
 
-    document.getElementById('main-btn').innerText = 'NEXT >>';
+    document.getElementById('main-btn').innerText = "NEXT ▶▶";
     document.getElementById('main-btn').classList.add('ready');
-
-    if (!state.handsfree) {
-        setTimeout(() => speak(1.0), 400);
-        autoNextTimer = setTimeout(generate, 3000);
-    }
+    if (!state.handsfree) { setTimeout(() => speak(1.0), 400); autoNextTimer = setTimeout(generate, 3000); }
     updateUI();
 }
 
 function lose(btn) {
-    playSound('wrong');
-    state.streak = 0;
-    state.wrongGuesses++;
-    mistakes.push({ mode:state.mode, val:state.currentPL, en:state.currentEN, reason:'Wrong' });
+    playSound('wrong'); state.streak = 0; state.wrongGuesses++;
+    mistakes.push({ mode: state.mode, val: state.currentPL, en: state.currentEN, reason: "Wrong" });
     if (mistakes.length > 50) mistakes.shift();
     localStorage.setItem('mistakes', JSON.stringify(mistakes));
-
     if (btn) btn.classList.add('wrong');
-    else if (document.getElementById('type-input'))
-        document.getElementById('type-input').style.borderColor = '#d93025';
-
+    else if (document.getElementById('type-input')) document.getElementById('type-input').style.borderColor = "#d93025";
     if (!state.handsfree) speak(1.0);
     updateUI();
 }
 
-// ============================================================
-//  PART 12: CHECKERS
-// ============================================================
-function checkTyped() {
-    if (state.mode === 'translator') { runTranslator(); return; }
-    if (state.solved) return;
-    let val     = document.getElementById('type-input').value.trim().toLowerCase();
-    let correct = state.currentEN.toString().toLowerCase();
-    if (val.replace(/\s/g,'') === correct.replace(/\s/g,'') || val === correct.replace(/,/g,'')) win(null); else lose(null);
-}
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 13: AUDIO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function checkVoiceAnswer(spoken) {
-    if (state.solved) return;
-    let raw = spoken.toLowerCase().trim();
-    let clean = raw.replace(/[.,!?]/g,'');
-    let target = ['context','counting'].includes(state.mode) ? state.speechText.toLowerCase() : state.currentPL.toLowerCase();
-    let ok = clean === target || clean == state.rawData;
-    if (ok) {
-        document.getElementById('voice-feedback').innerText = 'Correct! ' + clean;
-        document.getElementById('voice-feedback').style.color = 'var(--secondary)';
-        win(document.getElementById('mic-btn'));
-    } else {
-        document.getElementById('voice-feedback').innerText = 'Heard: ' + raw;
-        document.getElementById('voice-feedback').style.color = 'var(--error)';
-        document.getElementById('mic-btn').classList.add('wrong');
-        setTimeout(() => document.getElementById('mic-btn').classList.remove('wrong'), 500);
-    }
-}
-
-function toggleMic() {
-    if (!recognition) { alert('Voice input not supported.'); return; }
-    if (isListening) recognition.stop(); else { initAudio(); recognition.start(); }
-}
-
-function runTranslator() {
-    let inputVal = document.getElementById('type-input').value;
-    if (!inputVal) return;
-    inputVal = inputVal.replace(',','.');
-    let n = parseFloat(inputVal);
-    if (isNaN(n)) return;
-    let txt = inputVal.includes('.')
-        ? (() => { let p=inputVal.split('.'); if(!p[1])p[1]='0'; return `${numToPl(parseInt(p[0]))} przecinek ${readDecimalPart(p[1])}`; })()
-        : numToPl(n);
-    state.currentPL = txt;
-    const plBox = document.getElementById('pl-text');
-    plBox.innerText = txt; plBox.classList.add('visible');
-    document.getElementById('en-text').innerText = n.toLocaleString();
-    document.getElementById('en-text').classList.add('visible');
-    window.speechSynthesis.cancel();
-    setTimeout(() => {
-        let u = new SpeechSynthesisUtterance(' '+txt); u.lang='pl-PL';
-        window.speechSynthesis.speak(u);
-    }, 50);
-}
-
-// ============================================================
-//  PART 13: HANDSFREE
-// ============================================================
-function toggleHandsfree() {
-    state.handsfree = !state.handsfree;
-    const hfPage = document.getElementById('handsfree-page');
-    if (state.handsfree) {
-        hfPage.style.display = 'flex';
-        initAudio();
-        generateHandsfree();
-    } else {
-        hfPage.style.display = 'none';
-        if (autoNextTimer) clearTimeout(autoNextTimer);
-        window.speechSynthesis.cancel();
-        state.audioPlaying = false;
-        generate();
-    }
-}
-
-function generateHandsfree() {
-    if (!state.handsfree) return;
-    if (autoNextTimer) clearTimeout(autoNextTimer);
-    window.speechSynthesis.cancel();
-    state.audioPlaying = true;
-
-    let rawVal;
-    if (state.isCampaign) {
-        rawVal = CAMPAIGN_LEVELS[state.campLevel-1].generate();
-        state.mode = 'numbers';
-    } else {
-        let min = Math.pow(10, document.getElementById('minP').value);
-        let max = Math.pow(10, document.getElementById('maxP').value);
-        rawVal = generateRawValue(min, max, state.mode);
-    }
-
-    addToHistory(rawVal);
-    processValue(rawVal, state.mode);
-
-    let targetText = state.speechText || state.currentPL;
-    document.getElementById('hf-pl-text').innerHTML = targetText;
-    document.getElementById('hf-en-text').innerText = state.currentEN;
-
-    let u1 = Object.assign(new SpeechSynthesisUtterance(' '+targetText),       {lang:'pl-PL', rate:1.0});
-    let u2 = Object.assign(new SpeechSynthesisUtterance(' '+state.currentEN),  {lang:'en-US', rate:1.0});
-    let u3 = Object.assign(new SpeechSynthesisUtterance(' '+targetText),       {lang:'pl-PL', rate:0.5});
-    let u4 = Object.assign(new SpeechSynthesisUtterance(' '+targetText),       {lang:'pl-PL', rate:1.0});
-
-    const go   = (u) => { if (state.handsfree) window.speechSynthesis.speak(u); };
-    const next = ()  => { if (state.handsfree) { state.audioPlaying=false; autoNextTimer=setTimeout(generateHandsfree,3000); }};
-    u1.onend=()=>go(u2); u1.onerror=()=>go(u2);
-    u2.onend=()=>go(u3); u2.onerror=()=>go(u3);
-    u3.onend=()=>go(u4); u3.onerror=()=>go(u4);
-    u4.onend=next;       u4.onerror=next;
-    go(u1);
-}
-
-// ============================================================
-//  PART 14: AUDIO
-// ============================================================
 function initAudio() {
     if (!audioCtx) {
         const AC = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AC();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0;
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        gain.gain.value = 0; osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.01);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1559,7 +1554,7 @@ function initAudio() {
 
 function keepAudioAwake() {
     if (!audioCtx || audioCtx.state !== 'running') return;
-    const buf = audioCtx.createBuffer(1,1,22050);
+    const buf = audioCtx.createBuffer(1, 1, 22050);
     const src = audioCtx.createBufferSource();
     src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
 }
@@ -1567,23 +1562,23 @@ function keepAudioAwake() {
 function speak(rate) {
     if (!userInteracted) return;
     window.speechSynthesis.cancel();
+    state.audioClicks++;
     state.audioPlaying = true;
     const grid = document.getElementById('mc-area');
-    if (grid) { grid.style.pointerEvents='none'; grid.style.opacity='0.5'; }
+    if (grid) { grid.style.pointerEvents = 'none'; grid.style.opacity = '0.5'; }
     setTimeout(() => {
-        let txt = (state.mode==='context' && state.speechText) ? state.speechText : state.currentPL;
+        let txt = (state.mode === 'context' && state.speechText) ? state.speechText : state.currentPL;
         currentUtterance = new SpeechSynthesisUtterance(txt);
         currentUtterance.lang = 'pl-PL';
         currentUtterance.rate = rate;
-        const plVoice = window.speechSynthesis.getVoices().find(v=>v.lang.includes('pl')||v.lang.includes('PL'));
+        const voices = window.speechSynthesis.getVoices();
+        const plVoice = voices.find(v => v.lang.includes('pl') || v.lang.includes('PL'));
         if (plVoice) currentUtterance.voice = plVoice;
-        const done = () => {
+        currentUtterance.onend = currentUtterance.onerror = function() {
             state.audioPlaying = false;
-            if (grid) { grid.style.pointerEvents='auto'; grid.style.opacity='1'; }
+            if (grid) { grid.style.pointerEvents = 'auto'; grid.style.opacity = '1'; }
             currentUtterance = null;
         };
-        currentUtterance.onend = done;
-        currentUtterance.onerror = done;
         window.speechSynthesis.speak(currentUtterance);
     }, 250);
 }
@@ -1592,489 +1587,567 @@ function handleSpeakerClick() {
     speakerTaps++;
     if (speakerTapTimer) clearTimeout(speakerTapTimer);
     speakerTapTimer = setTimeout(() => {
-        let rate = speakerTaps===1?1.0:speakerTaps===2?0.5:0.25;
-        let msg = speakerTaps===2?'🐢 Slow (0.5x)':speakerTaps>=3?'🐢🐢 Very Slow (0.25x)':'';
+        let rate = 1.0, msg = "";
+        if      (speakerTaps === 2) { rate = 0.5;  msg = "🐢 Slow (0.5x)"; }
+        else if (speakerTaps >= 3)  { rate = 0.25; msg = "🐢🐢 Super Slow (0.25x)"; }
         if (msg) {
-            let fb=document.getElementById('voice-feedback'); fb.innerText=msg; fb.style.color='var(--primary)';
-            setTimeout(()=>{if(fb.innerText===msg)fb.innerText='';},1500);
+            let fb = document.getElementById('voice-feedback');
+            fb.innerText = msg; fb.style.color = "var(--primary)";
+            setTimeout(() => { if (fb.innerText === msg) fb.innerText = ""; }, 1500);
         }
-        speak(rate); speakerTaps=0;
-    },300);
+        speak(rate); speakerTaps = 0;
+    }, 300);
 }
 
 function playTone(freq, type, dur, vol) {
     initAudio();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
     gain.gain.setValueAtTime(0, audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime+0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
+    gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime+dur);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
 }
 
 function playSound(type) {
     initAudio();
     if (type === 'correct') {
-        const scale=[0,2,4,5,7,9,11,12,14,16];
-        let s=state.streak, step=s<5?s:(s%10);
-        let pm=Math.pow(1.059463, scale[step]||0);
-        playTone(523.25*pm,'sine',0.3,0.15);
-        setTimeout(()=>playTone(659.25*pm,'sine',0.4,0.15),100);
+        let s = state.streak;
+        let step = s < 5 ? s : (s >= 5 && s < 10 ? s - 5 : s % 10);
+        const majorScale = [0,2,4,5,7,9,11,12,14,16];
+        let pm = Math.pow(1.059463, majorScale[step] || 0);
+        playTone(523.25 * pm, 'sine', 0.3, 0.15);
+        setTimeout(() => playTone(659.25 * pm, 'sine', 0.4, 0.15), 100);
     } else {
-        playTone(150,'triangle',0.2,0.2);
-        setTimeout(()=>playTone(100,'triangle',0.3,0.2),80);
+        playTone(150, 'triangle', 0.2, 0.2);
+        setTimeout(() => playTone(100, 'triangle', 0.3, 0.2), 80);
     }
 }
 
-function playFanfare(milestone) {
-    initAudio();
-    const now=audioCtx.currentTime;
-    const notes=milestone===100?[523.25,659.25,783.99,1046.50]:[261.63,329.63,392.00,523.25];
-    notes.forEach((freq,i)=>{
-        const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
-        osc.type='triangle'; osc.frequency.setValueAtTime(freq, now+i*0.1);
-        gain.gain.setValueAtTime(0, now+i*0.1);
-        gain.gain.linearRampToValueAtTime(0.15, now+i*0.1+0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, now+i*0.1+0.5);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(now+i*0.1); osc.stop(now+i*0.1+0.5);
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 14: HANDSFREE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function toggleHandsfree() {
+    state.handsfree = !state.handsfree;
+    const hfPage = document.getElementById('handsfree-page');
+    if (state.handsfree) {
+        hfPage.style.display = 'flex'; initAudio(); generateHandsfree();
+    } else {
+        hfPage.style.display = 'none';
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        window.speechSynthesis.cancel(); state.audioPlaying = false;
+        generate();
+    }
+}
+
+function generateHandsfree() {
+    if (!state.handsfree) return;
+    if (autoNextTimer) clearTimeout(autoNextTimer);
+    window.speechSynthesis.cancel(); state.audioPlaying = true;
+
+    let min = 1, max = 100;
+    if (document.getElementById('campaign-toggle').checked) {
+        min = 1; max = [20, 100, 1000, 10000, 100000, 100000000][state.campLevel - 1] || 100;
+    } else {
+        min = Math.pow(10, parseInt(document.getElementById('minP').value));
+        max = Math.pow(10, parseInt(document.getElementById('maxP').value));
+    }
+
+    let newVal, safety = 0;
+    do { newVal = generateRawValue(min, max, state.mode); safety++; }
+    while (isRepeated(newVal) && safety < 15);
+    addToHistory(newVal);
+    processValue(newVal, state.mode);
+
+    let targetText = (state.mode === 'context') ? state.speechText : state.currentPL;
+    document.getElementById('hf-pl-text').innerHTML = targetText || "---";
+    document.getElementById('hf-en-text').innerText  = state.currentEN || "---";
+
+    let u1 = Object.assign(new SpeechSynthesisUtterance(" " + targetText), { lang: 'pl-PL', rate: 1.0 });
+    let u2 = Object.assign(new SpeechSynthesisUtterance(" " + state.currentEN), { lang: 'en-GB', rate: 1.0 });
+    let u3 = Object.assign(new SpeechSynthesisUtterance(" " + targetText), { lang: 'pl-PL', rate: 0.5 });
+    let u4 = Object.assign(new SpeechSynthesisUtterance(" " + targetText), { lang: 'pl-PL', rate: 1.0 });
+
+    const next = (u) => { if (state.handsfree) window.speechSynthesis.speak(u); };
+    const done = () => { if (state.handsfree) { state.audioPlaying = false; autoNextTimer = setTimeout(generateHandsfree, 3000); } };
+
+    u1.onend = u1.onerror = () => next(u2);
+    u2.onend = u2.onerror = () => next(u3);
+    u3.onend = u3.onerror = () => next(u4);
+    u4.onend = u4.onerror = done;
+
+    if (state.handsfree) window.speechSynthesis.speak(u1);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 15: UI MANAGEMENT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function updateModeUI(m) {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('nav-' + m);
+    if (btn) btn.classList.add('active');
+
+    let labels = { numbers:'NUMBERS', context:'SENTENCES', prices:'PRICES', time:'TIME', dates:'DATES', gender:'GENDER', ordinal:'ORDINALS', phone:'PHONE NOS', translator:'TRANSLATOR' };
+    document.getElementById('mode-label').innerText = labels[m] || m.toUpperCase();
+
+    ['range','prices','time','dates'].forEach(id => {
+        const el = document.getElementById('set-' + id);
+        if (el) el.style.display = 'none';
     });
+    if (m === 'numbers' || m === 'context' || m === 'gender' || m === 'ordinal' || m === 'phone') document.getElementById('set-range').style.display = 'block';
+    if (m === 'prices')  { document.getElementById('set-range').style.display = 'block'; document.getElementById('set-prices').style.display = 'block'; }
+    if (m === 'time')    document.getElementById('set-time').style.display  = 'block';
+    if (m === 'dates')   document.getElementById('set-dates').style.display = 'block';
+
+    const modBox = document.getElementById('modifiers-box');
+    if (modBox) modBox.style.display = (m === 'numbers') ? 'block' : 'none';
+
+    const inputRow = document.getElementById('input-row');
+    if (inputRow) inputRow.style.display = (m === 'translator' || m === 'gender' || m === 'context') ? 'none' : 'flex';
 }
 
-// ============================================================
-//  PART 15: HELPERS
-// ============================================================
-function numToPl(n) {
-    if (isNaN(n)) return '...';
-    if (n === 0) return 'zero';
-    if (n < 0)   return 'minus ' + numToPl(Math.abs(n));
-    let s = '';
-    if (n >= 1000000) { let m=Math.floor(n/1000000); s+=(m===1?'':numToPl(m)+' ')+getPlural(m,'milion','miliony','milionów')+' '; n%=1000000; }
-    if (n >= 1000)    { let t=Math.floor(n/1000); s+=(t===1?'tysiąc':numToPl(t)+' '+getPlural(t,'tysiąc','tysiące','tysięcy'))+' '; n%=1000; }
-    if (n >= 100) { s+=HUNDREDS[Math.floor(n/100)]+' '; n%=100; }
-    if (n >= 20)  { s+=TENS[Math.floor(n/10)]+' '; n%=10; }
-    if (n >= 10)  { s+=TEENS[n-10]+' '; n=0; }
-    if (n > 0)    s+=UNITS[n];
-    return s.trim();
+function selectMode(m) { state.mode = m; updateModeUI(m); }
+
+function switchMode(m) {
+    state.mode = m; state.history = []; state.handsfree = false;
+    document.getElementById('hf-btn').classList.remove('active');
+    document.getElementById('badge-handsfree').style.display = 'none';
+    updateModeUI(m); generate();
 }
 
-function getPlural(n, s, pa, pb) {
-    n = Math.abs(n);
-    if (n === 1) return s;
-    let r10=n%10, r100=n%100;
-    if (r10>=2 && r10<=4 && (r100<10||r100>20)) return pa;
-    return pb;
+function toggleSettings() { let d = document.getElementById('settings-modal'); d.style.display = (d.style.display === 'flex') ? 'none' : 'flex'; }
+function toggleHelp()     { let d = document.getElementById('help-modal');     if (d.style.display === 'flex') { d.style.display = 'none'; } else { d.style.display = 'flex'; renderStats(); } }
+
+function setHelpTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const content = document.getElementById('tab-' + tabName);
+    if (content) content.classList.add('active');
+    const dd = document.getElementById('help-nav-dropdown');
+    if (dd) dd.value = tabName;
+    if (tabName === 'progress') renderStats();
 }
 
-function getPolishForm(n, noun) {
-    if (n===1) return noun.word;
-    let r10=n%10, r100=n%100;
-    if (r10>=2&&r10<=4&&(r100<10||r100>20)) return noun.pl;
-    return noun.gen;
-}
+function toggleDecimals()  { document.getElementById('decimal-opts').style.display  = document.getElementById('decimal-toggle').checked  ? 'flex' : 'none'; }
+function toggleFractions() { document.getElementById('fraction-opts').style.display = document.getElementById('fractions-toggle').checked ? 'flex' : 'none'; }
 
-function updateGrammarBadge(n) {
-    const el = document.getElementById('grammar-badge');
-    if (!el) return;
-    let r10=n%10, r100=n%100;
-    if (n===1)                                             el.innerText='Rule: 1 → Singular';
-    else if (r10>=2&&r10<=4&&(r100<10||r100>20))          el.innerText='Rule: 2–4 → Nom. Plural';
-    else                                                   el.innerText='Rule: 5+ → Gen. Plural';
-}
-
-function timeToPl(h, m, formal) {
-    if (formal) {
-        let hStr = h===0?'zero zero':HOURS_ORD_FEM[h];
-        let mStr = m===0?'':m<10?'zero '+UNITS[m]:numToPl(m);
-        return `${hStr} ${mStr}`.trim();
-    }
-    let d=h%12;
-    let hNext=HOURS_ORD_GEN[(d===0?0:d)+1];
-    if((d===0?0:d)+1>=HOURS_ORD_GEN.length) hNext=HOURS_ORD_GEN[1];
-    if (m===0)  return HOURS_ORD_FEM[d===0?12:d];
-    if (m===30) return `wpół do ${hNext}`;
-    if (m<30)   return `${numToPl(m)} po ${HOURS_ORD_GEN[d===0?12:d]}`;
-    return `za ${numToPl(60-m)} ${hNext}`;
-}
-
-function getOrdinalPL(n) {
-    const o={1:'pierwszy',2:'drugi',3:'trzeci',4:'czwarty',5:'piąty',6:'szósty',7:'siódmy',8:'ósmy',9:'dziewiąty',10:'dziesiąty',11:'jedenasty',12:'dwunasty',13:'trzynasty',14:'czternasty',15:'piętnasty',16:'szesnasty',17:'siedemnasty',18:'osiemnasty',19:'dziewiętnasty',20:'dwudziesty'};
-    return o[n]||n+'.';
-}
-
-function readDecimalPart(str) { return str.split('').map(d=>numToPl(parseInt(d))).join(' '); }
-function addToHistory(v)  { state.history.push(v); if(state.history.length>5) state.history.shift(); }
-function isRepeated(v)    { return state.history.some(h=>JSON.stringify(h)===JSON.stringify(v)); }
-
-// ============================================================
-//  PART 16: SETTINGS / UI HELPERS
-// ============================================================
-function toggleSettings() {
-    let d=document.getElementById('settings-modal');
-    d.style.display = d.style.display==='flex' ? 'none' : 'flex';
-}
-function toggleHelp() {
-    let d=document.getElementById('help-modal');
-    if (d.style.display==='flex') d.style.display='none';
-    else { d.style.display='flex'; renderStats(); }
-}
-function setHelpTab(name) {
-    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-    const c=document.getElementById('tab-'+name);
-    if (c) c.classList.add('active');
-    document.getElementById('help-nav-dropdown').value=name;
-    if (name==='progress') renderStats();
-}
-function toggleDecimals() {
-    document.getElementById('decimal-opts').style.display =
-        document.getElementById('decimal-toggle').checked?'flex':'none';
-}
-function toggleFractions() {
-    document.getElementById('fraction-opts').style.display =
-        document.getElementById('fractions-toggle').checked?'flex':'none';
-}
-function savePrefs() {
-    const minP=document.getElementById('minP'), maxP=document.getElementById('maxP');
-    if (minP) localStorage.setItem('minP',minP.value);
-    if (maxP) localStorage.setItem('maxP',maxP.value);
-    const bs=document.getElementById('btn-style-sel');
-    if (bs) localStorage.setItem('btnStyle',bs.value);
-}
-function saveAndGenerate() { savePrefs(); toggleSettings(); generate(); }
 function updateRange() {
-    let min=document.getElementById('minP').value, max=document.getElementById('maxP').value;
-    if (parseInt(max)<=parseInt(min)) { max=parseInt(min)+1; document.getElementById('maxP').value=max; }
-    document.getElementById('lbl-min').innerText=Math.pow(10,min).toLocaleString();
-    document.getElementById('lbl-max').innerText=Math.pow(10,max).toLocaleString();
+    let minV = parseInt(document.getElementById('minP').value);
+    let maxV = parseInt(document.getElementById('maxP').value);
+    if (maxV <= minV) { maxV = minV + 1; document.getElementById('maxP').value = maxV; }
+    document.getElementById('lbl-min').innerText = Math.pow(10, minV).toLocaleString();
+    document.getElementById('lbl-max').innerText = Math.pow(10, maxV).toLocaleString();
 }
+
 function applyTheme() {
-    const t=document.getElementById('theme-select').value;
-    document.body.className='';
-    if (t==='dark')  document.body.classList.add('force-dark');
-    if (t==='light') document.body.classList.add('force-light');
+    const t = document.getElementById('theme-select').value;
+    document.body.className = '';
+    if (t === 'dark')  document.body.classList.add('force-dark');
+    if (t === 'light') document.body.classList.add('force-light');
 }
+
+function updateUI() {
+    let campTitle = RANKS[0].name;
+    for (let i = RANKS.length - 1; i >= 0; i--) { if (state.campaignXP >= RANKS[i].limit) { campTitle = RANKS[i].name; break; } }
+    let pracTitle = PRACTICE_RANKS[0].name;
+    for (let i = PRACTICE_RANKS.length - 1; i >= 0; i--) { if (state.practiceXP >= PRACTICE_RANKS[i].limit) { pracTitle = PRACTICE_RANKS[i].name; break; } }
+
+    const isCamp = document.getElementById('campaign-toggle') ? document.getElementById('campaign-toggle').checked : false;
+    const xpBox  = document.querySelector('.stat-item[title="XP"]');
+    const rankEl = document.getElementById('rank-display');
+
+    if (isCamp) {
+        if (xpBox)  xpBox.innerHTML   = `⭐ <span id="xp-display">${state.campaignXP.toLocaleString()}</span>`;
+        if (rankEl) rankEl.innerText  = campTitle.split(' (')[0];
+    } else {
+        if (xpBox)  xpBox.innerHTML   = `🏋️ <span id="xp-display">${state.practiceXP.toLocaleString()}</span>`;
+        if (rankEl) rankEl.innerText  = pracTitle.split(' (')[0];
+    }
+
+    const streakBox = document.querySelector('.stat-item[title="Streak"]');
+    if (streakBox) streakBox.innerHTML = `🔥 <span id="streak-display">${state.streak}</span>`;
+
+    const dailyEl = document.getElementById('daily-display');
+    if (dailyEl) {
+        dailyEl.innerHTML = state.goalMet
+            ? `<span style="color:var(--secondary)">Done! ✔️</span>`
+            : `${state.dailyXP}/${state.dailyGoal}`;
+    }
+
+    updateSharedXP();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// PART 16: STATS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function renderStats() {
+    const c = document.getElementById('stats-container');
+    c.innerHTML = '';
+
+    let currentRank = RANKS[0], nextRank = RANKS[1];
+    for (let i = 0; i < RANKS.length; i++) {
+        if (state.campaignXP >= RANKS[i].limit) { currentRank = RANKS[i]; nextRank = RANKS[i+1] || null; }
+    }
+    let pracTitle = PRACTICE_RANKS[0].name;
+    for (let i = PRACTICE_RANKS.length - 1; i >= 0; i--) { if (state.practiceXP >= PRACTICE_RANKS[i].limit) { pracTitle = PRACTICE_RANKS[i].name; break; } }
+    let totalXP = state.campaignXP + state.practiceXP;
+    let globalLevel = Math.floor(totalXP / 1000) + 1;
+
+    let progressHTML = '';
+    if (nextRank) {
+        let range = nextRank.limit - currentRank.limit;
+        let current = state.campaignXP - currentRank.limit;
+        let pct = Math.max(5, Math.floor((current / range) * 100));
+        progressHTML = `
+            <div style="margin-top:15px; display:flex; justify-content:space-between; font-size:0.8rem; color:#666;">
+                <span>${currentRank.name.split('(')[0]}</span>
+                <span>Next: ${nextRank.name.split('(')[0]}</span>
+            </div>
+            <div style="background:#eee; height:10px; border-radius:5px; overflow:hidden; margin-top:5px;">
+                <div style="width:${pct}%; background:var(--primary); height:100%; transition:width 0.5s;"></div>
+            </div>
+            <div style="text-align:right; font-size:0.75rem; color:#999; margin-top:2px;">${current}/${range} XP to promote</div>`;
+    } else {
+        progressHTML = `<div style="margin:10px 0; color:gold; font-weight:bold;">🏆 Maximum Rank Achieved!</div>`;
+    }
+
+    c.innerHTML += `
+        <div style="text-align:center; padding:20px; border-bottom:1px solid #eee;">
+            <div style="display:inline-block; background:#333; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold; margin-bottom:10px;">PLAYER LEVEL ${globalLevel}</div>
+            <div style="font-size:1.4rem; font-weight:bold; color:var(--text); margin-bottom:5px;">${currentRank.name.split('(')[0]}</div>
+            <div style="font-size:0.9rem; color:#888; margin-bottom:20px;">${pracTitle} (Practice)</div>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1; background:#fff8e1; padding:15px 5px; border-radius:12px; border:1px solid #ffe082;">
+                    <div style="font-size:0.75rem; color:#f57f17; font-weight:bold;">CAMPAIGN</div>
+                    <div style="font-size:1.5rem; font-weight:bold; color:#f57f17;">${state.campaignXP.toLocaleString()}</div>
+                </div>
+                <div style="flex:1; background:#e8f0fe; padding:15px 5px; border-radius:12px; border:1px solid #d2e3fc;">
+                    <div style="font-size:0.75rem; color:#1967d2; font-weight:bold;">PRACTICE</div>
+                    <div style="font-size:1.5rem; font-weight:bold; color:#1967d2;">${state.practiceXP.toLocaleString()}</div>
+                </div>
+                <div style="flex:1; background:#fce4ec; padding:15px 5px; border-radius:12px; border:1px solid #f8bbd0;">
+                    <div style="font-size:0.75rem; color:#c62828; font-weight:bold;">SUITE TOTAL</div>
+                    <div style="font-size:1.5rem; font-weight:bold; color:#c62828;">${parseInt(localStorage.getItem('polishSuiteXP')||0).toLocaleString()}</div>
+                </div>
+            </div>
+            ${progressHTML}
+        </div>`;
+
+    if (mistakes.length > 0) {
+        let html = `<div style="margin-top:20px;"><h3 style="color:#d93025; border-bottom:2px solid #fce8e6; padding-bottom:5px;">⚠️ Recent Mistakes</h3>`;
+        mistakes.slice().reverse().slice(0,5).forEach(m => {
+            html += `<div style="background:var(--callout-bg-red); padding:10px; margin-bottom:8px; border-radius:8px; border-left:4px solid #d93025;">
+                <div style="font-weight:bold; color:var(--text);">${m.val}</div>
+                <div style="font-size:0.9rem; color:#555;">${m.en}</div>
+                <div style="font-size:0.8rem; color:#d93025; margin-top:2px;">${m.reason || "Wrong"}</div>
+            </div>`;
+        });
+        html += `</div>`;
+        c.innerHTML += html;
+    }
+
+    let catsHTML = `<div style="margin-top:20px;"><h3 style="border-bottom:2px solid #eee; padding-bottom:5px;">📊 Topic Mastery</h3>`;
+    const modeLabels = { numbers:'Numbers', context:'Sentences', prices:'Prices', dates:'Dates', time:'Time', gender:'Gender', ordinal:'Ordinals', phone:'Phone Nos' };
+    for (const [key, val] of Object.entries(categoryStats)) {
+        if (val === 0 || !modeLabels[key]) continue;
+        let lvl = Math.floor(val / 1000) + 1;
+        catsHTML += `
+            <div style="display:flex; justify-content:space-between; margin:10px 0 4px; font-size:0.9rem;">
+                <span>${modeLabels[key]} <span style="color:#aaa;">(Lvl ${lvl})</span></span>
+                <span>${val} pts</span>
+            </div>
+            <div style="background:#eee; height:6px; border-radius:3px; overflow:hidden;">
+                <div style="width:${Math.min(100, (val % 1000)/10)}%; background:var(--secondary); height:100%;"></div>
+            </div>`;
+    }
+    catsHTML += `</div>`;
+    c.innerHTML += catsHTML;
+
+    // Suite links in stats
+    c.innerHTML += `
+        <div style="margin-top:25px; padding:15px; background:var(--bg); border-radius:12px; border:1px solid var(--border);">
+            <h3 style="margin:0 0 12px; font-size:0.95rem; color:var(--primary);">🔗 Continue Learning</h3>
+            <a href="https://newbroman.github.io/Polishdate2/" target="_blank" style="display:block; padding:10px; margin-bottom:8px; background:var(--card); border-radius:8px; border:1px solid var(--border); text-decoration:none; color:var(--text); font-weight:600;">📅 Polish Date Master — Calendar & Appointments</a>
+            <a href="https://newbroman.github.io/Polish-clock/" target="_blank" style="display:block; padding:10px; background:var(--card); border-radius:8px; border:1px solid var(--border); text-decoration:none; color:var(--text); font-weight:600;">🕒 Polish Clock — Tell the Time</a>
+        </div>`;
+}
+
 function saveAllStats() {
     localStorage.setItem('campaignXP', state.campaignXP);
     localStorage.setItem('practiceXP', state.practiceXP);
     localStorage.setItem('catStats', JSON.stringify(categoryStats));
 }
+
 function startReview() {
-    if (mistakes.length===0) { alert('No mistakes to review!'); return; }
-    state.isReview=true; toggleHelp(); generate();
+    if (mistakes.length === 0) { alert("Świetnie! No mistakes to review."); return; }
+    state.isReview = true; toggleHelp(); generate();
 }
+
 function clearMistakes() {
-    if (confirm("Clear mistakes list?")) { localStorage.setItem('mistakes','[]'); mistakes=[]; renderStats(); }
+    if (confirm("Clear your mistakes list?")) { localStorage.setItem('mistakes', "[]"); mistakes = []; renderStats(); }
 }
+
 function resetProgress() {
-    if (confirm("Reset all progress?")) { localStorage.clear(); location.reload(); }
+    if (confirm("Reset ALL progress? This cannot be undone.")) { localStorage.clear(); location.reload(); }
 }
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-}
-function fireConfetti(amount=40) {
-    const colors=['#fbbc04','#ea4335','#34a853','#4285f4'];
-    for (let i=0;i<amount;i++) {
-        const c=document.createElement('div');
-        c.className='confetti';
-        c.style.left=Math.random()*100+'vw';
-        c.style.background=colors[Math.floor(Math.random()*colors.length)];
-        c.style.animationDuration=(Math.random()*3+2)+'s';
-        c.style.opacity=Math.random();
+function fireConfetti(amount = 40) {
+    const colors = ['#fbbc04','#ea4335','#34a853','#4285f4','#dc143c','#ffffff'];
+    for (let i = 0; i < amount; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        c.style.opacity = Math.random();
+        c.style.width  = (Math.random() * 8 + 5) + 'px';
+        c.style.height = (Math.random() * 8 + 5) + 'px';
         document.body.appendChild(c);
-        setTimeout(()=>c.remove(),5000);
+        setTimeout(() => c.remove(), 5000);
     }
 }
 
-function updateUI() {
-    // XP rank
-    let campTitle=RANKS[0].name;
-    for (let i=RANKS.length-1;i>=0;i--) { if(state.campaignXP>=RANKS[i].limit){campTitle=RANKS[i].name;break;} }
-    let pracTitle=PRACTICE_RANKS[0].name;
-    for (let i=PRACTICE_RANKS.length-1;i>=0;i--) { if(state.practiceXP>=PRACTICE_RANKS[i].limit){pracTitle=PRACTICE_RANKS[i].name;break;} }
-
-    const xpBox   = document.querySelector('.stat-item[title="XP"]');
-    const rankEl  = document.getElementById('rank-display');
-    if (state.isCampaign) {
-        if (xpBox) xpBox.innerHTML=`⭐ <span id="xp-display">${state.campaignXP}</span>`;
-        if (rankEl) rankEl.innerText=campTitle;
-    } else {
-        if (xpBox) xpBox.innerHTML=`🏋️ <span id="xp-display">${state.practiceXP}</span>`;
-        if (rankEl) rankEl.innerText=pracTitle;
-    }
-
-    const streakBox=document.querySelector('.stat-item[title="Streak"]');
-    if (streakBox) streakBox.innerHTML=`🔥 <span id="streak-display">${state.streak}</span>`;
-
-    const dailyEl=document.getElementById('daily-display');
-    if (dailyEl) {
-        if (state.goalMet) dailyEl.innerHTML=`<span style="color:var(--secondary)">Done! ✔️</span>`;
-        else dailyEl.innerText=`${state.dailyXP}/${state.dailyGoal}`;
-    }
-
-    updateLevelDisplay();
-}
-
-function renderStats() {
-    const c=document.getElementById('stats-container');
-    c.innerHTML='';
-
-    let campRank=RANKS[0], nextRank=RANKS[1];
-    for (let i=0;i<RANKS.length;i++) { if(state.campaignXP>=RANKS[i].limit){campRank=RANKS[i];nextRank=RANKS[i+1]||null;} }
-    let pracTitle=PRACTICE_RANKS[0].name;
-    for (let i=PRACTICE_RANKS.length-1;i>=0;i--) { if(state.practiceXP>=PRACTICE_RANKS[i].limit){pracTitle=PRACTICE_RANKS[i].name;break;} }
-
-    let totalXP=state.campaignXP+state.practiceXP;
-    let progHTML='';
-    if (nextRank) {
-        let range=nextRank.limit-campRank.limit, cur=state.campaignXP-campRank.limit;
-        let pct=Math.max(5,Math.floor((cur/range)*100));
-        progHTML=`<div style="margin-top:15px; display:flex; justify-content:space-between; font-size:0.8rem; color:#666;"><span>${campRank.name}</span><span>Next: ${nextRank.name}</span></div>
-        <div style="background:#eee;height:10px;border-radius:5px;overflow:hidden;margin-top:5px;"><div style="width:${pct}%;background:var(--primary);height:100%;"></div></div>
-        <div style="text-align:right;font-size:0.75rem;color:#999;margin-top:2px;">${cur}/${range} XP to promote</div>`;
-    } else {
-        progHTML=`<div style="margin:10px 0;color:gold;font-weight:bold;">🏆 Maximum Rank Achieved!</div>`;
-    }
-
-    // Campaign level progress
-    const lvl=CAMPAIGN_LEVELS[state.campLevel-1];
-    let campLvlPct=Math.min(100,Math.floor((state.campCorrect/lvl.passTarget)*100));
-
-    c.innerHTML+=`
-        <div style="text-align:center;padding:20px;border-bottom:1px solid #eee;">
-            <div style="display:inline-block;background:#333;color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;margin-bottom:10px;">
-                CAMPAIGN LEVEL ${state.campLevel}/8 — ${lvl.name}
-            </div>
-            <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;text-align:left;">
-                <div style="font-size:0.75rem;color:#888;margin-bottom:4px;">Progress to Level ${Math.min(8,state.campLevel+1)}</div>
-                <div style="background:#eee;height:8px;border-radius:4px;overflow:hidden;">
-                    <div style="width:${campLvlPct}%;background:var(--secondary);height:100%;"></div>
-                </div>
-                <div style="font-size:0.75rem;color:#888;margin-top:4px;">${state.campCorrect} / ${lvl.passTarget} correct</div>
-            </div>
-            <div style="font-size:1.3rem;font-weight:bold;color:var(--text);margin-bottom:15px;">${campRank.name} <span style="font-size:0.9rem;color:#888;font-weight:normal;">(${pracTitle} in Gym)</span></div>
-            <div style="display:flex;gap:10px;margin-bottom:15px;">
-                <div style="flex:1;background:#fff8e1;padding:15px 5px;border-radius:12px;border:1px solid #ffe082;text-align:center;">
-                    <div style="font-size:0.7rem;color:#f57f17;font-weight:bold;">CAMPAIGN XP</div>
-                    <div style="font-size:1.4rem;font-weight:bold;color:#f57f17;">${state.campaignXP}</div>
-                </div>
-                <div style="flex:1;background:#e8f0fe;padding:15px 5px;border-radius:12px;border:1px solid #d2e3fc;text-align:center;">
-                    <div style="font-size:0.7rem;color:#1967d2;font-weight:bold;">GYM XP</div>
-                    <div style="font-size:1.4rem;font-weight:bold;color:#1967d2;">${state.practiceXP}</div>
-                </div>
-            </div>
-            <div style="font-size:0.85rem;color:#666;margin-bottom:10px;">Total XP: <strong>${totalXP}</strong></div>
-            ${progHTML}
-        </div>`;
-
-    if (mistakes.length>0) {
-        let html=`<div style="margin-top:20px;"><div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #fce8e6;padding-bottom:5px;margin-bottom:10px;">
-            <h3 style="color:#d93025;margin:0;">⚠️ Recent Mistakes</h3>
-            <button onclick="startReview()" style="background:var(--error);color:white;border:none;padding:6px 12px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:0.8rem;">📋 Review</button>
-        </div>`;
-        mistakes.slice().reverse().slice(0,5).forEach(m=>{
-            html+=`<div style="background:#fff0f0;padding:10px;margin-bottom:8px;border-radius:8px;border-left:4px solid #d93025;">
-                <div style="font-weight:bold;color:#333;">${m.val}</div>
-                <div style="font-size:0.9rem;color:#555;">${m.en}</div>
-                <div style="font-size:0.8rem;color:#d93025;margin-top:2px;">${m.reason||'Wrong'}</div>
-            </div>`;
-        });
-        html+=`<button onclick="clearMistakes()" class="btn-review" style="background:#eee;color:#555;">🗑 Clear Mistakes</button></div>`;
-        c.innerHTML+=html;
-    }
-
-    let catsHTML=`<div style="margin-top:20px;"><h3 style="border-bottom:2px solid #eee;padding-bottom:5px;">📊 Gym Topic Mastery</h3>`;
-    let hasAny=false;
-    for (const [key,val] of Object.entries(categoryStats)) {
-        if (!val||key==='dictation') continue;
-        hasAny=true;
-        let label=key==='context'?'SENTENCES':key==='counting'?'COUNTING RULE':key.toUpperCase();
-        let lvlN=Math.floor(val/1000)+1;
-        catsHTML+=`<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.9rem;margin-top:10px;">
-            <span>${label} <span style="color:#aaa;">(Lvl ${lvlN})</span></span><span>${val} pts</span></div>
-            <div style="background:#eee;height:6px;border-radius:3px;">
-                <div style="width:${Math.min(100,(val%1000)/10)}%;background:var(--secondary);height:100%;"></div>
-            </div>`;
-    }
-    if (!hasAny) catsHTML+=`<p style="color:#aaa;font-size:0.85rem;">No gym sessions yet.</p>`;
-    catsHTML+=`</div><button onclick="resetProgress()" class="btn-review" style="margin-top:20px;background:#fce8e6;color:#d93025;">⚠️ Reset All Progress</button>`;
-    c.innerHTML+=catsHTML;
-}
+// Service Worker
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════
+     STYLES
+═══════════════════════════════════════════════════════════ -->
 <style>
 :root {
-    --primary:#1a73e8; --secondary:#34a853; --bg:#f8f9fa; --card:#ffffff;
-    --text:#202124; --border:#dadce0; --error:#d93025; --rank-color:#fbbc04;
-    --callout-bg-blue:#f0f7ff; --callout-border-blue:#cce5ff; --callout-text-blue:#0056b3;
-    --callout-bg-red:#fcf4f4; --callout-border-red:#f8d7da; --callout-text-red:#721c24;
-    --callout-bg-orange:#fff3e0; --callout-border-orange:#ffe0b2; --callout-text-orange:#e65100;
+    --primary: #1a73e8;
+    --secondary: #34a853;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #202124;
+    --border: #dadce0;
+    --error: #d93025;
+    --rank-color: #fbbc04;
+    --hub-h: 42px;
+    --header-h: 50px;
+    --callout-bg-blue:   #f0f7ff; --callout-border-blue:   #cce5ff; --callout-text-blue:   #0056b3;
+    --callout-bg-red:    #fcf4f4; --callout-border-red:    #f8d7da; --callout-text-red:    #721c24;
+    --callout-bg-orange: #fff3e0; --callout-border-orange: #ffe0b2; --callout-text-orange: #e65100;
 }
-@media (prefers-color-scheme:dark) {
-    :root { --primary:#8ab4f8;--secondary:#81c995;--bg:#121212;--card:#1e1e1e;--text:#e8eaed;--border:#3c4043;--error:#f28b82;--rank-color:#fdd663;
-        --callout-bg-blue:#0d1b2a;--callout-border-blue:#1b3a57;--callout-text-blue:#a3cfbb;
-        --callout-bg-red:#2d1616;--callout-border-red:#5c2b2b;--callout-text-red:#f8d7da;
-        --callout-bg-orange:#2b1b0a;--callout-border-orange:#52361b;--callout-text-orange:#ffcc80; }
-}
-body.force-dark  { --primary:#8ab4f8;--secondary:#81c995;--bg:#121212;--card:#1e1e1e;--text:#e8eaed;--border:#3c4043;--error:#f28b82;--rank-color:#fdd663; }
-body.force-light { --primary:#1a73e8;--secondary:#34a853;--bg:#f8f9fa;--card:#ffffff;--text:#202124;--border:#dadce0;--error:#d93025;--rank-color:#fbbc04; }
 
-*  { box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e;
+        --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663;
+        --callout-bg-blue:   #0d1b2a; --callout-border-blue:   #1b3a57; --callout-text-blue:   #a3cfbb;
+        --callout-bg-red:    #2d1616; --callout-border-red:    #5c2b2b; --callout-text-red:    #f8d7da;
+        --callout-bg-orange: #2b1b0a; --callout-border-orange: #52361b; --callout-text-orange: #ffcc80;
+    }
+}
+body.force-dark  { --primary: #8ab4f8; --secondary: #81c995; --bg: #121212; --card: #1e1e1e; --text: #e8eaed; --border: #3c4043; --error: #f28b82; --rank-color: #fdd663; }
+body.force-light { --primary: #1a73e8; --secondary: #34a853; --bg: #f8f9fa; --card: #ffffff; --text: #202124; --border: #dadce0; --error: #d93025; --rank-color: #fbbc04; }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
 body {
-    font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:var(--bg); color:var(--text); margin:0;
-    height:100dvh; display:flex; flex-direction:column; overflow:hidden;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); margin: 0;
+    height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Header */
-.brand-header {
-    display:flex; align-items:center; justify-content:center; position:relative;
-    background:linear-gradient(to bottom,#ffffff 50%,#dc143c 50%);
-    width:100%; height:60px; z-index:10;
-    padding-top:env(safe-area-inset-top,20px);
+/* ── HUB BAR ─────────────────────────────────────────── */
+.hub-bar {
+    display: flex; align-items: center; gap: 4px;
+    background: #1a1a2e; color: white;
+    padding: 0 12px; height: var(--hub-h);
+    flex-shrink: 0; overflow: hidden;
 }
-.header-controls-left  { position:absolute; left:10px; display:flex; }
-.header-controls-right { position:absolute; right:10px; display:flex; }
+.hub-label {
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 2px;
+    color: #8ab4f8; margin-right: 4px; flex-shrink: 0;
+}
+.hub-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4px 10px; border-radius: 8px; text-decoration: none; color: #aaa;
+    font-size: 1rem; transition: background 0.2s, color 0.2s; flex-shrink: 0;
+}
+.hub-btn small { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.5px; margin-top: 1px; }
+.hub-btn:hover, .hub-active { background: rgba(138,180,248,0.15); color: #8ab4f8 !important; }
+.hub-xp {
+    margin-left: auto; font-size: 0.8rem; font-weight: 700;
+    color: #fbbc04; background: rgba(251,188,4,0.1);
+    padding: 4px 10px; border-radius: 20px; flex-shrink: 0;
+}
+
+/* ── BRAND HEADER ────────────────────────────────────── */
+.brand-header {
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: linear-gradient(to bottom, #ffffff 50%, #dc143c 50%);
+    width: 100%; height: 55px; flex-shrink: 0; z-index: 10;
+}
+.header-controls-left  { position: absolute; left: 10px; display: flex; }
+.header-controls-right { position: absolute; right: 10px; display: flex; }
 .brand-header .icon-btn {
-    background:rgba(255,255,255,0.9); box-shadow:0 2px 6px rgba(0,0,0,0.15);
-    width:36px; height:36px; border-radius:50%; display:flex; align-items:center;
-    justify-content:center; font-size:1.1rem; border:1px solid var(--border);
+    background: rgba(255,255,255,0.92); box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; border: 1px solid var(--border);
 }
 .brand-title {
-    background:rgba(255,255,255,0.95); color:#202124; display:inline-block;
-    padding:4px 15px; border-radius:20px; font-weight:800; font-size:1.1rem;
-    letter-spacing:0.5px; box-shadow:0 2px 4px rgba(0,0,0,0.15); text-transform:uppercase;
+    background: rgba(255,255,255,0.97); color: #202124;
+    display: inline-block; padding: 4px 16px; border-radius: 20px;
+    font-weight: 800; font-size: 1rem; letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15); text-transform: uppercase;
 }
-/* Status */
+
+/* ── STATUS BAR ──────────────────────────────────────── */
 .status-bar {
-    display:flex; justify-content:center; align-items:center;
-    padding:8px 15px; background:var(--card); border-bottom:1px solid var(--border);
-    height:50px; flex-shrink:0; font-size:0.9rem;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 15px; background: var(--card); border-bottom: 1px solid var(--border);
+    height: var(--header-h); flex-shrink: 0; font-size: 0.88rem;
 }
-.stats-group { display:flex; gap:15px; align-items:center; font-weight:700; }
-.stat-item   { display:flex; align-items:center; gap:4px; }
-.icon-btn    { background:none; border:none; font-size:1.2rem; cursor:pointer; padding:5px; color:var(--text); border-radius:50%; }
-.icon-btn:active { background:rgba(0,0,0,0.1); }
+.stats-group { display: flex; gap: 12px; align-items: center; font-weight: 700; flex-wrap: wrap; }
+.stat-item   { display: flex; align-items: center; gap: 4px; }
+.icon-btn    { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; color: var(--text); border-radius: 50%; transition: background 0.2s; }
+.icon-btn:active { background: rgba(0,0,0,0.1); }
 
-/* Game area */
+/* ── GAME AREA ───────────────────────────────────────── */
 .game-area {
-    flex-grow:1; padding:12px 15px 5px 15px; overflow-y:auto;
-    display:flex; flex-direction:column; max-width:600px; margin:0 auto; width:100%;
+    flex-grow: 1; padding: 12px 15px 5px 15px; overflow-y: auto;
+    display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; width: 100%;
 }
+
+/* ── DISPLAY BOX ─────────────────────────────────────── */
 .display-box {
-    text-align:center; margin-bottom:12px; min-height:100px;
-    display:flex; flex-direction:column; justify-content:center;
-    background:var(--card); border-radius:16px; padding:15px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.05); border:1px solid var(--border);
-    position:relative;
+    text-align: center; margin-bottom: 12px; min-height: 100px;
+    display: flex; flex-direction: column; justify-content: center;
+    background: var(--card); border-radius: 16px; padding: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid var(--border);
+    position: relative; transition: border-color 0.3s;
 }
-.mode-label { position:absolute; top:10px; left:12px; font-size:0.7rem; text-transform:uppercase; color:#888; font-weight:700; letter-spacing:1px; }
-.pl-text { font-size:1.5rem; color:var(--primary); font-weight:800; margin-bottom:8px; visibility:hidden; line-height:1.3; word-wrap:break-word; }
-.en-text { font-size:1.1rem; color:#888; visibility:hidden; font-weight:500; min-height:1.5rem; }
-.visible { visibility:visible!important; animation:popIn 0.3s; }
-.ctx-highlight { color:var(--primary); font-weight:800; border-bottom:2px solid rgba(26,115,232,0.3); }
-.trans-active .pl-text { visibility:visible; color:var(--text); font-size:1.2rem; }
-.trans-active .en-text { display:none; }
+.mode-label {
+    position: absolute; top: 10px; left: 12px;
+    font-size: 0.65rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 1px;
+}
+.pl-text { font-size: 1.5rem; color: var(--primary); font-weight: 800; margin-bottom: 6px; visibility: hidden; line-height: 1.3; word-wrap: break-word; }
+.en-text { font-size: 1.05rem; color: #888; visibility: hidden; font-weight: 500; min-height: 1.4rem; }
+.visible { visibility: visible !important; animation: popIn 0.3s; }
 
-/* Badges */
-.badge { position:absolute; top:10px; right:10px; font-size:0.7rem; padding:3px 8px; border-radius:6px; font-weight:bold; display:none; }
-.badge-review { background:#e37400; color:white; }
-.badge-score  {
-    background:var(--secondary); color:white; display:none;
-    top:45%; left:50%; transform:translate(-50%,-50%);
-    font-size:2rem; z-index:20; box-shadow:0 4px 20px rgba(0,0,0,0.3);
-    border-radius:12px; padding:10px 20px; animation:scorePop 0.5s forwards;
-}
-.badge-blind { left:auto; right:10px; top:auto; bottom:10px; background:#607d8b; color:white; display:none; }
-.grammar-badge {
-    background:var(--secondary); color:white; padding:3px 8px; border-radius:4px;
-    font-size:0.75rem; margin-bottom:8px; display:none; font-weight:bold;
-}
-.grammar-badge.visible { display:inline-block; }
+.trans-active .pl-text { visibility: visible; color: var(--text); font-size: 1.3rem; }
+.trans-active .en-text { display: none; }
+.ctx-highlight { color: var(--primary); font-weight: 800; border-bottom: 2px solid rgba(26,115,232,0.3); }
 
-/* Grid */
-.mc-grid  { display:grid; gap:10px; flex-grow:1; align-content:start; margin-bottom:90px; }
-.cols-2   { grid-template-columns:1fr 1fr; }
-.cols-3   { grid-template-columns:1fr 1fr 1fr; }
+.badge { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; display: none; }
+.badge-review { background: #e37400; color: white; }
+.badge-score {
+    background: var(--secondary); color: white; display: none;
+    top: 45%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 2rem; z-index: 20; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border-radius: 12px; padding: 10px 20px; animation: scorePop 0.5s forwards;
+}
+.badge-blind { left: auto; right: 10px; top: auto; bottom: 10px; background: #607d8b; color: white; display: none; }
+.badge-handsfree { position: absolute; bottom: 10px; left: 10px; background: #673ab7; color: white; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; display: none; animation: pulse 2s infinite; }
+
+.grammar-badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-bottom: 8px; display: none; font-weight: bold; }
+.grammar-badge.visible { display: inline-block; }
+
+/* ── GRID ────────────────────────────────────────────── */
+.mc-grid { display: grid; gap: 10px; flex-grow: 1; align-content: start; margin-bottom: 90px; }
+.cols-2  { grid-template-columns: 1fr 1fr; }
+.cols-3  { grid-template-columns: 1fr 1fr 1fr; }
+
 .mc-btn {
-    position:relative; background:var(--card); border:1px solid var(--border); border-bottom-width:3px;
-    border-radius:12px; min-height:58px; font-weight:700; font-size:0.95rem; color:var(--text);
-    cursor:pointer; display:flex; align-items:center; justify-content:center; padding:8px;
-    transition:transform 0.1s,border-bottom-width 0.1s; word-break:break-word; text-align:center;
+    position: relative; background: var(--card); border: 1px solid var(--border);
+    border-bottom-width: 3px; border-radius: 12px; min-height: 58px;
+    font-weight: 700; font-size: 0.9rem; color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 6px 4px;
+    transition: transform 0.1s, border-bottom-width 0.1s, margin-top 0.1s;
+    word-break: break-word; text-align: center;
 }
-.mc-btn:active { transform:translateY(2px); border-bottom-width:1px; }
-.mc-key-hint   { position:absolute; top:4px; left:6px; font-size:0.65rem; color:var(--primary); opacity:0.5; }
-.correct { background:var(--secondary)!important; color:white!important; border-color:var(--secondary)!important; }
-.wrong   { background:var(--error)!important; color:white!important; opacity:0.6; }
+.mc-btn:active { transform: translateY(2px); border-bottom-width: 1px; margin-top: 2px; }
+.mc-key-hint { position: absolute; top: 4px; left: 6px; font-size: 0.62rem; color: var(--primary); opacity: 0.5; }
+.correct { background: var(--secondary) !important; color: white !important; border-color: var(--secondary) !important; }
+.wrong   { background: var(--error) !important; color: white !important; opacity: 0.6; }
 
-/* Type area */
-.type-container { display:none; flex-direction:column; gap:12px; margin-top:10px; }
-.type-input     { width:100%; padding:15px; font-size:1.4rem; text-align:center; border:2px solid var(--border); border-radius:12px; background:var(--card); color:var(--text); outline:none; }
-.type-input:focus { border-color:var(--primary); }
-.btn-check      { width:100%; background:var(--primary); color:white; padding:15px; border-radius:12px; font-weight:bold; border:none; font-size:1rem; cursor:pointer; }
+/* ── TYPE INPUT ──────────────────────────────────────── */
+.type-container { display: none; flex-direction: column; gap: 12px; margin-top: 8px; }
+.type-input {
+    width: 100%; padding: 14px; font-size: 1.4rem; text-align: center;
+    border: 2px solid var(--border); border-radius: 12px;
+    background: var(--card); color: var(--text); outline: none;
+}
+.type-input:focus { border-color: var(--primary); }
+.btn-check {
+    width: 100%; background: var(--primary); color: white;
+    padding: 14px; border-radius: 12px; font-weight: bold;
+    border: none; font-size: 1rem; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(26,115,232,0.2);
+}
 
-/* Footer */
+/* ── FOOTER ──────────────────────────────────────────── */
 .footer {
-    background:var(--card); padding:10px 15px;
-    border-top:1px solid var(--border); display:grid; gap:10px; z-index:100;
-    grid-template-columns:2fr 1fr 1fr 1fr;
-    box-shadow:0 -4px 20px rgba(0,0,0,0.08);
-    padding-bottom:env(safe-area-inset-bottom,10px);
-    height:80px; flex-shrink:0;
+    background: var(--card); padding: 10px 15px;
+    border-top: 1px solid var(--border); display: grid; gap: 10px; z-index: 100;
+    height: 80px; grid-template-columns: 2fr 1fr 1fr 1fr;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    flex-shrink: 0;
 }
-.btn-action  { border:none; border-radius:12px; font-weight:700; font-size:0.9rem; color:white; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.btn-listen  { background:var(--secondary); font-size:1.8rem; transition:transform 0.1s; }
-.btn-listen:active { transform:scale(0.95); }
-.btn-hf      { background:#673ab7; font-size:1.6rem; }
-.btn-next    { background:#5f6368; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; transition:background 0.3s; }
-.btn-next.ready { background:var(--primary); }
+.btn-action { border: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.btn-listen { background: var(--secondary); font-size: 1.8rem; transition: transform 0.1s; }
+.btn-listen:active { transform: scale(0.95); }
+.btn-hf    { background: #673ab7; font-size: 1.5rem; }
+.btn-hf.active { background: #d32f2f; animation: pulse 1.5s infinite; }
+.btn-next  { background: #5f6368; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.3s; }
+.btn-next.ready { background: var(--primary); }
 
-/* Modals */
-.modal      { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; justify-content:center; align-items:center; backdrop-filter:blur(4px); }
-.modal-box  { background:var(--card); width:95%; max-width:420px; padding:25px; border-radius:24px; max-height:88vh; overflow-y:auto; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
-.close-x    { position:absolute; top:20px; right:20px; font-size:1.5rem; background:var(--bg); width:32px; height:32px; border-radius:50%; border:1px solid var(--border); cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; }
+/* ── MODALS ──────────────────────────────────────────── */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.modal-box { background: var(--card); width: 95%; max-width: 420px; padding: 24px; border-radius: 24px; max-height: 88vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+.close-x { position: absolute; top: 18px; right: 18px; font-size: 1.5rem; background: var(--bg); width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; }
 
-/* Settings */
-.set-group  { background:var(--bg); padding:15px; border-radius:16px; margin-bottom:15px; border:1px solid var(--border); }
-.set-title  { font-weight:800; color:var(--primary); font-size:0.75rem; text-transform:uppercase; margin-bottom:12px; letter-spacing:0.5px; }
-.set-row    { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:0.95rem; font-weight:600; }
-.set-row:last-child { margin-bottom:0; }
-.mode-grid  { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.mode-btn   { padding:10px; border:2px solid var(--border); background:var(--card); border-radius:10px; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.85rem; }
-.mode-btn.active { border-color:var(--secondary); background:rgba(52,168,83,0.1); color:var(--secondary); }
-.mode-btn span { font-size:1.1rem; }
+.set-group { background: var(--bg); padding: 14px; border-radius: 16px; margin-bottom: 14px; border: 1px solid var(--border); }
+.set-title { font-weight: 800; color: var(--primary); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+.set-row   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.93rem; font-weight: 600; }
+.set-row:last-child { margin-bottom: 0; }
 
-/* Help */
-.help-sec   { margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px; }
-.help-sec:last-child { border:none; }
-.help-h     { font-size:1rem; color:var(--primary); margin-bottom:8px; font-weight:800; }
-.help-p     { font-size:0.9rem; line-height:1.5; color:var(--text); margin-bottom:6px; opacity:0.9; }
-.point-tag  { display:inline-block; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:bold; background:#eee; color:#333; margin-right:5px; }
-.pt-green   { background:var(--secondary); color:white; }
-.pt-red     { background:var(--error); color:white; }
-.tab-content { display:none; animation:popIn 0.3s; }
-.tab-content.active { display:block; }
-.btn-review { width:100%; padding:10px; margin-top:10px; background:var(--text); color:var(--bg); border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode-btn  { padding: 10px; border: 2px solid var(--border); background: var(--card); border-radius: 10px; font-weight: 600; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
+.mode-btn.active { border-color: var(--primary); background: rgba(26,115,232,0.1); color: var(--primary); }
+.mode-btn span { font-size: 1.1rem; }
 
-select,input[type=checkbox] { cursor:pointer; accent-color:var(--primary); }
-select      { padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:0.9rem; }
-input[type=range] { width:100%; accent-color:var(--primary); }
+.help-sec { margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.help-sec:last-child { border: none; }
+.help-h   { font-size: 0.95rem; color: var(--primary); margin-bottom: 8px; font-weight: 800; }
+.help-p   { font-size: 0.88rem; line-height: 1.55; color: var(--text); margin-bottom: 6px; opacity: 0.9; }
+.point-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #eee; color: #333; margin-right: 5px; }
+.pt-green  { background: var(--secondary); color: white; }
+.pt-red    { background: var(--error); color: white; }
 
-/* Animations */
-@keyframes popIn    { from{transform:scale(0.95);opacity:0} to{transform:scale(1);opacity:1} }
-@keyframes scorePop { 0%{opacity:0;transform:translate(-50%,-20%) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)} 80%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-80%) scale(0.8)} }
-@keyframes pulse    { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
-@keyframes fall     { to{transform:translateY(105vh) rotate(720deg)} }
-.confetti { position:fixed; top:-10px; width:10px; height:10px; border-radius:50%; animation:fall linear forwards; z-index:9999; pointer-events:none; }
+.tab-header { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
+.tab-content { display: none; animation: popIn 0.3s; }
+.tab-content.active { display: block; }
 
-@media (max-height:680px) {
-    .mc-btn { min-height:50px; font-size:0.85rem; }
-    .display-box { min-height:80px; padding:10px; }
+.btn-review { width: 100%; padding: 10px; margin-top: 8px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+
+select, input[type=checkbox] { cursor: pointer; accent-color: var(--primary); }
+select { padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.9rem; }
+input[type=range] { width: 100%; accent-color: var(--primary); }
+
+/* ── ANIMATIONS ──────────────────────────────────────── */
+@keyframes popIn    { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes scorePop { 0% { opacity:0; transform:translate(-50%,-20%) scale(0.5); } 20% { opacity:1; transform:translate(-50%,-50%) scale(1.1); } 80% { opacity:1; transform:translate(-50%,-50%) scale(1); } 100% { opacity:0; transform:translate(-50%,-80%) scale(0.8); } }
+@keyframes pulse    { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes fall     { to { transform: translateY(105vh) rotate(720deg); } }
+.confetti { position: fixed; top: -10px; width: 10px; height: 10px; border-radius: 50%; animation: fall linear forwards; z-index: 9999; pointer-events: none; }
+
+@media (max-height: 680px) {
+    .mc-btn { min-height: 48px; font-size: 0.82rem; }
+    .display-box { min-height: 80px; padding: 10px; }
+    .footer { height: 70px; }
 }
+
+#tab-grammar ul li { color: var(--text); line-height: 1.7; }
 </style>
 </body>
 </html>
